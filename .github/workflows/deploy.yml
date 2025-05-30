@@ -1,0 +1,54 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        
+      - name: Build application
+        run: npm run build
+        
+      - name: Create deployment directories
+        run: |
+          mkdir -p out
+          mkdir -p out/beta/dev
+          cp -r .next/* out/beta/dev/
+          cp -r public/* out/
+        
+      - name: Deploy to S3
+        run: |
+          # Create beta/dev directory if it doesn't exist
+          aws s3api put-object --bucket goprsu.com --key beta/dev/ --content-type "application/x-directory"
+          
+          # Deploy HTML files with short cache time
+          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
+            --delete \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "max-age=0,no-cache,no-store,must-revalidate"
+          
+          # Deploy other static assets with longer cache
+          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
+            --delete \
+            --exclude "*.html" \
+            --cache-control "max-age=86400"
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
