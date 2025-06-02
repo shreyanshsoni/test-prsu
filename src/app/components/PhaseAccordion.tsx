@@ -637,6 +637,7 @@ export default function PhaseAccordion({
         onConfirm={confirmDeletePhase}
         onCancel={cancelDeletePhase}
         isDanger={true}
+        isConfirmDisabled={isConfirmingPhaseDelete}
       />
       
       <ConfirmationModal 
@@ -656,6 +657,7 @@ export default function PhaseAccordion({
         onConfirm={confirmDeleteTask}
         onCancel={cancelDeleteTask}
         isDanger={true}
+        isConfirmDisabled={isConfirmingTaskDelete}
       />
     </div>
   );

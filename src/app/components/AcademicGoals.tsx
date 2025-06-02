@@ -712,8 +712,8 @@ export default function AcademicGoals({
         isOpen={deleteConfirmation.isOpen}
         title="Delete Goal"
         message={`Are you sure you want to delete "${deleteConfirmation.goalTitle}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmText="Delete"
+        cancelText="Cancel"
         onConfirm={confirmDeleteGoal}
         onCancel={cancelDeleteGoal}
         isDanger
