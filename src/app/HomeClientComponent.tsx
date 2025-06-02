@@ -561,25 +561,25 @@ export default function HomeClientComponent({
                 <div className="flex items-center space-x-4">
                   <ThemeToggle />
                   
-                  {/* User profile - avatar and name only */}
-                  {user && (
-                    <Link href="/profile" className="flex items-center" aria-label="View profile">
-                      <ProfileAvatar 
-                        picture={user.picture}
-                        name={user.sub?.includes('auth0') 
-                          ? (user.nickname || user.name || user.email)
-                          : user.name?.split(' ')[0]}
-                        size="2rem"
-                        className="mr-2"
-                      />
+                {/* User profile - avatar and name only */}
+                {user && (
+                  <Link href="/profile" className="flex items-center" aria-label="View profile">
+                    <ProfileAvatar 
+                      picture={user.picture}
+                      name={user.sub?.includes('auth0') 
+                        ? (user.nickname || user.name || user.email)
+                        : user.name?.split(' ')[0]}
+                      size="2rem"
+                      className="mr-2"
+                    />
                       <span className="text-sm font-medium text-light-text dark:text-dark-text hidden sm:inline">
-                        {user.sub?.includes('auth0') 
-                          ? (user.nickname || user.name || user.email) 
-                          : user.name?.split(' ')[0]
-                        }
-                      </span>
-                    </Link>
-                  )}
+                      {user.sub?.includes('auth0') 
+                        ? (user.nickname || user.name || user.email) 
+                        : user.name?.split(' ')[0]
+                      }
+                    </span>
+                  </Link>
+                )}
                 </div>
               </div>
             </header>

@@ -57,7 +57,7 @@ export default function Home() {
   if (user && localStorage.getItem('userRole')) {
     return <HomeClientComponent user={user} />;
   }
-  
+
   // If user is logged in but no role (and not redirecting yet), show loading
   if (user) {
     // Trigger redirect just in case the useEffect didn't catch it

@@ -30,17 +30,17 @@ export default function RoleSelection() {
     }
   }, [isClient, isLoading, isAuthenticated, router]);
 
-  const handleRoleSelect = (role: 'student' | 'consultant') => {
+  const handleRoleSelect = (role: 'student' | 'counsellor') => {
     if (role === 'student') {
       // Store role in localStorage or session for future reference
       localStorage.setItem('userRole', 'student');
       // Redirect to the dashboard
       router.push('/');
     } else {
-      // Store consultant role for future use
-      localStorage.setItem('userRole', 'consultant');
-      // Redirect to consultant dashboard
-      router.push('/consultant');
+      // Store counsellor role for future use
+      localStorage.setItem('userRole', 'counsellor');
+      // Redirect to counsellor dashboard
+      router.push('/counsellor');
     }
   };
 
@@ -87,13 +87,13 @@ export default function RoleSelection() {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => handleRoleSelect('consultant')}
+            onClick={() => handleRoleSelect('counsellor')}
             className="flex flex-col items-center p-8 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/50 dark:to-teal-800/40 rounded-xl border border-teal-200 dark:border-teal-800 shadow-md hover:shadow-lg transition-all"
           >
             <div className="w-20 h-20 bg-teal-500 dark:bg-teal-600 rounded-full flex items-center justify-center mb-4">
               <Briefcase size={40} className="text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-teal-700 dark:text-teal-400 mb-2">Consultant</h3>
+            <h3 className="text-xl font-semibold text-teal-700 dark:text-teal-400 mb-2">Counsellor</h3>
             <p className="text-center text-gray-600 dark:text-dark-muted">
               Provide guidance and support to students on their academic journey
             </p>

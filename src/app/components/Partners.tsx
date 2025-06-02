@@ -77,13 +77,13 @@ const Partners: React.FC = () => {
               variants={itemVariants}
             >
               <div className="relative w-full h-full bg-white dark:bg-white rounded-lg p-2">
-                <Image 
-                  src={partner.logo} 
-                  alt={partner.alt} 
+              <Image 
+                src={partner.logo} 
+                alt={partner.alt} 
                   fill
                   style={{ objectFit: 'contain' }}
                   className="max-w-full max-h-full" 
-                />
+              />
               </div>
             </motion.div>
           ))}

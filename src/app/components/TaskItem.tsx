@@ -195,12 +195,12 @@ export default function TaskItem({
                 {task.title}
               </span>
               <div className="flex items-center">
-                <button
-                  onClick={() => setIsEditing(true)}
+              <button
+                onClick={() => setIsEditing(true)}
                   className="p-1 text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 ml-2"
-                >
-                  <Edit2 size={16} />
-                </button>
+              >
+                <Edit2 size={16} />
+              </button>
                 {onDelete && (
                   <button
                     onClick={handleDeleteClick}

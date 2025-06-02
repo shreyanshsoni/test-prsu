@@ -56,13 +56,11 @@ export default function RootLayout({
               (function() {
                 try {
                   const savedTheme = localStorage.getItem('theme');
-                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   
+                  // Always default to light theme if no saved preference
                   let themeToSet = 'light';
                   if (savedTheme) {
                     themeToSet = savedTheme;
-                  } else if (systemPrefersDark) {
-                    themeToSet = 'dark';
                   }
                   
                   document.documentElement.classList.add(themeToSet);

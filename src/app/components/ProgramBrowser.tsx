@@ -59,7 +59,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
   }) => {
     // Convert velocity to a number if it's an array
     const velocityX = typeof velocity === 'number' ? velocity : (Array.isArray(velocity) ? velocity[0] : 0);
-    
+
     // Determine if card should be swiped away
     const trigger = velocityX > 0.2; 
     const dir = xDir < 0 ? -1 : 1;
@@ -75,10 +75,10 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       } else {
         onReject(programs[index]);
       }
-    }
-
+      }
+      
     // Update the spring with new values
-    api.start(i => {
+      api.start(i => {
       if (index !== i) return;
       
       // If card is gone, fly it out
@@ -87,17 +87,17 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       const rot = mx / 100 + (isGoneCard ? dir * 10 * velocityX : 0);
       const scale = active ? 1.05 : 1;
       
-      return {
+          return {
         x,
         rot,
         scale,
-        delay: undefined,
+            delay: undefined,
         config: { 
           friction: 50, 
           tension: active ? 800 : isGoneCard ? 200 : 500 
         },
-      };
-    });
+        };
+      });
   });
 
   return (
@@ -111,30 +111,30 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
           <ArrowLeft className="h-6 w-6" />
         </button>
       )}
-      
+
       {/* Card container */}
       <div className="relative w-full flex-grow flex items-center justify-center">
         {/* Cards */}
         {props.map(({ x, y, rot, scale }, i) => (
           <AnimatedDiv
-            key={i}
-            style={{
-              transform: to(
+              key={i}
+                style={{
+                  transform: to(
                 [x, y, rot, scale], 
                 (x, y, rot, scale) => 
                   `translate3d(${x}px,${y}px,0) rotate(${rot}deg) scale(${scale})`
-              ),
+                  ),
               zIndex: programs.length - i,
               position: 'absolute',
-            }}
+                }}
             className="w-[80%] max-w-md h-[70vh] touch-none"
-          >
+              >
             <ProgramCard
               program={programs[i]}
               isSwipeMode
               {...bind(i)}
             />
-          </AnimatedDiv>
+              </AnimatedDiv>
         ))}
 
         {/* Empty state when all cards are gone */}
@@ -145,7 +145,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
             <button 
               onClick={onGoBack} 
               className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-            >
+      >
               Back to Search
             </button>
           </div>
@@ -202,7 +202,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
           <Heart className="w-8 h-8" />
         </button>
       </div>
-      
+
       {/* Swipe directions help */}
       <div className="flex justify-center gap-16 mb-4">
         <div className="text-sm text-light-muted dark:text-dark-muted flex items-center">
@@ -212,6 +212,6 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
           <Heart className="w-4 h-4 mr-1 text-primary-600 dark:text-primary-400" /> Swipe right to save
         </div>
       </div>
-    </div>
+          </div>
   );
 }

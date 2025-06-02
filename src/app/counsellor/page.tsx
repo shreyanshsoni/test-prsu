@@ -17,7 +17,7 @@ interface Student {
   progress: number;
 }
 
-export default function ConsultantDashboard() {
+export default function CounsellorDashboard() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { theme } = useTheme();
@@ -107,7 +107,7 @@ export default function ConsultantDashboard() {
   }, []);
 
   useEffect(() => {
-    // Check if user is authenticated and has the consultant role
+    // Check if user is authenticated and has the counsellor role
     if (isClient && !isLoading) {
       if (!isAuthenticated) {
         router.push('/');
@@ -115,7 +115,7 @@ export default function ConsultantDashboard() {
       }
 
       const userRole = localStorage.getItem('userRole');
-      if (userRole !== 'consultant') {
+      if (userRole !== 'counsellor') {
         router.push('/role-selection');
       }
     }
