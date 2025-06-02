@@ -4,6 +4,7 @@ import { PhaseData, Task } from '../types/types';
 import TaskItem from './TaskItem';
 import ConfirmationModal from './ConfirmationModal';
 import { updatePhase } from '../services/roadmapPlannerService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PhaseAccordionProps {
   phases: PhaseData[];
@@ -32,6 +33,8 @@ export default function PhaseAccordion({
   onDeleteTask,
   onUpdatePhase
 }: PhaseAccordionProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [newTaskTitles, setNewTaskTitles] = useState<{ [key: number]: string }>({});
   const [expandedTasks, setExpandedTasks] = useState<{ [key: string]: boolean }>({});
   // Keep track of expanded phases
@@ -382,271 +385,245 @@ export default function PhaseAccordion({
 
   return (
     <div className="space-y-4">
-      {phases.map((phase, index) => {
-        const isExpanded = !!expandedPhases[index];
-        const progress = calculatePhaseProgress(phase);
-        const isEditing = !!isEditingPhase[index];
-        
-        // Initialize reflection state for this phase if needed
-        if (isExpanded && reflections[index] === undefined && phase.reflection !== undefined) {
-          // Set initial reflection from phase data
-          setTimeout(() => {
-            setReflections(prev => ({
-              ...prev,
-              [index]: phase.reflection || ''
-            }));
-            
-            // Also set the save status to "saved" since we're loading existing data
-            setReflectionSaveStatus(prev => ({
-              ...prev,
-              [index]: true
-            }));
-            
-            // Mark as not changed (it matches the saved data)
-            setReflectionChanged(prev => ({
-              ...prev,
-              [index]: false
-            }));
-          }, 0);
-        }
+      {phases.map((phase, phaseIndex) => {
+        const isExpanded = expandedPhases[phaseIndex] || false;
+        const phaseProgress = calculatePhaseProgress(phase);
+        const isDeleteButtonDisabled = isDeletingPhase[phaseIndex];
+        const isEditMode = isEditingPhase[phaseIndex] || false;
+        const isUpdating = isUpdatingPhase[phaseIndex] || false;
         
         return (
           <div 
             key={phase.id}
-            className={`bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 ${
-              isExpanded ? 'shadow-md' : ''
-            }`}
+            className="bg-white dark:bg-dark-card rounded-xl shadow-sm overflow-hidden transition-all duration-300 shadow-md"
           >
-            <div className="px-6 py-4 flex justify-between items-center">
-              {!isEditing ? (
-            <button
-                  className="flex items-center flex-1 focus:outline-none text-left"
-              onClick={() => togglePhaseExpanded(index)}
+            <div 
+              className="px-6 py-4 flex justify-between items-center"
+              onClick={() => togglePhaseExpanded(phaseIndex)}
             >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                  progress === 100 
-                    ? 'bg-teal-100 text-teal-600' 
-                    : progress > 0 
-                      ? 'bg-amber-100 text-amber-600'
-                      : 'bg-gray-100 text-gray-500'
-                }`}>
-                  <span className="text-sm font-semibold">{index + 1}</span>
+              <button className="flex items-center flex-1 focus:outline-none text-left">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-3 bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-400">
+                  <span className="text-sm font-semibold">{phaseIndex + 1}</span>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-lg font-semibold text-gray-800">{phase.title}</h3>
-                  <p className="text-sm text-gray-500">{phase.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-text">{phase.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-dark-muted">
+                    {phase.tasks.length} {phase.tasks.length === 1 ? 'task' : 'tasks'}
+                  </p>
                 </div>
                 </button>
-              ) : (
-                <div className="flex-1 flex items-center space-x-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    progress === 100 
-                      ? 'bg-teal-100 text-teal-600' 
-                      : progress > 0 
-                        ? 'bg-amber-100 text-amber-600'
-                        : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    <span className="text-sm font-semibold">{index + 1}</span>
-                  </div>
-                  
-                  <input
-                    type="text"
-                    value={phaseEditData[index]?.title || ''}
-                    onChange={(e) => setPhaseEditData(prev => ({
-                      ...prev,
-                      [index]: { ...prev[index], title: e.target.value }
-                    }))}
-                    className="w-1/3 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    placeholder="Phase title"
-                  />
-                  
-                  <input
-                    type="text"
-                    value={phaseEditData[index]?.description || ''}
-                    onChange={(e) => setPhaseEditData(prev => ({
-                      ...prev,
-                      [index]: { ...prev[index], description: e.target.value }
-                    }))}
-                    className="flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    placeholder="Phase description (optional)"
-                  />
-                  
-                  <button
-                    onClick={() => handleCancelPhaseEdit(index)}
-                    className="px-3 py-2 text-sm rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors whitespace-nowrap"
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    onClick={() => handleUpdatePhase(index, phase.id)}
-                    className="px-3 py-2 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors whitespace-nowrap"
-                  >
-                    Save
-                  </button>
-                </div>
-              )}
               
               <div className="flex items-center ml-2">
-                {!isEditing && (
-                  <>
-                    {!isUpdatingPhase[index] ? (
-                      <button
-                        onClick={(e) => handleEditPhaseClick(e, index, phase)}
-                        className="p-2 text-gray-400 hover:text-indigo-600 transition-colors focus:outline-none"
-                        aria-label="Edit phase"
-                      >
-                        <Pen size={16} />
-                      </button>
-                    ) : (
-                      <div className="p-2 flex justify-center">
-                        <svg className="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                {/* Edit button */}
+                {!isEditMode && (
+                  <button
+                    onClick={(e) => handleEditPhaseClick(e, phaseIndex, phase)}
+                    className="p-2 text-gray-400 dark:text-dark-muted hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none"
+                    aria-label="Edit phase"
+                    title="Edit phase"
+                  >
+                    <Pen size={16} />
+                  </button>
+                )}
+                  
+                {/* Delete button */}
+                {!isEditMode && (
+                  <button
+                    onClick={(e) => handleDeletePhaseClick(e, phaseIndex, phase.id, phase.title)}
+                    className="p-2 text-gray-400 dark:text-dark-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    disabled={isDeleteButtonDisabled}
+                    aria-label="Delete phase"
+                    title="Delete phase"
+                  >
+                    {isDeletingPhase[phaseIndex] ? (
+                      <div className="animate-spin h-4 w-4">
+                        <svg className="h-4 w-4 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
               </div>
-                    )}
-                    
-                    {onDeletePhase && (
-                      <button
-                        onClick={(e) => handleDeletePhaseClick(e, index, phase.id, phase.title)}
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors focus:outline-none"
-                        disabled={isDeletingPhase[index]}
-                      >
-                        {isDeletingPhase[index] ? (
-                          <svg className="animate-spin h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
                         ) : (
                           <Trash2 size={18} />
                         )}
                       </button>
-                    )}
-                  </>
                 )}
 
-                {!isEditing && (
-                  <>
+                {/* Task count & progress info */}
                     <div className="ml-3 mr-3 text-sm">
-                  <span className="font-medium">
-                    {phase.tasks.filter(t => t.completed).length}/{phase.tasks.length}
-                  </span>
+                  <span className="font-medium">{phase.tasks.filter(t => t.completed).length}/{phase.tasks.length}</span>
                 </div>
+                
+                {/* Expand/collapse button */}
                     <button
-                      onClick={() => togglePhaseExpanded(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePhaseExpanded(phaseIndex);
+                  }}
                       className="focus:outline-none"
                     >
-                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  {isExpanded ? (
+                    <ChevronUp className="text-gray-400 dark:text-dark-muted" size={20} />
+                  ) : (
+                    <ChevronDown className="text-gray-400 dark:text-dark-muted" size={20} />
+                  )}
                     </button>
-                  </>
-                )}
               </div>
             </div>
             
-            <div className="h-1 w-full bg-gray-100">
+            {/* Progress bar */}
+            <div className="h-1 w-full bg-gray-100 dark:bg-dark-border">
               <div
-                className={`h-full transition-all duration-500 ease-out ${
-                  progress === 100 ? 'bg-teal-500' : 'bg-amber-500'
-                }`}
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-500 ease-out bg-teal-500 dark:bg-teal-400"
+                style={{ width: `${phaseProgress}%` }}
               ></div>
             </div>
             
-            {isExpanded && (
-              <div className="px-6 py-4 border-t border-gray-100">
+            {/* Description edit field */}
+            {isEditMode && (
+              <div 
+                className="px-4 pb-4 pt-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <textarea
+                  value={phaseEditData[phaseIndex]?.description || phase.description || ''}
+                  onChange={(e) => setPhaseEditData({
+                    ...phaseEditData,
+                    [phaseIndex]: {
+                      ...phaseEditData[phaseIndex],
+                      description: e.target.value
+                    }
+                  })}
+                  className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-background text-gray-800 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                  rows={3}
+                  placeholder="Enter phase description..."
+                />
+                
+                {/* Save and Cancel buttons for edit mode */}
+                <div className="flex justify-end gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => handleUpdatePhase(phaseIndex, phase.id)}
+                    className="px-3 py-1 bg-indigo-600 dark:bg-indigo-700 text-white text-sm rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50"
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Saving
+                      </span>
+                      ) : (
+                      'Save'
+                      )}
+                    </button>
+                  <button
+                    onClick={() => handleCancelPhaseEdit(phaseIndex)}
+                    className="px-3 py-1 bg-white dark:bg-dark-background border border-gray-300 dark:border-dark-border text-gray-700 dark:text-dark-text text-sm rounded-md hover:bg-gray-100 dark:hover:bg-dark-border transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {isExpanded && !isEditMode && (
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-dark-border">
+                {/* Description */}
+                {phase.description && (
+                  <div className="mb-4 text-gray-700 dark:text-dark-text">
+                    {phase.description}
+                  </div>
+                )}
+                
+                {/* Tasks list */}
                 <div className="space-y-3">
+                  {phase.tasks.length > 0 ? (
+                    <ul className="space-y-3">
                   {phase.tasks.map((task, taskIndex) => (
                     <TaskItem
                       key={task.id}
                       task={task}
-                      isExpanded={!!expandedTasks[task.id]}
-                      onToggleCompleted={() => onTaskToggle(index, taskIndex)}
+                          isExpanded={expandedTasks[task.id] || false}
+                          onToggleCompleted={() => onTaskToggle(phaseIndex, taskIndex)}
                       onToggleExpanded={() => toggleTaskExpanded(task.id)}
-                      onUpdateNote={(note) => onTaskNoteUpdate(index, taskIndex, note)}
-                      onUpdateTask={(updatedTask) => handleUpdateTask(index, taskIndex, updatedTask)}
-                      onDeleteTask={onDeleteTask ? 
-                        () => handleDeleteTaskClick(index, taskIndex, task.id, task.title) : 
-                        undefined}
-                      isDeletingTask={isDeletingTask[task.id]}
+                          onNoteChange={(note) => onTaskNoteUpdate(phaseIndex, taskIndex, note)}
+                          onUpdate={(updatedTask) => handleUpdateTask(phaseIndex, taskIndex, updatedTask)}
+                          onDelete={() => handleDeleteTaskClick(phaseIndex, taskIndex, task.id, task.title)}
+                          isDark={isDark}
+                          isDeleting={isDeletingTask[task.id] || false}
                     />
                   ))}
+                    </ul>
+                  ) : (
+                    <div className="h-2"></div>
+                  )}
                   
-                  <div className="flex items-center mt-4 space-x-2">
+                  {/* Add task input */}
+                  <div className="mt-4 flex items-center space-x-2">
                     <input
                       type="text"
+                      value={newTaskTitles[phaseIndex] || ''}
+                      onChange={(e) => setNewTaskTitles({
+                        ...newTaskTitles,
+                        [phaseIndex]: e.target.value
+                      })}
                       placeholder="Add a custom step..."
-                      className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                      value={newTaskTitles[index] || ''}
-                      onChange={(e) => setNewTaskTitles(prev => ({
-                        ...prev,
-                        [index]: e.target.value
-                      }))}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddTaskClick(index);
-                        }
-                      }}
-                      disabled={isCreatingTask[index]}
+                      className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:border-dark-border dark:bg-dark-background dark:text-dark-text"
                     />
                     <button
-                      className="p-2 text-indigo-600 hover:text-indigo-800 rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleAddTaskClick(index)}
-                      disabled={isCreatingTask[index]}
+                      onClick={() => handleAddTaskClick(phaseIndex)}
+                      disabled={!newTaskTitles[phaseIndex]?.trim() || isCreatingTask[phaseIndex]}
+                      className="p-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isCreatingTask[index] ? (
-                        <div className="flex items-center">
-                          <svg className="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      {isCreatingTask[phaseIndex] ? (
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                        </div>
                       ) : (
                         <PlusCircle size={20} />
                       )}
                     </button>
                   </div>
+                  </div>
                   
-                  <div className="mt-6 pt-4 border-t border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Phase Reflection</h4>
+                {/* Reflection section */}
+                {onUpdateReflection && (
+                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-dark-border">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-2">Phase Reflection</h4>
                     <textarea
+                      value={reflections[phaseIndex] === undefined ? (phase.reflection || '') : reflections[phaseIndex]}
+                      onChange={(e) => handleReflectionChange(phaseIndex, e.target.value)}
                       placeholder={`Reflect on your journey in this ${phase.title} phase...`}
-                      className="w-full p-3 border rounded-lg text-sm h-24 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                      value={reflections[index] || ''}
-                      onChange={(e) => handleReflectionChange(index, e.target.value)}
-                    ></textarea>
-                    
+                      className="w-full p-3 border rounded-lg text-sm h-24 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:border-dark-border dark:bg-dark-background dark:text-dark-text"
+                    />
                     <div className="flex justify-end mt-2">
-                      {(reflections[index] || reflectionChanged[index]) && (
                       <button
-                        onClick={() => {
-                          console.log('Save button clicked for phase', index);
-                          handleSaveReflection(index);
-                        }}
-                        className={`px-3 py-1 text-xs rounded flex items-center transition-colors ${
-                          reflectionSaveStatus[index] && !reflectionChanged[index]
-                            ? 'bg-green-600 text-white hover:bg-green-700'
-                            : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        onClick={() => handleSaveReflection(phaseIndex)}
+                        className={`px-3 py-1 text-xs rounded flex items-center transition-colors
+                          ${reflectionSaveStatus[phaseIndex] && !reflectionChanged[phaseIndex]
+                            ? 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800'
+                            : 'bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600'
                         }`}
                       >
-                        <Save size={14} className="mr-1" />
-                        {getReflectionButtonText(index)}
+                        <Save className="w-4 h-4 mr-1" />
+                        {getReflectionButtonText(phaseIndex)}
                       </button>
-                      )}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
         );
       })}
       
-      {/* Add the ConfirmationModal component for phase deletion */}
+      {/* Confirmation Modals */}
       <ConfirmationModal 
         isOpen={phaseDeleteConfirmation.isOpen}
         title="Delete Phase"
-        message={`Are you sure you want to delete phase "${phaseDeleteConfirmation.phaseTitle}"? This action cannot be undone and all tasks in this phase will be permanently deleted.`}
+        message={`Are you sure you want to delete the phase "${phaseDeleteConfirmation.phaseTitle}"? This will also delete all tasks in this phase.`}
         confirmText={isConfirmingPhaseDelete ? (
           <div className="flex items-center">
             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -655,19 +632,17 @@ export default function PhaseAccordion({
             </svg>
             Deleting...
           </div>
-        ) : "Delete"}
+        ) : "Delete Phase"}
         cancelText="Cancel"
         onConfirm={confirmDeletePhase}
         onCancel={cancelDeletePhase}
-        isDangerous={true}
-        isConfirmDisabled={isConfirmingPhaseDelete}
+        isDanger={true}
       />
       
-      {/* Task delete confirmation modal */}
       <ConfirmationModal 
         isOpen={taskDeleteConfirmation.isOpen}
         title="Delete Task"
-        message={`Are you sure you want to delete task "${taskDeleteConfirmation.taskTitle}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete the task "${taskDeleteConfirmation.taskTitle}"?`}
         confirmText={isConfirmingTaskDelete ? (
           <div className="flex items-center">
             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -676,12 +651,11 @@ export default function PhaseAccordion({
             </svg>
             Deleting...
           </div>
-        ) : "Delete"}
+        ) : "Delete Task"}
         cancelText="Cancel"
         onConfirm={confirmDeleteTask}
         onCancel={cancelDeleteTask}
-        isDangerous={true}
-        isConfirmDisabled={isConfirmingTaskDelete}
+        isDanger={true}
       />
     </div>
   );

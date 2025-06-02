@@ -14,6 +14,7 @@ import { rejectUserProgram } from '../services/userProgramService';
 import { useRoadmapStore } from '../hooks/useRoadmapStore';
 import { addProgramToRoadmap } from '../services/roadmapService';
 import { useProgramSearch } from '../contexts/ProgramSearchContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProgramSearchProps {
   onSaveProgram: (program: Program) => void;
@@ -24,6 +25,8 @@ interface ProgramSearchProps {
 export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenticated = false }: ProgramSearchProps) {
   const router = useRouter();
   const { roadmaps, loadRoadmaps } = useRoadmapStore();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   
   // Use the context instead of local state for programs data
   const { 
@@ -279,8 +282,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
     direction: [xDir], 
     velocity 
   }) => {
+    // Extract velocity for x axis as a number
+    const velocityX = Array.isArray(velocity) ? velocity[0] : 0;
     // Determine if card should be swiped away
-    const trigger = velocity > 0.2; 
+    const trigger = velocityX > 0.2; 
     const dir = xDir < 0 ? -1 : 1;
     const isGone = !down && trigger;
 
@@ -327,13 +332,13 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
   // Updated pagination controls handlers
   const handlePrevPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
+      setCurrentPage(currentPage - 1);
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
+      setCurrentPage(currentPage + 1);
     }
   };
   
@@ -377,14 +382,14 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       `}</style>
 
       {/* Header with title */}
-      <header className="p-5 border-b mb-6">
+      <header className="p-5 border-b border-light-border dark:border-dark-border mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Program Search</h1>
+          <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">Program Search</h1>
           
           {/* View mode toggle - single button instead of two */}
           <button
             onClick={() => setViewMode(prev => prev === 'list' ? 'swipe' : 'list')}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
           >
             Switch to {viewMode === 'list' ? 'Swipe' : 'List'} View
           </button>
@@ -393,14 +398,14 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
 
       <div className="flex-1 overflow-y-auto">
         {/* Search and filter UI - reorganized layout */}
-        <div className="mb-6 px-5 py-3 bg-white rounded-lg mx-4">
+        <div className="mb-6 px-5 py-3 bg-light-card dark:bg-dark-card rounded-lg mx-4 shadow dark:shadow-dark-border/30">
           <div className="flex items-center gap-4">
             {/* Filters on the left - made smaller to fit one line */}
             <div className="flex flex-wrap gap-3 flex-1">
           <select
             value={filters.field}
                 onChange={(e) => setFilters({ ...filters, field: e.target.value })}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
           >
             <option value="">All Fields</option>
                 <option value="Computer Science">Computer Science</option>
@@ -412,7 +417,7 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
           <select
             value={filters.degreeLevel}
                 onChange={(e) => setFilters({ ...filters, degreeLevel: e.target.value })}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
           >
                 <option value="">All Degree Levels</option>
                 <option value="Undergraduate">Undergraduate</option>
@@ -423,7 +428,7 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
           <select
             value={filters.organization}
                 onChange={(e) => setFilters({ ...filters, organization: e.target.value })}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
           >
                 <option value="">All Organizations</option>
                 <option value="Harvard University">Harvard University</option>
@@ -437,14 +442,14 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
             {/* Search input on the right */}
             <div className="relative w-80">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+                <Search className="h-5 w-5 text-light-muted dark:text-dark-muted" />
               </div>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search programs..."
-                className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full py-2 pl-10 pr-4 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text placeholder-light-muted dark:placeholder-dark-muted focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
               />
             </div>
         </div>
@@ -453,19 +458,19 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       {/* Loading Spinner */}
       {loading && (
         <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-blue-600 font-medium">{`Loading programs... ${loadingProgress}%`}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400 mb-4"></div>
+          <p className="text-primary-600 dark:text-primary-400 font-medium">{`Loading programs... ${loadingProgress}%`}</p>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && filteredPrograms.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-          <div className="w-20 h-20 mb-4 text-gray-300">
+          <div className="w-20 h-20 mb-4 text-light-muted dark:text-dark-muted">
             <X className="w-full h-full" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No programs found</h3>
-          <p className="text-gray-500">Try adjusting your search or filters</p>
+          <h3 className="text-lg font-medium text-light-text dark:text-dark-text mb-1">No programs found</h3>
+          <p className="text-light-muted dark:text-dark-muted">Try adjusting your search or filters</p>
         </div>
       )}
 
@@ -478,7 +483,7 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
               const isSaving = savingPrograms.has(program.id);
               const isRejecting = rejectingPrograms.has(program.id);
               return (
-              <article key={program.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <article key={program.id} className="bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 overflow-hidden">
                 <div className="h-48 relative">
                   <Image
                     src={program.imageUrl || "/images/default-opportunity.jpg"}
@@ -493,12 +498,12 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                 </div>
 
                 <div className="p-4">
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                  <p className="text-light-muted dark:text-dark-muted text-sm mb-4 line-clamp-3">
                     {program.description || "No description available"}
                   </p>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-light-muted dark:text-dark-muted">
                       Deadline: {program.deadline
                         ? new Date(program.deadline).toLocaleDateString("en-US", {
                             year: "numeric",
@@ -511,14 +516,14 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                       {savedPrograms.some(p => p.id === program.id) ? (
                         <button
                           disabled
-                          className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-600"
+                          className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
                         >
                           Saved
                         </button>
                       ) : rejectedPrograms.has(program.id) ? (
                         <button
                           disabled
-                          className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-600"
+                          className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                         >
                           Rejected
                         </button>
@@ -530,8 +535,8 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                                 disabled={isRejecting}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
                                   isRejecting
-                                    ? 'bg-red-100 text-red-600' 
-                                    : 'bg-red-600 text-white hover:bg-red-700'
+                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
+                                    : 'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-600'
                                 } transition-colors`}
                               >
                                 {isRejecting ? (
@@ -554,8 +559,8 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                                 disabled={isSaving}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
                                   isSaving 
-                                    ? 'bg-blue-100 text-blue-600' 
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
+                                    : 'bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-600'
                                 } transition-colors`}
                               >
                                 {isSaving ? (
@@ -585,14 +590,14 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
           {/* List View Pagination Controls - Redesigned with cool blue shades */}
           {filteredPrograms.length > 0 && (
             <div className="flex justify-center mt-10 mb-6">
-              <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 p-1.5 rounded-xl shadow-sm">
+              <div className="flex items-center bg-light-card dark:bg-dark-card p-1.5 rounded-xl shadow-sm dark:shadow-dark-border/30">
               <button 
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
                   className={`flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 ${
                     currentPage === 1 
-                      ? 'text-indigo-300 cursor-not-allowed' 
-                      : 'text-indigo-600 hover:bg-indigo-100 hover:shadow-md'
+                      ? 'text-light-muted dark:text-dark-muted cursor-not-allowed' 
+                      : 'text-primary-600 dark:text-primary-400 hover:bg-light-border dark:hover:bg-dark-border hover:shadow-md'
                   }`}
                   aria-label="Previous page"
               >
@@ -627,8 +632,8 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                         onClick={() => handleSetPage(pageNum)}
                         className={`flex items-center justify-center h-9 w-9 rounded-lg text-sm font-medium transition-all duration-200 ${
                           isCurrentPage
-                            ? 'bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-md transform scale-105'
-                            : 'text-indigo-800 hover:bg-indigo-100'
+                            ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-md transform scale-105'
+                            : 'text-primary-700 dark:text-primary-400 hover:bg-light-border dark:hover:bg-dark-border'
                         }`}
                         aria-label={`Page ${pageNum}`}
                         aria-current={isCurrentPage ? 'page' : undefined}
@@ -644,8 +649,8 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                 disabled={currentPage === totalPages}
                   className={`flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 ${
                     currentPage === totalPages 
-                      ? 'text-indigo-300 cursor-not-allowed' 
-                      : 'text-indigo-600 hover:bg-indigo-100 hover:shadow-md'
+                      ? 'text-light-muted dark:text-dark-muted cursor-not-allowed' 
+                      : 'text-primary-600 dark:text-primary-400 hover:bg-light-border dark:hover:bg-dark-border hover:shadow-md'
                   }`}
                   aria-label="Next page"
               >
@@ -660,172 +665,12 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       {/* Program Swipe View */}
       {filteredPrograms.length > 0 && viewMode === 'swipe' && (
         <div className="flex-1 flex flex-col items-center justify-center relative">
-          {/* Display total count and current position */}
-          <div className="absolute top-4 left-0 right-0 text-center text-sm font-medium text-gray-500">
-            <span className="bg-white px-4 py-1 rounded-full shadow-sm">
-              {Math.min(currentIndex + 1, filteredPrograms.length)} of {filteredPrograms.length} opportunities
-            </span>
-          </div>
-          
-          {/* Card Container - Make sure it has enough space for the cards */}
-          <div className="relative w-[70vw] h-[65vh] max-w-[450px] max-h-[800px] perspective-1000 my-4">
-            {/* Render the cards with stacking effect - map through filtered programs */}
-            {filteredPrograms.slice(currentIndex, currentIndex + 3).map((program, i) => (
-              <ProgramCard
-                key={program.id}
-                program={program}
-                isSwipeMode={true}
-                style={{
-                  x: 0,
-                  y: i * 8,
-                  scale: 1 - i * 0.05,
-                  rot: -2 + Math.random() * 4,
-                  opacity: 1,
-                  zIndex: 3 - i,
-                  position: 'absolute',
-                  top: i * 10,
-                  left: 0,
-                  right: 0,
-                  margin: '0 auto'
-                }}
-                {...bind(i)}
-              />
-            ))}
-            
-            {/* Message when there are no more cards to show */}
-            {filteredPrograms.length > 0 && currentIndex >= filteredPrograms.length && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-lg p-6 text-center">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">No more opportunities</h3>
-                  <p className="text-gray-600 mb-4">You've gone through all available opportunities</p>
-                  <button
-                    onClick={() => {
-                      setCurrentIndex(0);
-                      setCurrentPage(1);
-                    }}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    Start Over
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Swipe Controls - Only show if there are cards to display */}
-          {filteredPrograms.length > 0 && currentIndex < filteredPrograms.length && (
-            <div className="flex justify-center gap-8 mt-6 mb-4 z-10">
-              {!savingPrograms.has(filteredPrograms[currentIndex].id) && !rejectingPrograms.has(filteredPrograms[currentIndex].id) && (
-              <button
-                onClick={() => {
-                  if (filteredPrograms.length > 0 && currentIndex < filteredPrograms.length) {
-                    // Check auth immediately
-                    if (!isAuthenticated) {
-                      router.push('/api/auth/login');
-                      return;
-                    }
-                    
-                    // Manually trigger swipe left animation
-                    api.start(i => {
-                      if (i !== 0) return;
-                      return {
-                        x: -1000,
-                        rot: -10,
-                        scale: 0.9,
-                        opacity: 0,
-                        config: { friction: 50, tension: 800, duration: 300 }
-                      };
-                    });
-                      // Process the approval after a short delay to allow animation
-                    setTimeout(() => {
-                      handleProgramAction(filteredPrograms[currentIndex], false);
-                    }, 300);
-                  }
-                }}
-                className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors"
-              >
-                <X className="w-8 h-8" />
-              </button>
-              )}
-              {rejectingPrograms.has(filteredPrograms[currentIndex].id) && (
-                <button
-                  disabled
-                  className="w-16 h-16 rounded-full bg-red-50 shadow-lg flex items-center justify-center text-red-600 transition-colors"
-                >
-                  <div className="flex items-center">
-                    <span className="inline-flex">
-                      <span className="saving-dot"></span>
-                      <span className="saving-dot"></span>
-                      <span className="saving-dot"></span>
-                    </span>
-                  </div>
-                </button>
-              )}
-              {!rejectingPrograms.has(filteredPrograms[currentIndex].id) && (
-              <button
-                onClick={() => {
-                  if (filteredPrograms.length > 0 && currentIndex < filteredPrograms.length) {
-                    // Check auth immediately
-                    if (!isAuthenticated) {
-                      router.push('/api/auth/login');
-                      return;
-                    }
-                      
-                      const currentProgram = filteredPrograms[currentIndex];
-                      const isSaving = savingPrograms.has(currentProgram.id);
-                      
-                      // Don't allow clicking if already saving
-                      if (isSaving) return;
-                    
-                    // Manually trigger swipe right animation
-                    api.start(i => {
-                      if (i !== 0) return;
-                      return {
-                        x: 1000,
-                        rot: 10,
-                        scale: 0.9,
-                        opacity: 0,
-                        config: { friction: 50, tension: 800, duration: 300 }
-                      };
-                    });
-                    // Process the approval after a short delay to allow animation
-                    setTimeout(() => {
-                        handleProgramAction(currentProgram, true);
-                    }, 300);
-                  }
-                }}
-                  disabled={filteredPrograms.length > 0 && savingPrograms.has(filteredPrograms[currentIndex].id)}
-                  className={`w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center ${
-                    filteredPrograms.length > 0 && savingPrograms.has(filteredPrograms[currentIndex].id)
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-green-500 hover:bg-green-50'
-                  } transition-colors`}
-                >
-                  {filteredPrograms.length > 0 && savingPrograms.has(filteredPrograms[currentIndex].id) ? (
-                    <div className="flex items-center">
-                      <span className="inline-flex">
-                        <span className="saving-dot"></span>
-                        <span className="saving-dot"></span>
-                        <span className="saving-dot"></span>
-                      </span>
-                    </div>
-                  ) : (
-                <Heart className="w-8 h-8" />
-                  )}
-              </button>
-              )}
-            </div>
-          )}
-
-          {/* Swipe directions help */}
-          <div className="flex justify-center gap-16 mb-2">
-            <div className="text-sm text-gray-500 flex items-center">
-              <X className="w-4 h-4 mr-1 text-red-500" /> Swipe left to reject
-            </div>
-            <div className="text-sm text-gray-500 flex items-center">
-              <Heart className="w-4 h-4 mr-1 text-green-500" /> Swipe right to save
-            </div>
-          </div>
+          <ProgramBrowser 
+            programs={filteredPrograms}
+            onApprove={(program) => handleSaveProgramToRoadmap(program)}
+            onReject={(program) => handleRejectProgram(program)}
+            onGoBack={() => setViewMode('list')}
+          />
         </div>
       )}
     </div>

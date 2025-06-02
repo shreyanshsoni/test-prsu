@@ -16,6 +16,9 @@ import AcademicRoadmapPlanner from './components/AcademicRoadmapPlanner';
 import toast from 'react-hot-toast';
 import { createGoal, GoalInput, fetchGoals, Goal, toggleGoalCompletion } from './services/goalService';
 import Sidebar from './components/Sidebar';
+import { useTheme } from './contexts/ThemeContext';
+import { ThemeToggle } from './components/ui/ThemeToggle';
+import { StarryBackground } from './components/ui/StarryBackground';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -36,6 +39,7 @@ export default function HomeClientComponent({
   user: externalUser
 }: HomeClientComponentProps) {
   const { user: authUser } = useAuth();
+  const { theme } = useTheme();
   const [isClient, setIsClient] = useState(false); // Track if the component is on the client
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -491,7 +495,10 @@ export default function HomeClientComponent({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text">
+      {/* Dashboard-specific starry background */}
+      {theme === 'dark' && <StarryBackground />}
+      
       {/* Add JSON-LD structured data */}
       <script
         type="application/ld+json"
@@ -524,35 +531,56 @@ export default function HomeClientComponent({
             {/* Top navbar */}
             <header 
               className={`sticky top-0 z-10 transition-all duration-300 ${
-                scrolled ? 'shadow-md' : ''
+                scrolled ? 'shadow-md dark:shadow-dark-border/30' : ''
               }`}
               style={{
-                backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.65)' : 'transparent',
+                backgroundColor: scrolled 
+                  ? theme === 'dark' 
+                    ? 'rgba(15, 23, 42, 0.65)' 
+                    : 'rgba(255, 255, 255, 0.65)'
+                  : 'transparent',
                 backdropFilter: scrolled ? 'blur(8px)' : 'none',
                 WebkitBackdropFilter: scrolled ? 'blur(8px)' : 'none',
-                borderBottom: scrolled ? '1px solid rgba(229, 231, 235, 0.8)' : 'none'
+                borderBottom: scrolled 
+                  ? theme === 'dark'
+                    ? '1px solid rgba(30, 41, 59, 0.8)'
+                    : '1px solid rgba(229, 231, 235, 0.8)' 
+                  : 'none'
               }}
             >
-              <div className="px-4 sm:px-6 lg:px-8 flex justify-end items-center h-16">
-                {/* User profile - avatar and name only */}
-                {user && (
-                  <Link href="/profile" className="flex items-center" aria-label="View profile">
-                    <ProfileAvatar 
-                      picture={user.picture}
-                      name={user.sub?.includes('auth0') 
-                        ? (user.nickname || user.name || user.email)
-                        : user.name?.split(' ')[0]}
-                      size="2rem"
-                      className="mr-2"
-                    />
-                    <span className="text-sm font-medium text-gray-700 hidden sm:inline">
-                      {user.sub?.includes('auth0') 
-                        ? (user.nickname || user.name || user.email) 
-                        : user.name?.split(' ')[0]
-                      }
-                    </span>
-                  </Link>
-                )}
+              <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+                <div className="flex items-center">
+                  <button
+                    onClick={toggleMobileMenu}
+                    className="mr-4 lg:hidden text-light-text dark:text-dark-text"
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <ThemeToggle />
+                  
+                  {/* User profile - avatar and name only */}
+                  {user && (
+                    <Link href="/profile" className="flex items-center" aria-label="View profile">
+                      <ProfileAvatar 
+                        picture={user.picture}
+                        name={user.sub?.includes('auth0') 
+                          ? (user.nickname || user.name || user.email)
+                          : user.name?.split(' ')[0]}
+                        size="2rem"
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium text-light-text dark:text-dark-text hidden sm:inline">
+                        {user.sub?.includes('auth0') 
+                          ? (user.nickname || user.name || user.email) 
+                          : user.name?.split(' ')[0]
+                        }
+                      </span>
+                    </Link>
+                  )}
+                </div>
               </div>
             </header>
             
@@ -560,7 +588,7 @@ export default function HomeClientComponent({
             <main className="flex-1 overflow-y-auto p-4 lg:p-6">
               <div className="max-w-6xl mx-auto">
                 {/* Tab Content */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="bg-light-card dark:bg-dark-card rounded-lg shadow-sm dark:shadow-dark-border/30 p-6 mb-6">
                   {activeTab === 'dashboard' && (
                     <UserDashboard 
                       savedPrograms={savedPrograms}
@@ -586,7 +614,7 @@ export default function HomeClientComponent({
                     <>
                       {isLoadingUserPrograms ? (
                         <div className="flex justify-center items-center h-64">
-                          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
                         </div>
                       ) : (
                         <SavedPrograms
@@ -638,7 +666,7 @@ export default function HomeClientComponent({
         // Original layout for non-logged in users
         <>
           {/* Add the new design link in the navigation */}
-          <nav className="bg-white border-b">
+          <nav className="bg-light-card dark:bg-dark-card border-b border-light-border dark:border-dark-border">
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center justify-between h-16">
                 <div className="flex items-center">
@@ -651,11 +679,13 @@ export default function HomeClientComponent({
                   </a>
                 </div>
                 <div className="flex items-center space-x-4">
+                  <ThemeToggle />
+                  
                   <div className="ml-auto flex items-center">
                     <div className="md:flex items-center gap-5 hidden">
                       <a
                         href="/api/auth/login"
-                        className="text-gray-600 hover:text-gray-900"
+                        className="text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text"
                       >
                         <div className="flex items-center gap-1">
                           <LogIn className="w-4 h-4" />
@@ -672,15 +702,15 @@ export default function HomeClientComponent({
           {/* Main Content for non-logged in users */}
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="text-center py-16">
-              <h3 className="text-xl font-medium text-gray-800 mb-2">
+              <h3 className="text-xl font-medium text-light-text dark:text-dark-text mb-2">
                 Please sign in to view your saved programs
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p className="text-light-muted dark:text-dark-muted mb-4">
                 Login to access your personalized academic planning dashboard
               </p>
               <Link
                 href="/api/auth/login/"
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 Sign In

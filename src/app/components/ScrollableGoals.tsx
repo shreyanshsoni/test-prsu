@@ -5,6 +5,7 @@ import { Goal } from "../types/types"
 import { ScrollArea } from "./ui/scroll-area"
 import { Separator } from "./ui/separator"
 import { Calendar, CheckCircle2, Circle } from "lucide-react"
+import { useTheme } from "../contexts/ThemeContext"
 
 interface ScrollableGoalsProps {
   goalsByYear: { [year: string]: Goal[] }
@@ -13,6 +14,7 @@ interface ScrollableGoalsProps {
   onToggleGoalCompletion?: (goalId: string, completed: boolean) => Promise<void>
   onSwitchToGoalsTab?: () => void
   isDarkTheme?: boolean
+  className?: string
 }
 
 export function ScrollableGoals({ 
@@ -21,19 +23,25 @@ export function ScrollableGoals({
   onSwitchToRoadmapPlanner,
   onToggleGoalCompletion,
   onSwitchToGoalsTab,
-  isDarkTheme = true
+  isDarkTheme,
+  className
 }: ScrollableGoalsProps) {
+  const { theme } = useTheme();
+  // Use the theme context if isDarkTheme prop is not provided
+  const isDark = isDarkTheme !== undefined ? isDarkTheme : theme === 'dark';
+  
   // Dynamic styles based on theme
-  const textColor = isDarkTheme ? "text-white" : "text-gray-800";
-  const secondaryTextColor = isDarkTheme ? "text-white/70" : "text-gray-600";
-  const buttonTextColor = isDarkTheme ? "text-white" : "text-blue-600";
-  const iconColor = isDarkTheme ? "text-white" : "text-blue-600";
-  const separatorColor = isDarkTheme ? "bg-indigo-400/30" : "bg-gray-200";
-  const dateBackground = isDarkTheme ? "bg-indigo-500 bg-opacity-30" : "bg-blue-100";
+  const textColor = isDark ? "text-dark-text" : "text-light-text";
+  const secondaryTextColor = isDark ? "text-dark-muted" : "text-light-muted";
+  const buttonTextColor = isDark ? "text-primary-400" : "text-primary-600";
+  const iconColor = isDark ? "text-primary-400" : "text-primary-600";
+  const separatorColor = isDark ? "bg-dark-border" : "bg-light-border";
+  const dateBackground = isDark ? "bg-primary-900/30" : "bg-primary-100";
+  const dateTextColor = isDark ? "text-primary-300" : "text-primary-700";
 
   return (
     <>
-      <ScrollArea className="h-[240px] w-full rounded-md">
+      <ScrollArea className={`h-[240px] w-full rounded-md ${className || ''}`}>
         <div className="p-4">
           {Object.entries(goalsByYear).map(([year, goals]) => (
             <React.Fragment key={year}>
@@ -59,8 +67,8 @@ export function ScrollableGoals({
                       
                       {goal.dueDate && (
                         <div className={`flex items-center ${dateBackground} px-2 py-0.5 rounded-md shrink-0 ${goal.completed ? 'line-through opacity-70' : ''}`}>
-                          <Calendar className={`h-3 w-3 mr-1 ${isDarkTheme ? "" : "text-blue-600"}`} />
-                          <span className={`text-xs font-medium ${isDarkTheme ? "" : "text-blue-600"}`}>{formatShortDate(goal.dueDate)}</span>
+                          <Calendar className={`h-3 w-3 mr-1 ${dateTextColor}`} />
+                          <span className={`text-xs font-medium ${dateTextColor}`}>{formatShortDate(goal.dueDate)}</span>
                         </div>
                       )}
                     </div>

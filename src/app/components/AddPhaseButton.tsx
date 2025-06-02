@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Plus, X, Save } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AddPhaseButtonProps {
   onAddPhase: (title: string, description: string) => void;
 }
 
 export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -34,12 +37,12 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
   
   if (isExpanded) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-5 border border-indigo-100">
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-md p-5 border border-gray-300 dark:border-dark-border">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-800">Add New Phase</h3>
+          <h3 className="text-lg font-medium text-gray-800 dark:text-dark-text">Add New Phase</h3>
           <button 
             onClick={() => setIsExpanded(false)}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            className="text-gray-400 dark:text-dark-muted hover:text-gray-600 dark:hover:text-dark-text p-1 rounded-full hover:bg-gray-100 dark:hover:bg-dark-border"
             disabled={isCreating}
           >
             <X size={18} />
@@ -49,7 +52,7 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="phase-title" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="phase-title" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
                 Phase Title
               </label>
               <input
@@ -58,14 +61,14 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Research & Exploration"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-background text-gray-800 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400"
                 required
                 disabled={isCreating}
               />
             </div>
             
             <div>
-              <label htmlFor="phase-description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="phase-description" className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
                 Description
               </label>
               <textarea
@@ -73,7 +76,7 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the purpose of this phase..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 h-20"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-border rounded-md bg-white dark:bg-dark-background text-gray-800 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 h-20"
                 disabled={isCreating}
               ></textarea>
             </div>
@@ -82,7 +85,7 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-gray-300 dark:border-dark-border text-gray-700 dark:text-dark-text rounded-md text-sm hover:bg-gray-100 dark:hover:bg-dark-border disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isCreating}
               >
                 Cancel
@@ -90,7 +93,7 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
               <button
                 type="submit"
                 disabled={isCreating}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm flex items-center hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-md text-sm flex items-center hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCreating ? (
                   <>
@@ -117,7 +120,7 @@ export default function AddPhaseButton({ onAddPhase }: AddPhaseButtonProps) {
   return (
     <button 
       onClick={() => setIsExpanded(true)}
-      className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:border-indigo-300 transition-colors"
+      className="w-full py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
     >
       <Plus size={20} className="mr-2" />
       <span className="font-medium">Add New Phase</span>

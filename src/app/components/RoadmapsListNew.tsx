@@ -2,6 +2,7 @@ import React from 'react';
 import { RoadmapPlanner } from '../types/types';
 import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2 } from 'lucide-react';
 import CircularProgress from './CircularProgress';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface RoadmapsListProps {
   roadmaps: RoadmapPlanner[];
@@ -16,6 +17,9 @@ export default function RoadmapsList({
   onCreateRoadmap,
   onDeleteRoadmap
 }: RoadmapsListProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -43,13 +47,13 @@ export default function RoadmapsList({
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-          <Map size={24} className="mr-2 text-indigo-600" />
+        <h1 className="text-2xl font-bold text-light-text dark:text-dark-text flex items-center">
+          <Map size={24} className="mr-2 text-primary-600 dark:text-primary-400" />
           My Academic Roadmaps
         </h1>
         <button
           onClick={onCreateRoadmap}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg flex items-center hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
         >
           <PlusCircle size={18} className="mr-2" />
           New Roadmap
@@ -60,27 +64,27 @@ export default function RoadmapsList({
         {roadmaps.map((roadmap) => (
           <div
             key={roadmap.id}
-            className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+            className="border border-light-border dark:border-dark-border rounded-lg bg-light-card dark:bg-dark-card shadow-sm hover:shadow-md transition-all cursor-pointer group"
             onClick={() => onSelectRoadmap(roadmap.id)}
           >
             <div className="p-5">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                    <Map size={18} className="mr-2 text-indigo-600" />
+                  <h2 className="text-xl font-semibold text-light-text dark:text-dark-text flex items-center">
+                    <Map size={18} className="mr-2 text-primary-600 dark:text-primary-400" />
                     {roadmap.goal.title}
                   </h2>
-                  <p className="text-sm text-gray-600">{roadmap.goal.identity}</p>
+                  <p className="text-sm text-light-muted dark:text-dark-muted">{roadmap.goal.identity}</p>
                   
                   <div className="flex items-center space-x-6">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Calendar size={16} className="mr-1 text-indigo-500" />
+                    <div className="flex items-center text-sm text-light-muted dark:text-dark-muted">
+                      <Calendar size={16} className="mr-1 text-primary-500 dark:text-primary-400" />
                       <span>Due: {formatDate(roadmap.goal.deadline)}</span>
                     </div>
                     
                     <div className="flex items-center text-sm">
-                      <Clock size={16} className="mr-1 text-amber-500" />
-                      <span className={`${daysRemaining(roadmap.goal.deadline) < 30 ? 'text-red-600 font-medium' : 'text-gray-600'}`}>
+                      <Clock size={16} className="mr-1 text-amber-500 dark:text-amber-400" />
+                      <span className={`${daysRemaining(roadmap.goal.deadline) < 30 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-light-muted dark:text-dark-muted'}`}>
                         {daysRemaining(roadmap.goal.deadline)} days remaining
                       </span>
                     </div>
@@ -91,7 +95,7 @@ export default function RoadmapsList({
                   {/* Delete button - only visible on hover */}
                   <button 
                     onClick={(e) => handleDelete(e, roadmap.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity mr-2"
+                    className="p-2 text-light-muted dark:text-dark-muted hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-light-border dark:hover:bg-dark-border opacity-0 group-hover:opacity-100 transition-opacity mr-2"
                     aria-label="Delete roadmap"
                   >
                     <Trash2 size={18} />
@@ -103,11 +107,11 @@ export default function RoadmapsList({
                       percentage={calculateRoadmapProgress(roadmap)}
                       size={48}
                       strokeWidth={4}
-                      color={getProgressColor(calculateRoadmapProgress(roadmap))}
+                      color={getProgressColor(calculateRoadmapProgress(roadmap), isDark)}
                     />
                   </div>
                   
-                  <ChevronRight size={20} className="text-gray-400" />
+                  <ChevronRight size={20} className="text-light-muted dark:text-dark-muted" />
                 </div>
               </div>
             </div>
@@ -116,12 +120,12 @@ export default function RoadmapsList({
         
         {/* Add new roadmap button as card */}
         <div
-          className="bg-white rounded-xl shadow-sm overflow-hidden border-2 border-dashed border-gray-200 p-5 hover:border-indigo-300 transition-all cursor-pointer"
+          className="border border-dashed border-light-border dark:border-dark-border rounded-lg bg-light-card dark:bg-dark-card p-5 hover:border-primary-300 dark:hover:border-primary-500 transition-all cursor-pointer"
           onClick={onCreateRoadmap}
         >
           <div className="flex items-center justify-center py-6">
-            <PlusCircle size={24} className="mr-2 text-indigo-500" />
-            <span className="text-lg font-medium text-gray-600">Add a new roadmap</span>
+            <PlusCircle size={24} className="mr-2 text-primary-500 dark:text-primary-400" />
+            <span className="text-lg font-medium text-light-muted dark:text-dark-muted">Add a new roadmap</span>
           </div>
         </div>
       </div>
@@ -143,10 +147,10 @@ function calculateRoadmapProgress(roadmap: RoadmapPlanner): number {
 }
 
 // Helper function to get appropriate color based on progress percentage
-function getProgressColor(percentage: number): string {
-  if (percentage >= 100) return '#008000'; // pure green (success/completed)
-  if (percentage >= 75) return '#0284c7';  // sky-600 (good progress)
-  if (percentage >= 50) return '#4f46e5';  // indigo-600 (medium progress)
-  if (percentage >= 25) return '#f59e0b';  // amber-500 (getting started)
-  return '#dc2626';                        // red-600 (needs attention)
+function getProgressColor(percentage: number, isDark: boolean = false): string {
+  if (percentage >= 100) return isDark ? '#22c55e' : '#008000'; // green (success/completed)
+  if (percentage >= 75) return isDark ? '#38bdf8' : '#0284c7';  // sky color (good progress)
+  if (percentage >= 50) return isDark ? '#818cf8' : '#4f46e5';  // indigo (medium progress)
+  if (percentage >= 25) return isDark ? '#fbbf24' : '#f59e0b';  // amber (getting started)
+  return isDark ? '#ef4444' : '#dc2626';                        // red (needs attention)
 } 

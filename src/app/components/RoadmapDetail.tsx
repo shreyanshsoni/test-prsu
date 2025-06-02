@@ -4,6 +4,7 @@ import PhaseAccordion from './PhaseAccordion';
 import { RoadmapPlanner, Goal, PhaseData, Task } from '../types/types';
 import { ArrowLeft } from 'lucide-react';
 import AddPhaseButton from './AddPhaseButton';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface RoadmapDetailProps {
   roadmap: RoadmapPlanner;
@@ -38,6 +39,9 @@ export default function RoadmapDetail({
   onDeleteTask,
   onUpdatePhase
 }: RoadmapDetailProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   // Calculate overall progress
   const totalTasks = roadmap.phases.reduce((acc, phase) => acc + phase.tasks.length, 0);
   const completedTasks = roadmap.phases.reduce(
@@ -56,7 +60,7 @@ export default function RoadmapDetail({
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text">
           {roadmap.goal.title}
         </h1>
       </div>
@@ -86,9 +90,9 @@ export default function RoadmapDetail({
               onUpdatePhase={onUpdatePhase}
             />
           ) : (
-            <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-              <p className="text-gray-600 mb-4">No phases have been added to this roadmap yet.</p>
-              <p className="text-gray-500 text-sm mb-6">
+            <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm p-6 text-center">
+              <p className="text-gray-600 dark:text-dark-muted mb-4">No phases have been added to this roadmap yet.</p>
+              <p className="text-gray-500 dark:text-dark-muted text-sm mb-6">
                 Create your first phase to start organizing your journey toward your goal.
               </p>
             </div>

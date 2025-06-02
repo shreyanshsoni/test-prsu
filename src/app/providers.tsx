@@ -2,6 +2,7 @@
 
 import { Toaster } from 'react-hot-toast';
 import { ProgramSearchProvider } from './contexts/ProgramSearchContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 export default function Providers({ 
   children 
@@ -9,11 +10,13 @@ export default function Providers({
   children: React.ReactNode 
 }) {
   return (
+    <ThemeProvider>
     <div className="flex flex-col min-h-screen">
       <ProgramSearchProvider>
         <main className="flex-grow">{children}</main>
         <Toaster position="bottom-right" />
       </ProgramSearchProvider>
     </div>
+    </ThemeProvider>
   );
 } 

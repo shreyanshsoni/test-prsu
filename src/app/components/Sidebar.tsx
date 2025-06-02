@@ -51,10 +51,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Sidebar - hidden on mobile unless menu is open */}
       <div 
-        className={`h-screen bg-white text-gray-700 flex flex-col fixed lg:relative z-20
+        className={`h-screen bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text flex flex-col fixed lg:relative z-20
           ${isOpen ? 'block' : 'hidden lg:block'} 
           ${isCollapsed ? 'lg:w-24' : 'lg:w-64'} 
-          transition-all duration-500 ease-in-out overflow-hidden shadow-[2px_0px_10px_rgba(0,0,0,0.1)]`}
+          shadow-[2px_0px_10px_rgba(0,0,0,0.1)] dark:shadow-[2px_0px_10px_rgba(0,0,0,0.3)] overflow-hidden`}
         style={{
           width: isOpen ? (isCollapsed ? '6rem' : '16rem') : isCollapsed ? '6rem' : '16rem',
           transition: 'width 0.5s ease-in-out',
@@ -64,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         }}
       >
         {/* Logo section with toggle button on right */}
-        <div className="p-4 flex items-center justify-center border-b border-gray-200 relative">
+        <div className="p-4 flex items-center justify-center border-b border-light-border dark:border-dark-border relative">
           <a href="/?tab=dashboard" onClick={() => handleTabChange('dashboard')} className={`${isCollapsed ? 'mx-auto flex justify-center' : 'mx-auto'} transition-all duration-500 ease-in-out`}>
             {isCollapsed ? (
               <img 
@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Toggle button positioned on the right with changing chevron direction */}
           <button 
-            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-gray-300 hover:text-gray-500 transition-all duration-300 flex items-center justify-center`}
+            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text transition-all duration-300 flex items-center justify-center`}
             onClick={toggleCollapse}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -100,13 +100,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleTabChange(tab.id)}
                   className={`flex items-center w-full ${isCollapsed ? 'justify-center' : ''} py-3 px-4 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                      : 'text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border'
                   }`}
                   title={isCollapsed ? tab.label : undefined}
                 >
                   <tab.icon className={`h-5 w-5 ${!isCollapsed ? 'mr-3' : ''} ${
-                    activeTab === tab.id ? 'text-blue-600' : 'text-gray-600'
+                    activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-light-muted dark:text-dark-muted'
                   } transition-all duration-500`} />
                   {!isCollapsed && <span className="text-sm transition-opacity duration-500">{tab.label}</span>}
                 </button>
@@ -116,10 +116,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Logout button at bottom */}
-        <div className="sticky bottom-0 w-full p-4 border-t border-gray-200 bg-white transition-all duration-500 ease-in-out">
+        <div className="sticky bottom-0 w-full p-4 border-t border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card transition-all duration-500 ease-in-out">
           <a
             href="/api/auth/logout"
-            className={`flex items-center ${isCollapsed ? 'justify-center' : ''} py-3 px-4 text-red-600 hover:text-white rounded-lg transition-all duration-300 hover:bg-red-600`}
+            className={`flex items-center ${isCollapsed ? 'justify-center' : ''} py-3 px-4 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white rounded-lg transition-all duration-300 hover:bg-red-600 dark:hover:bg-red-700`}
             title={isCollapsed ? "Logout" : undefined}
           >
             <LogOut className={`h-5 w-5 ${!isCollapsed ? 'mr-3' : ''} transition-all duration-500`} />
@@ -132,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="fixed top-4 left-4 z-30 hidden">
         <button 
           onClick={onToggle}
-          className="p-2 bg-white rounded-md shadow-md text-gray-700 hover:bg-gray-100"
+          className="p-2 bg-light-card dark:bg-dark-card rounded-md shadow-md text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border"
           aria-label={isOpen ? "Close menu" : "Open menu"}
         >
           <Menu size={24} />

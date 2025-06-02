@@ -7,6 +7,7 @@ import { Program } from '../types/types';
 import ProgramCard from './ProgramCard';
 import { Heart, X, ArrowLeft } from 'lucide-react';
 import type { AnimatedComponent } from '@react-spring/web';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Define card falling physics
 const toPosition = (i: number) => ({
@@ -21,7 +22,7 @@ const toPosition = (i: number) => ({
 const from = (i: number) => ({
   x: 0,
   y: -1000, // Start from above
-  scale: 1,
+  scale: 1.5,
   rot: 0,
   delay: i * 100,
 });
@@ -32,227 +33,185 @@ const AnimatedDiv = animated.div as AnimatedComponent<'div'>;
 
 interface ProgramBrowserProps {
   programs: Program[];
-  onSaveProgram: (program: Program) => void;
-  onRejectProgram: (program: Program) => void;
+  onApprove: (program: Program) => void;
+  onReject: (program: Program) => void;
+  onGoBack?: () => void;
 }
 
-export default function ProgramBrowser({ 
-  programs, 
-  onSaveProgram,
-  onRejectProgram 
-}: ProgramBrowserProps) {
-  const [gone] = useState(() => new Set()); // Track removed cards
-  const [savedPrograms, setSavedPrograms] = useState<Program[]>([]); // Saved programs list
-  const [currentIndex, setCurrentIndex] = useState(programs.length - 1); // Current card index
+export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack }: ProgramBrowserProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [gone] = useState<Set<number>>(new Set()); // Set of indices that have been swiped
 
-  // Spring animations for cards
-  const [springs, api] = useSprings(programs.length, i => ({
+  // Create springs for each card
+  const [props, api] = useSprings(programs.length, i => ({
     ...toPosition(i),
     from: from(i),
   }));
 
-  // Initialize card stack animation on mount
-  React.useEffect(() => {
-    api.start((i) => ({
-      ...toPosition(i),
-      from: from(i),
-    }));
-  }, [api]);
-
-  const handleSwipe = (i: number, index: number, dir: number) => {
-    if (i !== index) return;
-    const x = (200 + window.innerWidth) * dir;
-    gone.add(index);
+  // Define the drag binding
+  const bind = useDrag(({ 
+    args: [index], 
+    active, 
+    movement: [mx], 
+    direction: [xDir], 
+    velocity 
+  }) => {
+    // Convert velocity to a number if it's an array
+    const velocityX = typeof velocity === 'number' ? velocity : (Array.isArray(velocity) ? velocity[0] : 0);
     
-    const program = programs[index];
-    if (dir === 1) {
-      // Add the program to savedPrograms
-      setSavedPrograms((prev) => [...prev, program]);
-      // Notify the parent component
-      onSaveProgram(program);
-    } else {
-      // Notify the parent component
-      onRejectProgram(program);
-    }
-    
-    setCurrentIndex(prev => prev - 1);
-    
-    return {
-      x,
-      y: 0,
-      rot: dir * 10,
-      scale: 0.5,
-      delay: undefined,
-      config: { friction: 50, tension: 200 },
-    };
-  };
-
-  // Gesture handling for card swipe
-  const bind = useDrag(({ args: [index], active, movement: [mx], direction: [xDir], velocity: [vx] }) => {
-    const trigger = vx > 0.2;
+    // Determine if card should be swiped away
+    const trigger = velocityX > 0.2; 
     const dir = xDir < 0 ? -1 : 1;
+    const isGone = !active && trigger;
 
-    if (!active && trigger) {
+    // If card is gone, add it to the gone set
+    if (isGone) {
       gone.add(index);
       
-      const program = programs[index];
-      if (dir === 1) {
-        // Add the program to savedPrograms
-        setSavedPrograms((prev) => [...prev, program]);
-        // Notify the parent component
-        onSaveProgram(program);
+      // Trigger approve/reject based on swipe direction
+      if (dir > 0) {
+        onApprove(programs[index]);
       } else {
-        // Notify the parent component
-        onRejectProgram(program);
+        onReject(programs[index]);
       }
-      
-      setCurrentIndex(prev => prev - 1);
-
-      api.start(i => {
-        if (i === index) {
-          return {
-            x: (200 + window.innerWidth) * dir,
-            y: 800,
-            rot: dir * 50,
-            scale: 0.5,
-            delay: undefined,
-            config: { friction: 50, tension: 200 }
-          };
-        }
-        return {
-          ...toPosition(i),
-          delay: undefined,
-        };
-      });
-    } else {
-      api.start(i => {
-        if (i === index) {
-          return {
-            x: active ? mx : 0,
-            y: active ? mx * -0.2 : 0,
-            rot: active ? mx / 100 : 0,
-            scale: active ? 1.1 : 1,
-            delay: undefined,
-            config: { friction: 50, tension: active ? 800 : 200 },
-          };
-        }
-        return toPosition(i);
-      });
     }
+
+    // Update the spring with new values
+    api.start(i => {
+      if (index !== i) return;
+      
+      // If card is gone, fly it out
+      const isGoneCard = gone.has(index);
+      const x = isGoneCard ? (200 + window.innerWidth) * dir : active ? mx : 0;
+      const rot = mx / 100 + (isGoneCard ? dir * 10 * velocityX : 0);
+      const scale = active ? 1.05 : 1;
+      
+      return {
+        x,
+        rot,
+        scale,
+        delay: undefined,
+        config: { 
+          friction: 50, 
+          tension: active ? 800 : isGoneCard ? 200 : 500 
+        },
+      };
+    });
   });
 
   return (
-    <main className="relative h-screen bg-gray-50" role="main">
-      {/* Add semantic header */}
-      <header className="sr-only">
-        <h1>Program Browser</h1>
-        <p>Browse and save available programs</p>
-      </header>
-
-      {/* Back button with better accessibility */}
-      <nav className="absolute top-4 left-4 z-50" aria-label="Main navigation">
+    <div className="relative w-full h-full flex flex-col items-center">
+      {/* Back button */}
+      {onGoBack && (
         <button 
-          onClick={() => window.location.reload()}
-          className="bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
-          aria-label="Return to start"
+          onClick={onGoBack} 
+          className="absolute top-4 left-4 z-10 p-2 rounded-full bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text shadow-md dark:shadow-dark-border/30"
         >
-          <ArrowLeft className="w-6 h-6" />
-          <span className="sr-only">Go back</span>
+          <ArrowLeft className="h-6 w-6" />
         </button>
-      </nav>
+      )}
+      
+      {/* Card container */}
+      <div className="relative w-full flex-grow flex items-center justify-center">
+        {/* Cards */}
+        {props.map(({ x, y, rot, scale }, i) => (
+          <AnimatedDiv
+            key={i}
+            style={{
+              transform: to(
+                [x, y, rot, scale], 
+                (x, y, rot, scale) => 
+                  `translate3d(${x}px,${y}px,0) rotate(${rot}deg) scale(${scale})`
+              ),
+              zIndex: programs.length - i,
+              position: 'absolute',
+            }}
+            className="w-[80%] max-w-md h-[70vh] touch-none"
+          >
+            <ProgramCard
+              program={programs[i]}
+              isSwipeMode
+              {...bind(i)}
+            />
+          </AnimatedDiv>
+        ))}
 
-      {/* Saved programs panel with ARIA labels */}
-      <aside className="absolute top-4 right-4 z-50" aria-label="Saved programs">
-        <div className="bg-white rounded-lg shadow-lg p-4 min-w-[250px] max-w-[300px] overflow-hidden" role="region">
-          <h2 className="font-semibold mb-2 text-indigo-600">
-            Saved Programs ({savedPrograms.length})
-          </h2>
-          <ul className="space-y-2 max-h-[300px] overflow-hidden">
-            {savedPrograms.map(program => (
-              <li 
-                key={program.id} 
-                className="p-2 bg-gray-50 rounded text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-              >
-                <article>
-                  <h3 className="font-medium truncate">{program.title}</h3>
-                  <p className="text-xs text-gray-500 truncate">{program.organization}</p>
-                </article>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
-
-      {/* Cards container with better semantics */}
-      <section 
-        className="absolute inset-0 flex items-center justify-center"
-        aria-label="Program cards"
-      >
-        {springs.map(({ x, y, rot, scale }, i) => {
-          if (gone.has(i)) return null;
-          
-          return (
-            <AnimatedArticle 
-              key={i}
-              className="absolute w-[500px] h-[500px]"
-              style={{ x, y }}
-              aria-label={`Program card ${i + 1} of ${springs.length}`}
+        {/* Empty state when all cards are gone */}
+        {gone.size === programs.length && (
+          <div className="text-center p-6 bg-light-card dark:bg-dark-card rounded-xl shadow-md dark:shadow-dark-border/30">
+            <h3 className="text-xl font-semibold text-light-text dark:text-dark-text mb-2">No more programs</h3>
+            <p className="text-light-muted dark:text-dark-muted mb-4">You've gone through all available programs</p>
+            <button 
+              onClick={onGoBack} 
+              className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
             >
-              <AnimatedDiv
-                {...bind(i)}
-                style={{
-                  transform: to(
-                    [rot, scale],
-                    (rot, scale) => `rotateZ(${rot}deg) scale(${scale})`
-                  ),
-                  touchAction: 'none',
-                }}
-              >
-                <ProgramCard program={programs[i]} />
-              </AnimatedDiv>
-            </AnimatedArticle>
-          );
-        })}
-      </section>
-
-      {/* Action buttons with better accessibility */}
-      <div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-8"
-        role="group"
-        aria-label="Program actions"
-      >
+              Back to Search
+            </button>
+          </div>
+        )}
+      </div>
+      
+      {/* Controls */}
+      <div className="flex justify-center gap-8 my-6">
         <button
-          className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 transition-colors transform hover:scale-110"
-          onClick={() => currentIndex >= 0 && api.start(i => handleSwipe(i, currentIndex, -1))}
-          aria-label="Reject program"
+          onClick={() => {
+            const index = programs.length - gone.size - 1;
+            if (index < 0) return;
+            
+            gone.add(index);
+            onReject(programs[index]);
+            
+            api.start(i => {
+              if (i !== index) return;
+              return {
+                x: -200 - window.innerWidth,
+                rot: -10,
+                scale: 0.9,
+                delay: undefined,
+                config: { friction: 50, tension: 200 },
+              };
+            });
+          }}
+          className="w-16 h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
         >
           <X className="w-8 h-8" />
         </button>
+        
         <button
-          className="bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors transform hover:scale-110"
-          onClick={() => currentIndex >= 0 && api.start(i => handleSwipe(i, currentIndex, 1))}
-          aria-label="Save program"
+          onClick={() => {
+            const index = programs.length - gone.size - 1;
+            if (index < 0) return;
+            
+            gone.add(index);
+            onApprove(programs[index]);
+            
+            api.start(i => {
+              if (i !== index) return;
+              return {
+                x: 200 + window.innerWidth,
+                rot: 10,
+                scale: 0.9,
+                delay: undefined,
+                config: { friction: 50, tension: 200 },
+              };
+            });
+          }}
+          className="w-16 h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
           <Heart className="w-8 h-8" />
         </button>
       </div>
-
-      {/* Empty state with better semantics */}
-      {currentIndex < 0 && (
-        <section className="absolute inset-0 flex items-center justify-center" aria-label="No more programs">
-          <div className="text-center p-8">
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">No More Programs</h2>
-            <p className="text-gray-600 mb-6">You&apos;ve viewed all available programs.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors"
-              aria-label="Start over"
-            >
-              Start Over
-            </button>
-          </div>
-        </section>
-      )}
-    </main>
+      
+      {/* Swipe directions help */}
+      <div className="flex justify-center gap-16 mb-4">
+        <div className="text-sm text-light-muted dark:text-dark-muted flex items-center">
+          <X className="w-4 h-4 mr-1 text-red-500 dark:text-red-400" /> Swipe left to reject
+        </div>
+        <div className="text-sm text-light-muted dark:text-dark-muted flex items-center">
+          <Heart className="w-4 h-4 mr-1 text-primary-600 dark:text-primary-400" /> Swipe right to save
+        </div>
+      </div>
+    </div>
   );
 }

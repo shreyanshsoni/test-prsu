@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button } from './ui/Button';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 const NewNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -38,7 +39,7 @@ const NewNavbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/80 backdrop-blur-md shadow-sm'
+          ? 'bg-light-card/80 dark:bg-dark-card/80 backdrop-blur-md shadow-sm'
           : 'bg-transparent'
       }`}
     >
@@ -57,6 +58,8 @@ const NewNavbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            
             {user ? (
               <a href="/api/auth/logout">
                 <Button primary className="px-5 py-2">

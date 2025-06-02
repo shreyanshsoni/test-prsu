@@ -48,6 +48,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Script to prevent theme flashing on load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('theme');
+                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  
+                  let themeToSet = 'light';
+                  if (savedTheme) {
+                    themeToSet = savedTheme;
+                  } else if (systemPrefersDark) {
+                    themeToSet = 'dark';
+                  }
+                  
+                  document.documentElement.classList.add(themeToSet);
+                } catch (e) {
+                  console.error('Theme setting error:', e);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <Providers>
           {children}

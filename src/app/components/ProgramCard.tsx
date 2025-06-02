@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Program } from '../types/types';
 import { Calendar, MapPin, GraduationCap, DollarSign } from 'lucide-react';
 import { animated } from '@react-spring/web';
 import type { AnimatedComponent } from '@react-spring/web';
 import Image from 'next/image'; // Use Next.js Image component
 import { formatDate } from '../utils/dateUtils';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProgramCardProps {
   program: Program;
-  style?: React.CSSProperties & {
-    rot?: number;
-    x?: number;
-    opacity?: number;
-  };
+  style?: React.CSSProperties;
   isSwipeMode?: boolean; // Add new prop to indicate swipe mode
   // Add additional props for bind
   [key: string]: any;
@@ -23,144 +20,141 @@ interface ProgramCardProps {
 const AnimatedDiv = animated.div as AnimatedComponent<'div'>;
 
 export default function ProgramCard({ program, style, isSwipeMode = false, ...props }: ProgramCardProps) {
-  const [formattedDeadline, setFormattedDeadline] = useState(formatDate(program.deadline));
-  const [isMounted, setIsMounted] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-  // Truncate description for swipe mode
-  const truncateDescription = (text: string, wordLimit = 15) => {
-    if (!text) return '';
-    const words = text.split(' ');
-    if (words.length <= wordLimit) return text;
-    return words.slice(0, wordLimit).join(' ') + '...';
+  // Function to handle image load error
+  const handleImageError = () => {
+    setImageError(true);
   };
-  
-  const description = isSwipeMode 
-    ? truncateDescription(program.description || '')
-    : program.description || 'No description available';
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (program.deadline) {
-      const formatted = formatDate(program.deadline);
-      setFormattedDeadline(formatted);
-    }
-  }, [program.deadline]);
-
-  if (!isMounted) {
-    return null;
-  }
-
-  // Calculate rotation and position for card based on style
-  const rot = style?.rot || 0;
-  const xPos = style?.x || 0;
-  
-  // Determine swipe direction indicators based on drag position
-  const showLeftIndicator = xPos < -50;
-  const showRightIndicator = xPos > 50;
 
   return (
     <AnimatedDiv
       {...props}
       style={{
         ...style,
-        display: 'block', // Ensure it's displayed
-        width: '100%',
-        height: '100%',
-        boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
-        borderRadius: '1rem',
-        touchAction: 'none', // Prevent browser handling of touch gestures
+        touchAction: 'none',
       }}
-      className="absolute w-[70vw] sm:w-[320px] md:w-[380px] lg:w-[450px] h-[600px] sm:h-[700px] lg:h-[800px] bg-white rounded-2xl shadow-xl overflow-hidden cursor-grab active:cursor-grabbing"
+      className={`relative rounded-xl ${isSwipeMode ? 'w-full h-full' : 'w-full'} overflow-hidden shadow-lg dark:shadow-dark-border/30 bg-light-card dark:bg-dark-card`}
     >
-      {/* Swipe Indicators */}
-      {showLeftIndicator && (
-        <div className="absolute top-6 right-6 z-10 bg-red-500 text-white font-bold py-2 px-4 rounded-lg transform -rotate-12 shadow-lg">
-          REJECT
+      {/* Swipe mode UI */}
+      {isSwipeMode ? (
+        <div className="h-full flex flex-col">
+          {/* Image */}
+          <div className="h-1/2 relative bg-gray-100 dark:bg-dark-background">
+            {!imageError ? (
+              <Image
+                src={program.imageUrl || "/images/default-opportunity.jpg"}
+                alt={program.title || "Program"}
+                fill
+                className="object-cover"
+                onError={handleImageError}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-light-background dark:bg-dark-background">
+                <div className="text-light-muted dark:text-dark-muted text-lg">Image unavailable</div>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="p-6 flex-1 flex flex-col">
+            <h3 className="text-xl font-bold mb-2 text-light-text dark:text-dark-text">{program.title}</h3>
+            
+            <p className="text-light-muted dark:text-dark-muted text-sm mb-4 line-clamp-3">
+              {program.description || "No description available"}
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4 mt-auto">
+              {program.location && (
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 text-primary-500 dark:text-primary-400 mr-2" />
+                  <span className="text-sm text-light-muted dark:text-dark-muted">{program.location}</span>
         </div>
       )}
       
-      {showRightIndicator && (
-        <div className="absolute top-6 left-6 z-10 bg-green-500 text-white font-bold py-2 px-4 rounded-lg transform rotate-12 shadow-lg">
-          SAVE
+              {program.deadline && (
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 text-primary-500 dark:text-primary-400 mr-2" />
+                  <span className="text-sm text-light-muted dark:text-dark-muted">
+                    {formatDate(program.deadline)}
+                  </span>
         </div>
       )}
 
-      {/* Add JSON-LD structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'EducationalProgram',
-            name: program.title,
-            description: program.description,
-            organization: program.organization,
-            location: program.location,
-            deadline: program.deadline,
-            image: program.imageUrl,
-          }),
-        }}
-      />
-
-      {/* Children go here */}
-      <div className="relative h-1/2">
-        <Image
-          src={program.imageUrl || '/images/default-opportunity.jpg'}
-          alt={program.title || 'No Image Available'}
-          width={600}    // Specify width
-          height={400}   // Specify height
-          className="object-cover"
-          priority
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 lg:p-6">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{program.title}</h2>
-          <p className="text-sm sm:text-base lg:text-lg text-white/90">{program.organization}</p>
+              {program.degreeLevel && (
+                <div className="flex items-center">
+                  <GraduationCap className="w-4 h-4 text-primary-500 dark:text-primary-400 mr-2" />
+                  <span className="text-sm text-light-muted dark:text-dark-muted">{program.degreeLevel}</span>
+                </div>
+              )}
+              
+              {program.cost !== undefined && (
+                <div className="flex items-center">
+                  <DollarSign className="w-4 h-4 text-primary-500 dark:text-primary-400 mr-2" />
+                  <span className="text-sm text-light-muted dark:text-dark-muted">
+                    {program.cost === 0 ? "Free" : `$${program.cost.toLocaleString()}`}
+                  </span>
         </div>
+              )}
       </div>
-
-      <div className="p-3 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4">
-        <p className="text-sm sm:text-base lg:text-lg text-gray-600">{description}</p>
-
-        <div className="space-y-2">
-          <div className="flex items-center text-gray-600">
-            <Calendar className="w-5 h-5 mr-2" aria-hidden="true" />
-            <span>Deadline: {formattedDeadline}</span>
           </div>
-
-          <div className="flex items-center text-gray-600">
-            <MapPin className="w-5 h-5 mr-2" aria-hidden="true" />
-            <span>{program.location}</span>
+        </div>
+      ) : (
+        // List mode UI - More compact
+        <div className="flex flex-col h-full">
+          <div className="h-48 relative">
+            {!imageError ? (
+              <Image
+                src={program.imageUrl || "/images/default-opportunity.jpg"}
+                alt={program.title || "Program"}
+                fill
+                className="object-cover"
+                onError={handleImageError}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-light-background dark:bg-dark-background">
+                <div className="text-light-muted dark:text-dark-muted">Image unavailable</div>
           </div>
-
-          {program.stipend && (
-            <div className="flex items-center text-gray-600">
-              <DollarSign className="w-5 h-5 mr-2" aria-hidden="true" />
-              <span>{program.stipend}</span>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+              <h3 className="text-white font-semibold text-lg">{program.title}</h3>
             </div>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <h3 className="flex items-center text-gray-700 font-semibold">
-            <GraduationCap className="w-5 h-5 mr-2" aria-hidden="true" />
-            Eligibility
-          </h3>
-          {Array.isArray(program.eligibility) ? (
-            <ul className="list-disc list-inside text-gray-600 ml-2">
-              {program.eligibility.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-600 ml-2">
-              {program.eligibility || 'No eligibility information available'}
+          <div className="p-4 flex-1 flex flex-col">
+            <p className="text-light-muted dark:text-dark-muted text-sm mb-4 line-clamp-3">
+              {program.description || "No description available"}
             </p>
+            
+            <div className="mt-auto flex flex-wrap gap-2">
+              {program.field && (
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                  {program.field}
+                </span>
+              )}
+              {program.organization && (
+                <span className="text-xs px-2 py-1 rounded-full bg-light-border dark:bg-dark-border text-light-text dark:text-dark-text">
+                  {program.organization}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-sm text-light-muted dark:text-dark-muted">
+                {program.deadline ? formatDate(program.deadline) : "No deadline"}
+              </span>
+              
+              {program.cost !== undefined && (
+                <span className="font-medium text-sm text-light-text dark:text-dark-text">
+                  {program.cost === 0 ? "Free" : `$${program.cost.toLocaleString()}`}
+                </span>
           )}
         </div>
       </div>
+        </div>
+      )}
     </AnimatedDiv>
   );
 }

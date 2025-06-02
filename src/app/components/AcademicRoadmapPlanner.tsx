@@ -4,6 +4,7 @@ import RoadmapsList from './RoadmapsListNew';
 import RoadmapDetail from './RoadmapDetail';
 import NewRoadmapModal from './NewRoadmapModal';
 import ConfirmationModal from './ConfirmationModal';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   fetchRoadmapPlanners, 
   createRoadmapPlanner,
@@ -23,6 +24,8 @@ import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 
 export default function AcademicRoadmapPlanner() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const { user, isLoading: isAuthLoading } = useAuth();
   const [roadmaps, setRoadmaps] = useState<RoadmapPlanner[]>([]);
   const [selectedRoadmapId, setSelectedRoadmapId] = useState<string | null>(null);
@@ -494,7 +497,7 @@ export default function AcademicRoadmapPlanner() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
       </div>
     );
   }
@@ -503,14 +506,14 @@ export default function AcademicRoadmapPlanner() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-bold mb-4">Please Login</h2>
-          <p className="mb-6 text-gray-600">
+        <div className="bg-light-card dark:bg-dark-card p-8 rounded-lg shadow-md dark:shadow-dark-border/30 text-center">
+          <h2 className="text-2xl font-bold mb-4 text-light-text dark:text-dark-text">Please Login</h2>
+          <p className="mb-6 text-light-muted dark:text-dark-muted">
             You need to be logged in to create and manage your academic roadmaps.
           </p>
           <a 
             href="/api/auth/login" 
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600"
           >
             Login to Continue
           </a>
@@ -569,7 +572,7 @@ export default function AcademicRoadmapPlanner() {
         cancelText="Cancel"
         onConfirm={confirmDeleteRoadmap}
         onCancel={cancelDeleteRoadmap}
-        isDangerous={true}
+        isDanger={true}
         isConfirmDisabled={isDeletingRoadmap}
       />
     </div>

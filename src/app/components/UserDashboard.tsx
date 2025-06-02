@@ -6,6 +6,7 @@ import { Program, ChecklistItem, AcademicYear } from '../types/types';
 import { ListChecks, CalendarClock, PlusCircle, X, Map, Plus, FolderPlus, Loader2, Calendar } from 'lucide-react';
 import { GoalInput, Goal, toggleGoalCompletion } from '../services/goalService';
 import { ScrollableGoals } from './ScrollableGoals';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface UserDashboardProps {
   savedPrograms: Program[];
@@ -36,6 +37,16 @@ const scrollbarStyles = `
     background: #555 !important;
   }
   
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b !important;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569 !important;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b !important;
+  }
+  
   /* Apply to ScrollableGoals container */
   .goals-container .scrollable-content::-webkit-scrollbar {
     width: 8px !important;
@@ -51,6 +62,16 @@ const scrollbarStyles = `
   .goals-container .scrollable-content::-webkit-scrollbar-thumb:hover {
     background: #555 !important;
   }
+  
+  .dark .goals-container .scrollable-content::-webkit-scrollbar-track {
+    background: #1e293b !important;
+  }
+  .dark .goals-container .scrollable-content::-webkit-scrollbar-thumb {
+    background: #475569 !important;
+  }
+  .dark .goals-container .scrollable-content::-webkit-scrollbar-thumb:hover {
+    background: #64748b !important;
+  }
 `;
 
 export default function UserDashboard({
@@ -65,6 +86,8 @@ export default function UserDashboard({
   isLoadingGoals = false,
   onToggleGoalCompletion
 }: UserDashboardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newYear, setNewYear] = useState<string>("");
   const [showGoalForm, setShowGoalForm] = useState(false);
@@ -322,16 +345,16 @@ export default function UserDashboard({
           }
         }}
       >
-        <div className="bg-white rounded-lg w-full max-w-md overflow-hidden shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="bg-light-card dark:bg-dark-card rounded-lg w-full max-w-md overflow-hidden shadow-xl" onClick={e => e.stopPropagation()}>
           {/* Modal header */}
-          <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-blue-50">
-            <h2 className="text-xl font-semibold text-blue-700 flex items-center">
+          <div className="px-6 py-4 border-b border-light-border dark:border-dark-border flex justify-between items-center bg-primary-50">
+            <h2 className="text-xl font-semibold text-primary-700 dark:text-primary-400 flex items-center">
               <Map className="h-5 w-5 mr-2" /> 
               New Roadmap
             </h2>
             <button 
               type="button"
-              className="text-gray-400 hover:text-gray-600 focus:outline-none"
+              className="text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text focus:outline-none"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsModalOpen(false);
@@ -345,14 +368,14 @@ export default function UserDashboard({
             <div className="px-6 py-6">
               {/* Year Input */}
               <div className="mb-6">
-                <label htmlFor="academic-year" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="academic-year" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
                   Academic Year
                 </label>
                 <input
                   type="number"
                   id="academic-year"
                   placeholder="e.g. 2025"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                  className="w-full px-4 py-2 bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 shadow-sm"
                   defaultValue={formRefs.current.year}
                   onChange={handleYearChange}
                   min="2000"
@@ -363,13 +386,13 @@ export default function UserDashboard({
               {/* Milestones */}
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-light-text dark:text-dark-text">
                     Milestones
                   </label>
                   <button
                     type="button"
                     onClick={(e) => addMilestone(e)}
-                    className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                    className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 font-medium flex items-center"
                   >
                     <Plus className="h-3 w-3 mr-1" /> Add milestone
                   </button>
@@ -379,16 +402,16 @@ export default function UserDashboard({
                   {formRefs.current.milestones.map((milestone, index) => (
                     <div 
                       key={`milestone-${index}`}
-                      className="bg-white rounded-md p-4 border border-gray-200 shadow-sm hover:border-blue-200 transition-colors"
+                      className="bg-light-card dark:bg-dark-card rounded-md p-4 border border-light-border dark:border-dark-border shadow-sm hover:border-primary-200 dark:hover:border-primary-700 transition-colors"
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-xs font-medium text-blue-600">Milestone {index + 1}</span>
+                        <span className="text-xs font-medium text-primary-600 dark:text-primary-400">Milestone {index + 1}</span>
                         {formRefs.current.milestones.length > 1 && (
                           <button
                             type="button"
                             onClick={(e) => removeMilestone(index, e)}
-                            className="text-gray-400 hover:text-red-500 focus:outline-none"
+                            className="text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text focus:outline-none"
                             aria-label="Remove milestone"
                           >
                             <X className="h-4 w-4" />
@@ -400,7 +423,7 @@ export default function UserDashboard({
                         <input
                           type="text"
                           placeholder="Milestone title"
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                          className="w-full px-3 py-2 bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 shadow-sm"
                           defaultValue={milestone.title}
                           onChange={(e) => handleMilestoneFieldChange(index, 'title', e.target.value)}
                         />
@@ -409,14 +432,14 @@ export default function UserDashboard({
                           <div className="w-1/2">
                             <input
                               type="date"
-                              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 shadow-sm"
                               defaultValue={milestone.date}
                               onChange={(e) => handleMilestoneFieldChange(index, 'date', e.target.value)}
                             />
                           </div>
                           <div className="w-1/2">
                             <select
-                              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm appearance-none"
+                              className="w-full px-3 py-2 bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 appearance-none"
                               defaultValue={milestone.type}
                               onChange={(e) => handleMilestoneFieldChange(index, 'type', e.target.value)}
                             >
@@ -432,8 +455,8 @@ export default function UserDashboard({
                 </div>
 
                 {formRefs.current.milestones.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-md border border-dashed border-gray-300">
-                    <FolderPlus className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+                  <div className="text-center py-8 text-light-muted dark:text-dark-muted bg-light-background dark:bg-dark-background rounded-md border border-dashed border-light-border dark:border-dark-border">
+                    <FolderPlus className="h-10 w-10 mx-auto mb-2 text-light-muted dark:text-dark-muted" />
                     <p>No milestones added yet</p>
                     <p className="text-xs mt-1">Click &quot;Add milestone&quot; to get started</p>
                   </div>
@@ -441,7 +464,7 @@ export default function UserDashboard({
               </div>
             </div>
             
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end space-x-3">
+            <div className="px-6 py-4 bg-light-background dark:bg-dark-background border-t border-light-border dark:border-dark-border flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={(e) => {
@@ -449,13 +472,13 @@ export default function UserDashboard({
                   e.stopPropagation();
                   setIsModalOpen(false);
                 }}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-sm"
+                className="px-4 py-2 bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border text-light-text dark:text-dark-text text-sm font-medium rounded-md hover:bg-light-border dark:hover:bg-dark-border focus:outline-none focus:ring-2 focus:ring-light-border dark:focus:ring-dark-border shadow-sm"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 border border-transparent text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                className="px-4 py-2 bg-primary-600 dark:bg-primary-700 border border-transparent text-white text-sm font-medium rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 Create Roadmap
               </button>
@@ -541,8 +564,8 @@ export default function UserDashboard({
       
       {/* Hero Section */}
       <div className="mb-2">
-        <h1 className="text-4xl font-bold text-indigo-700 mb-3">Start Your Academic Journey</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-4xl font-bold text-primary-700 dark:text-primary-400 mb-3">Start Your Academic Journey</h1>
+        <p className="text-lg text-light-muted dark:text-dark-muted">
           Discover and track academic programs that match your interests and goals.
         </p>
       </div>
@@ -550,45 +573,45 @@ export default function UserDashboard({
       {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Your Progress Section */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Your Progress</h2>
-            <ListChecks className="h-5 w-5 text-indigo-600" />
+            <h2 className="text-xl font-semibold text-light-text dark:text-dark-text">Your Progress</h2>
+            <ListChecks className="h-5 w-5 text-primary-600 dark:text-primary-400" />
           </div>
           
           <div className="space-y-4">
-            <div className="border-b pb-3">
+            <div className="border-b border-light-border dark:border-dark-border pb-3">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm text-gray-600">Tasks Completed</span>
-                <span className="text-sm font-medium">{completedTasks}/{totalTasks}</span>
+                <span className="text-sm text-light-muted dark:text-dark-muted">Tasks Completed</span>
+                <span className="text-sm font-medium text-light-text dark:text-dark-text">{completedTasks}/{totalTasks}</span>
               </div>
             </div>
             
-            <div className="border-b pb-3">
+            <div className="border-b border-light-border dark:border-dark-border pb-3">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-sm text-gray-600">Milestones Completed</span>
-                <span className="text-sm font-medium">{completedMilestones}/{totalMilestones}</span>
+                <span className="text-sm text-light-muted dark:text-dark-muted">Milestones Completed</span>
+                <span className="text-sm font-medium text-light-text dark:text-dark-text">{completedMilestones}/{totalMilestones}</span>
               </div>
             </div>
             
             <div>
               <div className="flex flex-col mb-1">
-                <span className="text-sm text-gray-600">Saved Programs</span>
+                <span className="text-sm text-light-muted dark:text-dark-muted">Saved Programs</span>
                 {savedPrograms.length > 0 ? (
                   <div className="mt-2 space-y-2">
                     {savedPrograms.slice(0, 3).map(program => (
-                      <div key={program.id} className="text-sm text-indigo-600">
+                      <div key={program.id} className="text-sm text-primary-600 dark:text-primary-400">
                         {program.title}
                       </div>
                     ))}
                     {savedPrograms.length > 3 && (
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-light-muted dark:text-dark-muted">
                         +{savedPrograms.length - 3} more
                       </div>
                     )}
                   </div>
                 ) : (
-                  <span className="text-sm text-gray-500 mt-1">No programs saved yet</span>
+                  <span className="text-sm text-light-muted dark:text-dark-muted mt-1">No programs saved yet</span>
                 )}
               </div>
             </div>
@@ -596,7 +619,7 @@ export default function UserDashboard({
         </div>
 
         {/* Upcoming Deadlines Section */}
-        <div className="bg-indigo-600 rounded-lg shadow p-6">
+        <div className="bg-primary-600 dark:bg-primary-900 rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-white">Upcoming Deadlines</h2>
             <CalendarClock className="h-5 w-5 text-white" />
@@ -606,11 +629,11 @@ export default function UserDashboard({
             {upcomingDeadlines.length > 0 ? (
               <div className="space-y-4">
                 {upcomingDeadlines.map(item => (
-                  <div key={item.id} className="border-b border-indigo-400/30 pb-3 last:border-0">
+                  <div key={item.id} className="border-b border-primary-500/30 dark:border-primary-700/30 pb-3 last:border-0">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-white">{item.title}</span>
                       {item.deadline && (
-                        <span className="text-xs text-indigo-200 mt-1">
+                        <span className="text-xs text-primary-200 dark:text-primary-300 mt-1">
                           Due: {new Date(item.deadline).toLocaleDateString()}
                         </span>
                       )}
@@ -628,12 +651,12 @@ export default function UserDashboard({
         </div>
 
         {/* Academic Journey Section */}
-        <div className="bg-white rounded-lg shadow p-6 goals-container">
+        <div className="bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 p-6 goals-container">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Journey Goals</h2>
+            <h2 className="text-xl font-semibold text-light-text dark:text-dark-text">Journey Goals</h2>
             <button 
               onClick={() => setShowGoalForm(true)}
-              className="p-1 rounded-full hover:bg-blue-100 text-blue-600 transition-colors focus:outline-none"
+              className="p-1 rounded-full hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-600 dark:text-primary-400 transition-colors focus:outline-none"
               aria-label="Add goal"
               title="Add goal"
             >
@@ -643,7 +666,7 @@ export default function UserDashboard({
           
           {isLoadingGoals ? (
             <div className="flex justify-center items-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
             </div>
           ) : Object.keys(goalsByYear).length > 0 ? (
             <ScrollableGoals 
@@ -652,11 +675,11 @@ export default function UserDashboard({
               onSwitchToRoadmapPlanner={onSwitchToRoadmapPlanner}
               onToggleGoalCompletion={handleToggleGoalCompletion}
               onSwitchToGoalsTab={onSwitchToGoalsTab}
-              isDarkTheme={false}
+              isDarkTheme={isDark}
               className="scrollable-content custom-scrollbar"
             />
           ) : (
-            <div className="text-center py-4 text-gray-500">
+            <div className="text-center py-4 text-light-muted dark:text-dark-muted">
               <p>No goals found with due dates.</p>
               <p className="text-sm mt-1">Add goals with due dates to see them here.</p>
             </div>
@@ -666,17 +689,17 @@ export default function UserDashboard({
       
       {/* Create New Roadmap Section */}
       <div 
-        className="bg-white rounded-lg shadow p-6 border-2 border-dashed transition-colors w-full mx-auto"
-        style={{ borderColor: '#3b82f6' }}
+        className="bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 p-6 border-2 border-dashed transition-colors w-full mx-auto"
+        style={{ borderColor: isDark ? '#1e40af' : '#3b82f6' }}
       >
         <div className="flex flex-col items-center justify-center text-center py-4">
-          <PlusCircle className="h-10 w-10 text-blue-500 mb-3" />
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Create a New Roadmap</h2>
-          <p className="text-gray-600 mb-4 max-w-md">
+          <PlusCircle className="h-10 w-10 text-primary-500 dark:text-primary-400 mb-3" />
+          <h2 className="text-xl font-bold text-light-text dark:text-dark-text mb-2">Create a New Roadmap</h2>
+          <p className="text-light-muted dark:text-dark-muted mb-4 max-w-md">
             Plan your academic journey with a personalized roadmap to reach your educational goals.
           </p>
           <button 
-            className="px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-5 py-2 bg-primary-600 dark:bg-primary-700 text-white font-medium rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
             onClick={handleCreateRoadmapClick}
           >
             Create Roadmap
@@ -687,15 +710,15 @@ export default function UserDashboard({
       {/* Goal form modal */}
       {showGoalForm && isBrowser && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="flex justify-between items-center p-5 border-b">
-              <h3 className="text-xl font-semibold text-gray-900">
+          <div className="bg-light-card dark:bg-dark-card rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="flex justify-between items-center p-5 border-b border-light-border dark:border-dark-border">
+              <h3 className="text-xl font-semibold text-light-text dark:text-dark-text">
                 Create New Goal
               </h3>
               <button 
                 type="button" 
                 onClick={closeGoalForm}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text"
                 aria-label="Close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -708,41 +731,41 @@ export default function UserDashboard({
             <div className="p-5">
               <form onSubmit={handleGoalSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="goal-title" className="block text-sm font-medium text-gray-700 mb-1">
-                    Title <span className="text-red-500">*</span>
+                  <label htmlFor="goal-title" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+                    Title <span className="text-red-500 dark:text-red-400">*</span>
                   </label>
                   <input
                     id="goal-title"
                     ref={goalTitleRef}
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
                     required
                     autoFocus
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="goal-dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="goal-dueDate" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
                     Due Date
                   </label>
                   <input
                     id="goal-dueDate"
                     ref={goalDueDateRef}
                     type="date"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
                   />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="goal-category" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="goal-category" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
                       Category
                     </label>
                     <select
                       id="goal-category"
                       ref={goalCategoryRef}
                       defaultValue="academic"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
                     >
                       <option value="academic">Academic</option>
                       <option value="extracurricular">Extracurricular</option>
@@ -751,14 +774,14 @@ export default function UserDashboard({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="goal-priority" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="goal-priority" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
                       Priority
                     </label>
                     <select
                       id="goal-priority"
                       ref={goalPriorityRef}
                       defaultValue="medium"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -768,14 +791,14 @@ export default function UserDashboard({
                 </div>
                 
                 <div>
-                  <label htmlFor="goal-description" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="goal-description" className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
                     Description
                   </label>
                   <textarea
                     id="goal-description"
                     ref={goalDescriptionRef}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400"
                   ></textarea>
                 </div>
                 
@@ -783,7 +806,7 @@ export default function UserDashboard({
                   <button
                     type="button"
                     onClick={closeGoalForm}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 text-sm font-medium text-light-text dark:text-dark-text bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-md hover:bg-light-border dark:hover:bg-dark-border disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isSavingGoal}
                   >
                     Cancel
@@ -791,7 +814,7 @@ export default function UserDashboard({
                   <button
                     type="submit"
                     disabled={isSavingGoal}
-                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-primary-700 border border-transparent rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {isSavingGoal ? (
                       <>
