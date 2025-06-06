@@ -16,11 +16,11 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ completed, total }) =
   const { theme } = useTheme();
 
   return (
-    <section className="py-12 md:py-16 bg-light-card dark:bg-dark-card/50">
+    <section className="py-10 md:py-16 bg-light-card dark:bg-dark-card/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto bg-light-background dark:bg-dark-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden p-6">
-          <div className="flex items-center space-x-6">
-            <div className="relative w-24 h-24 flex-shrink-0">
+        <div className="max-w-md mx-auto bg-light-background dark:bg-dark-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 mx-auto sm:mx-0">
               {/* Background circle */}
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle
@@ -58,10 +58,10 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ completed, total }) =
               </svg>
             </div>
             
-            <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <ChartPie className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                <h3 className="text-xl font-semibold text-light-text dark:text-dark-text">Progress Tracker</h3>
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start space-x-2 mb-2">
+                <ChartPie className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
+                <h3 className="text-lg sm:text-xl font-semibold text-light-text dark:text-dark-text">Progress Tracker</h3>
               </div>
               <p className="text-light-muted dark:text-dark-muted mb-1">
                 {completed} of {total} tasks done

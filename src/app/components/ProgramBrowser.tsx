@@ -1,6 +1,6 @@
 'use client'; // Mark this as a Client Component
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSprings, animated, to } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { Program } from '../types/types';
@@ -42,6 +42,23 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [gone] = useState<Set<number>>(new Set()); // Set of indices that have been swiped
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Create springs for each card
   const [props, api] = useSprings(programs.length, i => ({
@@ -106,9 +123,9 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       {onGoBack && (
         <button 
           onClick={onGoBack} 
-          className="absolute top-4 left-4 z-10 p-2 rounded-full bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text shadow-md dark:shadow-dark-border/30"
+          className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10 p-1.5 sm:p-2 rounded-full bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text shadow-md dark:shadow-dark-border/30"
         >
-          <ArrowLeft className="h-6 w-6" />
+          <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       )}
 
@@ -127,7 +144,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
               zIndex: programs.length - i,
               position: 'absolute',
                 }}
-            className="w-[80%] max-w-md h-[70vh] touch-none"
+            className="w-[90%] sm:w-[80%] max-w-md h-[60vh] sm:h-[70vh] touch-none"
               >
             <ProgramCard
               program={programs[i]}
@@ -139,13 +156,13 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
 
         {/* Empty state when all cards are gone */}
         {gone.size === programs.length && (
-          <div className="text-center p-6 bg-light-card dark:bg-dark-card rounded-xl shadow-md dark:shadow-dark-border/30">
-            <h3 className="text-xl font-semibold text-light-text dark:text-dark-text mb-2">No more programs</h3>
-            <p className="text-light-muted dark:text-dark-muted mb-4">You've gone through all available programs</p>
+          <div className="text-center p-4 sm:p-6 bg-light-card dark:bg-dark-card rounded-xl shadow-md dark:shadow-dark-border/30 mx-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-light-text dark:text-dark-text mb-2">No more programs</h3>
+            <p className="text-sm sm:text-base text-light-muted dark:text-dark-muted mb-4">You've gone through all available programs</p>
             <button 
               onClick={onGoBack} 
-              className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-      >
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors text-sm sm:text-base"
+            >
               Back to Search
             </button>
           </div>
@@ -153,7 +170,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       </div>
       
       {/* Controls */}
-      <div className="flex justify-center gap-8 my-6">
+      <div className="flex justify-center gap-6 sm:gap-8 my-4 sm:my-6">
         <button
           onClick={() => {
             const index = programs.length - gone.size - 1;
@@ -173,9 +190,9 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
               };
             });
           }}
-          className="w-16 h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
         >
-          <X className="w-8 h-8" />
+          <X className="w-6 h-6 sm:w-8 sm:h-8" />
         </button>
         
         <button
@@ -197,9 +214,9 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
               };
             });
           }}
-          className="w-16 h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+          className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
         >
-          <Heart className="w-8 h-8" />
+          <Heart className="w-6 h-6 sm:w-8 sm:h-8" />
         </button>
       </div>
 
@@ -212,6 +229,6 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
           <Heart className="w-4 h-4 mr-1 text-primary-600 dark:text-primary-400" /> Swipe right to save
         </div>
       </div>
-          </div>
+    </div>
   );
 }

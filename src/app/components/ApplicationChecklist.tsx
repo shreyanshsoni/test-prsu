@@ -31,9 +31,9 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
 
   if (programs.length === 0) {
     return (
-      <div className="text-center py-10">
-        <h2 className="text-xl font-medium text-light-text dark:text-dark-text mb-2">No Programs Saved</h2>
-        <p className="text-light-muted dark:text-dark-muted">Save programs to create checklists for application requirements.</p>
+      <div className="text-center py-8 sm:py-10">
+        <h2 className="text-lg sm:text-xl font-medium text-light-text dark:text-dark-text mb-2">No Programs Saved</h2>
+        <p className="text-sm sm:text-base text-light-muted dark:text-dark-muted">Save programs to create checklists for application requirements.</p>
       </div>
     );
   }
@@ -41,36 +41,36 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
   return (
     <section className="h-full overflow-hidden flex flex-col">
       {/* Header with title */}
-      <header className="p-4 border-b border-light-border dark:border-dark-border mb-4">
+      <header className="p-3 sm:p-4 border-b border-light-border dark:border-dark-border mb-3 sm:mb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">My Checklists</h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-light-text dark:text-dark-text">My Checklists</h1>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 bg-light-card dark:bg-dark-card">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-light-card dark:bg-dark-card">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {programGroups.map(({ program, items }) => (
-            <section key={program.id} className="border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 p-6">
-              <header className="mb-6">
-                <h2 className="text-xl font-semibold mb-2 text-light-text dark:text-dark-text">
+            <section key={program.id} className="border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card rounded-lg shadow dark:shadow-dark-border/30 p-3 sm:p-6">
+              <header className="mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2 text-light-text dark:text-dark-text">
                   {program?.title || "No Title Available"}
                 </h2>
-                <p className="text-light-muted dark:text-dark-muted">
+                <p className="text-xs sm:text-sm text-light-muted dark:text-dark-muted">
                   {program?.organization || "Unknown Organization"}
                 </p>
               </header>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Standard Requirements */}
                 <div>
-                  <h3 className="font-medium mb-4 text-light-text dark:text-dark-text">Standard Requirements</h3>
-                  <ul className="space-y-3">
+                  <h3 className="text-sm sm:text-base font-medium mb-2 sm:mb-4 text-light-text dark:text-dark-text">Standard Requirements</h3>
+                  <ul className="space-y-2 sm:space-y-3">
                     {items
                       .filter((item) => item.type === 'standard')
                       .map((item) => (
                         <li key={item.id}>
-                          <div className="flex items-center justify-between p-3 border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-between p-2 sm:p-3 border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <button
                                 onClick={() => {
                                   const nextStatusMap: Record<ChecklistItem['status'], ChecklistItem['status']> = {
@@ -84,15 +84,15 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
                                 aria-label={`Update status of ${item.title}`}
                                 className="focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 rounded-full"
                               >
-                                {getStatusIcon(item.status)}
+                                {getStatusIcon(item.status, '1.25rem', '1rem')}
                               </button>
-                              <span className="text-light-text dark:text-dark-text">{item.title}</span>
+                              <span className="text-sm sm:text-base text-light-text dark:text-dark-text">{item.title}</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 sm:gap-2">
                               {item.deadline && getDaysUntilDeadline(item.deadline) <= 7 && (
-                                <div className="flex items-center gap-1 text-red-500 dark:text-red-400 text-sm">
-                                  <AlertCircle className="w-4 h-4" aria-hidden="true" />
-                                  {getDaysUntilDeadline(item.deadline)} days left
+                                <div className="flex items-center gap-1 text-red-500 dark:text-red-400 text-xs sm:text-sm">
+                                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
+                                  <span className="whitespace-nowrap">{getDaysUntilDeadline(item.deadline)} days left</span>
                                 </div>
                               )}
                             </div>
@@ -104,16 +104,16 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
 
                 {/* Program-Specific Requirements */}
                 <div>
-                  <h3 className="font-medium mb-4 text-light-text dark:text-dark-text">Program-Specific Requirements</h3>
-                  <ul className="space-y-3">
+                  <h3 className="text-sm sm:text-base font-medium mb-2 sm:mb-4 text-light-text dark:text-dark-text">Program-Specific Requirements</h3>
+                  <ul className="space-y-2 sm:space-y-3">
                     {items
                       .filter((item) => item.type === 'program_specific')
                       .map((item) => {
-                        const statusIcon = getStatusIcon(item.status);
+                        const statusIcon = getStatusIcon(item.status, '1.25rem', '1rem');
                         return (
                           <li key={item.id}>
-                            <div className="flex items-center justify-between p-3 border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
-                              <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-between p-2 sm:p-3 border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
+                              <div className="flex items-center gap-2 sm:gap-3">
                                 <button
                                   onClick={() => {
                                     const nextStatusMap: Record<ChecklistItem['status'], ChecklistItem['status']> = {
@@ -129,13 +129,13 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
                                 >
                                   {statusIcon}
                                 </button>
-                                <span className="text-light-text dark:text-dark-text">{item.title}</span>
+                                <span className="text-sm sm:text-base text-light-text dark:text-dark-text">{item.title}</span>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 sm:gap-2">
                                 {item.deadline && getDaysUntilDeadline(item.deadline) <= 7 && (
-                                  <div className="flex items-center gap-1 text-red-500 dark:text-red-400 text-sm">
-                                    <AlertCircle className="w-4 h-4" aria-hidden="true" />
-                                    {getDaysUntilDeadline(item.deadline)} days left
+                                  <div className="flex items-center gap-1 text-red-500 dark:text-red-400 text-xs sm:text-sm">
+                                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
+                                    <span className="whitespace-nowrap">{getDaysUntilDeadline(item.deadline)} days left</span>
                                   </div>
                                 )}
                               </div>
@@ -145,7 +145,7 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
                       })}
 
                     {items.filter((item) => item.type === 'program_specific').length === 0 && (
-                      <li className="text-light-muted dark:text-dark-muted text-sm italic">
+                      <li className="text-light-muted dark:text-dark-muted text-xs sm:text-sm italic">
                         No program-specific requirements found
                       </li>
                     )}
@@ -154,8 +154,8 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
 
                 {/* Application Progress Section */}
                 <div>
-                  <h3 className="font-medium mb-4 text-light-text dark:text-dark-text">Application Progress</h3>
-                  <div className="border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg p-4">
+                  <h3 className="text-sm sm:text-base font-medium mb-2 sm:mb-4 text-light-text dark:text-dark-text">Application Progress</h3>
+                  <div className="border border-light-border dark:border-dark-border bg-gray-100/80 dark:bg-gray-800/80 rounded-lg p-3 sm:p-4">
                     {items.length > 0 ? (
                       <div>
                         <div className="h-2 w-full bg-light-border dark:bg-dark-border rounded-full overflow-hidden">
@@ -166,7 +166,7 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
                             }}
                           ></div>
                         </div>
-                        <div className="flex justify-between mt-2 text-sm text-light-muted dark:text-dark-muted">
+                        <div className="flex justify-between mt-2 text-xs sm:text-sm text-light-muted dark:text-dark-muted">
                           <span>
                             {items.filter(item => item.status === 'completed').length} of {items.length} completed
                           </span>
@@ -176,7 +176,7 @@ export default function ApplicationChecklist({ programs, checklist, onUpdateStat
                         </div>
                       </div>
                     ) : (
-                      <p className="text-light-muted dark:text-dark-muted text-sm italic">
+                      <p className="text-light-muted dark:text-dark-muted text-xs sm:text-sm italic">
                         No checklist items available
                       </p>
                     )}

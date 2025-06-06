@@ -342,25 +342,25 @@ export default function AcademicGoals({
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-light-text dark:text-dark-text">Academic Goals</h2>
+      <div className="flex flex-row justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-light-text dark:text-dark-text">Academic Goals</h2>
         <button
           onClick={() => {
             setEditingGoalId(null);
             setShowForm(true);
           }}
-          className="flex items-center gap-1 px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-sm"
+          className="flex items-center gap-1 px-2 sm:px-4 py-1 sm:py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-sm text-xs sm:text-base ml-2"
         >
-          <PlusCircle className="w-4 h-4" />
-          Add Goal
+          <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span>Add Goal</span>
         </button>
       </div>
 
       {/* Category filters */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
         <button
           onClick={() => handleFilter(null)}
-          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === null
               ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
@@ -370,68 +370,68 @@ export default function AcademicGoals({
         </button>
         <button
           onClick={() => handleFilter('academic')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'academic'
               ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <BookOpen className="w-3 h-3" />
+          <BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Academic
         </button>
         <button
           onClick={() => handleFilter('extracurricular')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'extracurricular'
               ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <Layers className="w-3 h-3" />
+          <Layers className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Extracurricular
         </button>
         <button
           onClick={() => handleFilter('career')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'career'
               ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <Target className="w-3 h-3" />
+          <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Career
         </button>
         <button
           onClick={() => handleFilter('personal')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'personal'
               ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <Clock className="w-3 h-3" />
+          <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Personal
         </button>
         <button
           onClick={() => handleFilter('completed')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'completed'
               ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <CheckCircle2 className="w-3 h-3" />
+          <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Completed
         </button>
         <button
           onClick={() => handleFilter('incomplete')}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
             activeFilter === 'incomplete'
               ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
               : 'bg-light-background dark:bg-dark-background text-light-muted dark:text-dark-muted hover:bg-light-border dark:hover:bg-dark-border'
           }`}
         >
-          <Circle className="w-3 h-3" />
+          <Circle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           Incomplete
         </button>
       </div>
@@ -581,43 +581,43 @@ export default function AcademicGoals({
 
       {/* Goals list */}
       {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {goals.map(goal => (
             <div
               key={goal.id}
-              className={`p-5 border border-light-border dark:border-dark-border rounded-lg bg-light-card dark:bg-dark-card shadow-sm hover:shadow-md transition-shadow ${
+              className={`p-3 sm:p-5 border border-light-border dark:border-dark-border rounded-lg bg-light-card dark:bg-dark-card shadow-sm hover:shadow-md transition-shadow ${
                 goal.completed ? 'opacity-70' : ''
               }`}
             >
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-start gap-3">
+              <div className="flex justify-between items-start mb-2 sm:mb-3">
+                <div className="flex items-start gap-2 sm:gap-3">
                   <button 
                     onClick={() => handleToggleCompletion(goal.id, goal.completed)}
-                    className="mt-1 focus:outline-none"
+                    className="mt-0.5 sm:mt-1 focus:outline-none"
                   >
                     {goal.completed ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" />
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
                     ) : (
-                      <Circle className="w-5 h-5 text-light-muted dark:text-dark-muted" />
+                      <Circle className="w-4 h-4 sm:w-5 sm:h-5 text-light-muted dark:text-dark-muted" />
                     )}
                   </button>
                   <div>
                     <h3
-                      className={`text-lg font-medium ${
+                      className={`text-base sm:text-lg font-medium ${
                         goal.completed ? 'line-through text-light-muted dark:text-dark-muted' : 'text-light-text dark:text-dark-text'
-                      }`}
+                      } line-clamp-2`}
                     >
                       {goal.title}
                     </h3>
                     {goal.description && (
-                      <p className="text-sm text-light-muted dark:text-dark-muted mt-1">{goal.description}</p>
+                      <p className="text-xs sm:text-sm text-light-muted dark:text-dark-muted mt-0.5 sm:mt-1 line-clamp-2">{goal.description}</p>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 ml-1 flex-shrink-0">
                   {updatingGoalId === goal.id ? (
                     <div className="p-1 flex justify-center">
-                      <svg className="animate-spin h-4 w-4 text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -627,12 +627,12 @@ export default function AcademicGoals({
                     onClick={() => handleEdit(goal)}
                     className="p-1 text-light-muted dark:text-dark-muted hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                   )}
                   {isDeletingGoal && deleteConfirmation.goalId === goal.id ? (
                     <div className="p-1 flex justify-center">
-                      <svg className="animate-spin h-4 w-4 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -642,27 +642,27 @@ export default function AcademicGoals({
                     onClick={() => handleDelete(goal.id)}
                     className="p-1 text-light-muted dark:text-dark-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                   )}
                 </div>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3 sm:mt-4 text-xs sm:text-sm gap-2 sm:gap-0">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <div className="flex items-center gap-1">
                     {goal.category === 'academic' ? (
-                      <BookOpen className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                      <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 dark:text-blue-400" />
                     ) : goal.category === 'career' ? (
-                      <Target className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                      <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500 dark:text-purple-400" />
                     ) : goal.category === 'personal' ? (
-                      <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 dark:text-amber-400" />
                     ) : (
-                      <Layers className="w-4 h-4 text-green-500 dark:text-green-400" />
+                      <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
                     )}
                     <span className="capitalize text-light-muted dark:text-dark-muted">{goal.category}</span>
                   </div>
                   <div>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs ${
                       goal.priority === 'high'
                         ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                         : goal.priority === 'medium'
@@ -674,9 +674,9 @@ export default function AcademicGoals({
                   </div>
                 </div>
                 {goal.dueDate && (
-                  <div className="text-light-muted dark:text-dark-muted flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{formatDate(goal.dueDate)}</span>
+                  <div className="text-light-muted dark:text-dark-muted flex items-center gap-1 text-xs sm:text-sm mt-1 sm:mt-0">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{formatDate(goal.dueDate)}</span>
                   </div>
                 )}
               </div>
@@ -687,9 +687,9 @@ export default function AcademicGoals({
 
       {/* Empty state */}
       {!isLoading && goals.length === 0 && (
-        <div className="text-center py-16 bg-light-card dark:bg-dark-card rounded-lg border border-light-border dark:border-dark-border shadow-sm">
-          <h3 className="text-xl font-medium text-light-muted dark:text-dark-muted mb-2">No goals found</h3>
-          <p className="text-light-muted dark:text-dark-muted mb-4">
+        <div className="text-center py-10 sm:py-16 bg-light-card dark:bg-dark-card rounded-lg border border-light-border dark:border-dark-border shadow-sm px-3 sm:px-0">
+          <h3 className="text-lg sm:text-xl font-medium text-light-muted dark:text-dark-muted mb-2">No goals found</h3>
+          <p className="text-sm sm:text-base text-light-muted dark:text-dark-muted mb-4">
             {activeFilter 
               ? `No goals match the selected filter. Try a different filter or create a new goal.`
               : `Create your first academic goal to get started on your journey.`
@@ -700,7 +700,7 @@ export default function AcademicGoals({
               setEditingGoalId(null);
               setShowForm(true);
             }}
-            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-sm"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-sm text-sm sm:text-base"
           >
             Add Your First Goal
           </button>

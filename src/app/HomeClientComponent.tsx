@@ -516,7 +516,7 @@ export default function HomeClientComponent({
       
       {user ? (
         // Layout with sidebar for logged-in users
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-light-background dark:bg-dark-background">
           {/* Sidebar */}
           <Sidebar 
             activeTab={activeTab} 
@@ -552,13 +552,14 @@ export default function HomeClientComponent({
                 <div className="flex items-center">
                   <button
                     onClick={toggleMobileMenu}
-                    className="mr-4 lg:hidden text-light-text dark:text-dark-text"
+                    className="p-2 rounded-md hover:bg-light-border dark:hover:bg-dark-border text-light-text dark:text-dark-text transition-colors duration-200 lg:hidden"
+                    aria-label={isMobileMenuOpen ? "Close sidebar" : "Open sidebar"}
                   >
                     <Menu className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <ThemeToggle />
                   
                 {/* User profile - avatar and name only */}
@@ -570,9 +571,9 @@ export default function HomeClientComponent({
                         ? (user.nickname || user.name || user.email)
                         : user.name?.split(' ')[0]}
                       size="2rem"
-                      className="mr-2"
+                      className="ml-1"
                     />
-                      <span className="text-sm font-medium text-light-text dark:text-dark-text hidden sm:inline">
+                      <span className="text-sm font-medium text-light-text dark:text-dark-text hidden sm:inline ml-2">
                       {user.sub?.includes('auth0') 
                         ? (user.nickname || user.name || user.email) 
                         : user.name?.split(' ')[0]
@@ -585,10 +586,10 @@ export default function HomeClientComponent({
             </header>
             
             {/* Content area */}
-            <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+            <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
               <div className="max-w-6xl mx-auto">
                 {/* Tab Content */}
-                <div className="bg-light-card dark:bg-dark-card rounded-lg shadow-sm dark:shadow-dark-border/30 p-6 mb-6">
+                <div className="bg-light-card dark:bg-dark-card rounded-lg shadow-sm dark:shadow-dark-border/30 p-4 sm:p-6 mb-4 sm:mb-6">
                   {activeTab === 'dashboard' && (
                     <UserDashboard 
                       savedPrograms={savedPrograms}

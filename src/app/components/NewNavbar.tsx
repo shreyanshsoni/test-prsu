@@ -50,30 +50,30 @@ const NewNavbar: React.FC = () => {
               <Image 
                 src="/fulllogo_transparent_nobuffer.png" 
                 alt="PRSU Logo" 
-                width={200}
-                height={60}
-                className="h-14 w-auto object-contain"
+                width={180}
+                height={50}
+                className="h-10 sm:h-14 w-auto object-contain"
               />
             </a>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <ThemeToggle />
             
             {user ? (
               <a href="/api/auth/logout">
-                <Button primary className="px-5 py-2">
+                <Button primary className="px-3 py-1.5 sm:px-5 sm:py-2 text-sm sm:text-base">
                   Logout
                 </Button>
               </a>
             ) : (
               <Button 
                 primary 
-                className="px-5 py-2 text-lg"
+                className="px-3 py-1.5 sm:px-5 sm:py-2 text-sm sm:text-lg whitespace-nowrap"
                 onClick={handleGetStarted}
               >
                 <span>Get Started</span>
-                <span className="ml-2">→</span>
+                <span className="ml-1 sm:ml-2">→</span>
               </Button>
             )}
           </div>
