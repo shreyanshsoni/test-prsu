@@ -9,33 +9,33 @@ const FeatureCards: React.FC = () => {
     {
       title: 'Roadmap Planner',
       description: 'Build your academic plan step-by-step',
-      icon: <Map className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-indigo-400" />,
+      icon: <Map className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-indigo-600 dark:text-indigo-400" />,
       color: 'from-indigo-500 to-purple-600',
     },
     {
       title: 'Smart Goals',
       description: 'Set and track academic goals',
-      icon: <Target className="w-6 h-6 md:w-8 md:h-8 text-purple-600 dark:text-purple-400" />,
+      icon: <Target className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-purple-600 dark:text-purple-400" />,
       color: 'from-purple-500 to-pink-600',
     },
     {
       title: 'Academic Safety',
       description: 'Your data and path are always secure',
-      icon: <Lock className="w-6 h-6 md:w-8 md:h-8 text-blue-600 dark:text-blue-400" />,
+      icon: <Lock className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-600 dark:text-blue-400" />,
       color: 'from-blue-500 to-indigo-600',
     },
     {
       title: 'AI-Powered Insights',
       description: 'Personalized guidance to boost your learning',
-      icon: <Brain className="w-6 h-6 md:w-8 md:h-8 text-pink-600 dark:text-pink-400" />,
+      icon: <Brain className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-pink-600 dark:text-pink-400" />,
       color: 'from-pink-500 to-rose-600',
     },
   ];
 
   return (
-    <section className="py-10 md:py-20 bg-light-background dark:bg-dark-background">
+    <section className="py-8 sm:py-10 md:py-20 bg-light-background dark:bg-dark-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-8">
           {features.map((feature, index) => (
             <FeatureCard
               key={index}

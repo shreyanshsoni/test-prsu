@@ -416,44 +416,44 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
             
             {/* Filters below on mobile */}
             <div className="flex flex-wrap gap-2 sm:gap-3 flex-1 order-2 sm:order-1">
-              <select
-                value={filters.field}
+          <select
+            value={filters.field}
                 onChange={(e) => setFilters({ ...filters, field: e.target.value })}
                 className="px-2 sm:px-4 py-1.5 sm:py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 text-xs sm:text-sm flex-1"
-              >
-                <option value="">All Fields</option>
+          >
+            <option value="">All Fields</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Engineering">Engineering</option>
                 <option value="Business">Business</option>
                 <option value="Medicine">Medicine</option>
                 <option value="Arts">Arts</option>
-              </select>
-              <select
-                value={filters.degreeLevel}
+          </select>
+          <select
+            value={filters.degreeLevel}
                 onChange={(e) => setFilters({ ...filters, degreeLevel: e.target.value })}
                 className="px-2 sm:px-4 py-1.5 sm:py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 text-xs sm:text-sm flex-1"
-              >
+          >
                 <option value="">All Degree Levels</option>
                 <option value="Undergraduate">Undergraduate</option>
                 <option value="Graduate">Graduate</option>
                 <option value="Doctoral">Doctoral</option>
                 <option value="Certificate">Certificate</option>
-              </select>
-              <select
-                value={filters.organization}
+          </select>
+          <select
+            value={filters.organization}
                 onChange={(e) => setFilters({ ...filters, organization: e.target.value })}
                 className="px-2 sm:px-4 py-1.5 sm:py-2 border border-light-border dark:border-dark-border rounded-lg bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 text-xs sm:text-sm flex-1"
-              >
+          >
                 <option value="">All Organizations</option>
                 <option value="Harvard University">Harvard University</option>
-                <option value="MIT">MIT</option>
+            <option value="MIT">MIT</option>
                 <option value="Stanford University">Stanford University</option>
                 <option value="Google">Google</option>
                 <option value="NASA">NASA</option>
-              </select>
+          </select>
             </div>
-          </div>
-          
+            </div>
+            
           {/* Search button for mobile */}
           <button
             onClick={handleSearchOrFilterChange}
@@ -538,54 +538,54 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                         </button>
                       ) : (
                         <>
-                          {!isSaving && (
-                            <button
-                              onClick={() => handleRejectProgram(program)}
-                              disabled={isRejecting}
+                            {!isSaving && (
+                          <button
+                                onClick={() => handleRejectProgram(program)}
+                                disabled={isRejecting}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium ${
-                                isRejecting
-                                  ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
-                                  : 'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-600'
-                              } transition-colors`}
-                            >
-                              {isRejecting ? (
-                                <span className="flex items-center">
-                                  Rejecting
-                                  <span className="ml-1 inline-flex">
-                                    <span className="saving-dot"></span>
-                                    <span className="saving-dot"></span>
-                                    <span className="saving-dot"></span>
+                                  isRejecting
+                                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
+                                    : 'bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-600'
+                                } transition-colors`}
+                              >
+                                {isRejecting ? (
+                                  <span className="flex items-center">
+                                    Rejecting
+                                    <span className="ml-1 inline-flex">
+                                      <span className="saving-dot"></span>
+                                      <span className="saving-dot"></span>
+                                      <span className="saving-dot"></span>
+                                    </span>
                                   </span>
-                                </span>
-                              ) : (
-                                'Reject'
-                              )}
-                            </button>
-                          )}
-                          {!isRejecting && (
-                            <button
-                              onClick={() => handleSaveButtonClick(program)}
-                              disabled={isSaving}
+                                ) : (
+                                  'Reject'
+                                )}
+                          </button>
+                            )}
+                            {!isRejecting && (
+                          <button
+                            onClick={() => handleSaveButtonClick(program)}
+                                disabled={isSaving}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium ${
-                                isSaving 
-                                  ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
-                                  : 'bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-600'
-                              } transition-colors`}
-                            >
-                              {isSaving ? (
-                                <span className="flex items-center">
-                                  Saving
-                                  <span className="ml-1 inline-flex">
-                                    <span className="saving-dot"></span>
-                                    <span className="saving-dot"></span>
-                                    <span className="saving-dot"></span>
+                                  isSaving 
+                                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' 
+                                    : 'bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-600'
+                                } transition-colors`}
+                              >
+                                {isSaving ? (
+                                  <span className="flex items-center">
+                                    Saving
+                                    <span className="ml-1 inline-flex">
+                                      <span className="saving-dot"></span>
+                                      <span className="saving-dot"></span>
+                                      <span className="saving-dot"></span>
+                                    </span>
                                   </span>
-                                </span>
-                              ) : (
-                                'Save'
-                              )}
-                            </button>
-                          )}
+                                ) : (
+                                  'Save'
+                                )}
+                          </button>
+                            )}
                         </>
                       )}
                     </div>
@@ -600,18 +600,18 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
           {filteredPrograms.length > 0 && (
             <div className="flex justify-center mt-6 sm:mt-10 mb-4 sm:mb-6">
               <div className="flex items-center bg-light-card dark:bg-dark-card p-1 sm:p-1.5 rounded-xl shadow-sm dark:shadow-dark-border/30">
-                <button 
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
+              <button 
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
                   className={`flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-lg transition-all duration-200 ${
                     currentPage === 1 
                       ? 'text-light-muted dark:text-dark-muted cursor-not-allowed' 
                       : 'text-primary-600 dark:text-primary-400 hover:bg-light-border dark:hover:bg-dark-border hover:shadow-md'
                   }`}
                   aria-label="Previous page"
-                >
+              >
                   <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+              </button>
               
                 <div className="flex mx-1 sm:mx-2">
                   {/* Show fewer page numbers on mobile */}
@@ -655,19 +655,19 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
                   })}
                 </div>
               
-                <button 
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
+              <button 
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
                   className={`flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-lg transition-all duration-200 ${
                     currentPage === totalPages 
                       ? 'text-light-muted dark:text-dark-muted cursor-not-allowed' 
                       : 'text-primary-600 dark:text-primary-400 hover:bg-light-border dark:hover:bg-dark-border hover:shadow-md'
                   }`}
                   aria-label="Next page"
-                >
+              >
                   <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
+              </button>
+            </div>
             </div>
           )}
         </div>

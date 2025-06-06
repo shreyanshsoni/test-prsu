@@ -62,18 +62,18 @@ const Partners: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.h2 
           variants={itemVariants}
-          className="text-xl md:text-3xl font-bold text-center text-gray-800 dark:text-dark-text mb-8 md:mb-12"
+          className="text-lg sm:text-xl md:text-3xl font-bold text-center text-gray-800 dark:text-dark-text mb-6 sm:mb-8 md:mb-12"
         >
           Developed By Alumni And Experts From
         </motion.h2>
         
         <motion.div
-          className="flex flex-wrap justify-center items-center gap-6 md:gap-16"
+          className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-16"
         >
           {partners.map((partner, index) => (
             <motion.div 
               key={index} 
-              className="w-24 md:w-40 h-16 md:h-20 flex items-center justify-center transition-all duration-300 grayscale hover:grayscale-0 hover:scale-105"
+              className="w-28 sm:w-32 md:w-40 h-16 sm:h-20 flex items-center justify-center transition-all duration-300 grayscale hover:grayscale-0 hover:scale-105 active:grayscale-0 active:scale-105"
               variants={itemVariants}
             >
               <div className="relative w-full h-full bg-white dark:bg-white rounded-lg p-2">
