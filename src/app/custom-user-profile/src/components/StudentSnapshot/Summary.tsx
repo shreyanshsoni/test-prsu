@@ -201,22 +201,22 @@ export const Summary: React.FC<SummaryProps> = ({ data, onEdit }) => {
             </div>
 
             <div className="flex flex-col space-y-2">
-              <button
-                onClick={() => copyToClipboard(format.format, format.key)}
+            <button
+              onClick={() => copyToClipboard(format.format, format.key)}
                 className="flex items-center justify-center px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all"
-              >
-                {copiedFormat === format.key ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
+            >
+              {copiedFormat === format.key ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
                     Copied to clipboard
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-2" />
                     Copy to clipboard
-                  </>
-                )}
-              </button>
+                </>
+              )}
+            </button>
             </div>
           </div>
         ))}
@@ -231,8 +231,8 @@ export const Summary: React.FC<SummaryProps> = ({ data, onEdit }) => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button 
-            onClick={onEdit}
+        <button
+          onClick={onEdit}
             className="flex items-center justify-center px-4 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors"
           >
             Edit Your Profile
@@ -240,9 +240,9 @@ export const Summary: React.FC<SummaryProps> = ({ data, onEdit }) => {
           <button
             onClick={() => window.location.href = '/'}
             className="flex items-center justify-center px-4 py-3 border border-indigo-500 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
-          >
+        >
             Explore Opportunities
-          </button>
+        </button>
         </div>
       </div>
     </div>

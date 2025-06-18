@@ -356,7 +356,7 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
 
   return (
     <section className="h-full overflow-hidden flex flex-col">
-      {/* CSS for the animated dots */}
+      {/* CSS for the animated dots and swipe effects */}
       <style jsx global>{`
         @keyframes dot-up-down {
           0%, 100% { transform: translateY(0); }
@@ -379,23 +379,87 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
         .saving-dot:nth-child(3) {
           animation: dot-up-down 1s infinite 0.3s;
         }
+        
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        .swipe-indicator {
+          animation: float 3s ease-in-out infinite;
+        }
+
+        /* Text rendering improvements */
+        .program-card-container {
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Fix transform blur issues in various browsers */
+        .program-card {
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+          perspective: 1000px;
+          filter: blur(0);
+        }
+
+        /* Sharpen text edges during animation */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+          .program-card-text {
+            -webkit-text-stroke: 0.1px;
+          }
+        }
       `}</style>
 
       {/* Header with title */}
       <header className="p-5 border-b border-light-border dark:border-dark-border mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">Program Search</h1>
           
-          {/* View mode toggle - single button instead of two */}
+          {/* View mode toggle - enhanced with icons */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 flex items-center gap-2 rounded-l-lg transition-colors ${
+                viewMode === 'list' 
+                  ? 'bg-primary-600 dark:bg-primary-700 text-white' 
+                  : 'bg-light-border dark:bg-dark-border text-light-muted dark:text-dark-muted'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              List
+            </button>
+            
           <button
-            onClick={() => setViewMode(prev => prev === 'list' ? 'swipe' : 'list')}
-            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-          >
-            Switch to {viewMode === 'list' ? 'Swipe' : 'List'} View
+              onClick={() => setViewMode('swipe')}
+              className={`px-4 py-2 flex items-center gap-2 rounded-r-lg transition-colors ${
+                viewMode === 'swipe' 
+                  ? 'bg-primary-600 dark:bg-primary-700 text-white' 
+                  : 'bg-light-border dark:bg-dark-border text-light-muted dark:text-dark-muted'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.5 5.5L9 3L3.5 4.5L7.5 8.5L3 11L9 13L14.5 11.5"></path>
+                <line x1="9" y1="3" x2="9" y2="13"></line>
+                <path d="M9 13l5.5 2L20 13.5L15 10l4.5-2L14 6l-5 2.5"></path>
+              </svg>
+              Swipe
           </button>
+          </div>
         </div>
       </header>
 
+      {/* Show filters only in list view */}
+      {viewMode === 'list' && (
       <div className="flex-1 overflow-y-auto">
         {/* Search and filter UI - reorganized layout */}
         <div className="mb-6 px-5 py-3 bg-light-card dark:bg-dark-card rounded-lg mx-4 shadow dark:shadow-dark-border/30">
@@ -454,6 +518,25 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
             </div>
         </div>
       </div>
+        </div>
+      )}
+
+      {/* Show transition animation when switching to swipe mode */}
+      {viewMode === 'swipe' && !loading && filteredPrograms.length === 0 && (
+        <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
+          <div className="w-24 h-24 mb-4 text-primary-500 dark:text-primary-400 swipe-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 5.5L9 3L3.5 4.5L7.5 8.5L3 11L9 13L14.5 11.5"></path>
+              <line x1="9" y1="3" x2="9" y2="13"></line>
+              <path d="M9 13l5.5 2L20 13.5L15 10l4.5-2L14 6l-5 2.5"></path>
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-light-text dark:text-dark-text mb-1">Let's find your perfect match</h3>
+          <p className="text-light-muted dark:text-dark-muted max-w-md">
+            Find academic programs that interest you by swiping right to save or left to reject
+          </p>
+        </div>
+      )}
 
       {/* Loading Spinner */}
       {loading && (
@@ -464,7 +547,7 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       )}
 
       {/* Empty State */}
-      {!loading && filteredPrograms.length === 0 && (
+      {!loading && filteredPrograms.length === 0 && viewMode === 'list' && (
         <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
           <div className="w-20 h-20 mb-4 text-light-muted dark:text-dark-muted">
             <X className="w-full h-full" />
@@ -662,18 +745,32 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
         </div>
       )}
 
-      {/* Program Swipe View */}
+      {/* Program Swipe View - Full height for falling cards */}
       {filteredPrograms.length > 0 && viewMode === 'swipe' && (
-        <div className="flex-1 flex flex-col items-center justify-center relative">
+        <div className="flex-1 flex flex-col items-center relative overflow-hidden program-card-container" 
+             style={{ minHeight: 'calc(100vh - 150px)' }}> {/* Taller container for cards */}
           <ProgramBrowser 
             programs={filteredPrograms}
             onApprove={(program) => handleSaveProgramToRoadmap(program)}
             onReject={(program) => handleRejectProgram(program)}
             onGoBack={() => setViewMode('list')}
           />
+          
+          {/* Mini floating filter panel */}
+          <div className="absolute top-4 right-4 z-10">
+            <button 
+              className="p-3 bg-light-card dark:bg-dark-card rounded-full shadow-lg dark:shadow-dark-border/30 text-light-text dark:text-dark-text"
+              onClick={() => {
+                // Show a modal with filters (would need to be implemented)
+                // For now, just switch back to list view
+                setViewMode('list');
+              }}
+            >
+              <Filter className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
-    </div>
     </section>
   );
 }

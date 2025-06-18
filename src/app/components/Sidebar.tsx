@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, LogOut, ChevronLeft, ChevronRight, Menu, User } from 'lucide-react';
+import React from 'react';
+import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, LogOut, ChevronLeft, ChevronRight, Menu, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { UserProfile } from '../hooks/useAuth';
 import ProfileAvatar from './ProfileAvatar';
@@ -12,6 +12,8 @@ interface SidebarProps {
   user: UserProfile | null;
   isOpen: boolean;
   onToggle: () => void;
+  isCollapsed: boolean;
+  onCollapseToggle: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -19,15 +21,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   onTabChange, 
   user,
   isOpen,
-  onToggle
+  onToggle,
+  isCollapsed,
+  onCollapseToggle
 }) => {
-  // Default to expanded sidebar
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const toggleCollapse = () => {
-    setIsCollapsed(prevState => !prevState);
-  };
-
   const TABS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'search', label: 'Program Search', icon: Search },
@@ -50,18 +47,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Sidebar - hidden on mobile unless menu is open */}
+      {/* Sidebar - completely hidden on mobile unless menu is open */}
       <div 
-        className={`h-screen bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text flex flex-col fixed lg:relative z-20
-          ${isOpen ? 'block' : 'hidden lg:block'} 
+        className={`h-screen bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text flex flex-col fixed lg:relative z-30
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} 
           ${isCollapsed ? 'lg:w-24' : 'lg:w-64'} 
-          shadow-[2px_0px_10px_rgba(0,0,0,0.1)] dark:shadow-[2px_0px_10px_rgba(0,0,0,0.3)] overflow-hidden`}
+          shadow-[2px_0px_10px_rgba(0,0,0,0.1)] dark:shadow-[2px_0px_10px_rgba(0,0,0,0.3)] overflow-hidden
+          transition-transform duration-300 ease-in-out`}
         style={{
           width: isOpen ? (isCollapsed ? '6rem' : '16rem') : isCollapsed ? '6rem' : '16rem',
-          transition: 'width 0.5s ease-in-out',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh'
+          transition: 'width 0.5s ease-in-out, transform 0.3s ease-in-out',
         }}
       >
         {/* Logo section with toggle button on right */}
@@ -82,10 +77,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </a>
           
-          {/* Toggle button positioned on the right with changing chevron direction */}
+          {/* Toggle button positioned on the right */}
           <button 
-            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text transition-all duration-300 flex items-center justify-center`}
-            onClick={toggleCollapse}
+            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text transition-all duration-300 flex items-center justify-center lg:block hidden`}
+            onClick={onCollapseToggle}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={18} />}
@@ -147,13 +142,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       
       {/* Mobile menu button - only visible on mobile */}
-      <div className="fixed top-4 left-4 z-30 hidden">
+      <div className="fixed top-4 left-4 z-30 block lg:hidden">
         <button 
           onClick={onToggle}
           className="p-2 bg-light-card dark:bg-dark-card rounded-md shadow-md text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border"
           aria-label={isOpen ? "Close menu" : "Open menu"}
         >
-          <Menu size={24} />
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
       

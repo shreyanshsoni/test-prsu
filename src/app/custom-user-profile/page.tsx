@@ -66,7 +66,7 @@ export default function CustomUserProfilePage() {
           </div>
         )}
         <div className={theme === 'dark' ? 'dark-content-wrapper' : ''} style={{ position: 'relative', zIndex: 1 }}>
-          <StudentSnapshotFlow />
+        <StudentSnapshotFlow />
         </div>
       </div>
     </ProtectedRoute>

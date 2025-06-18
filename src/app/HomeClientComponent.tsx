@@ -44,6 +44,7 @@ export default function HomeClientComponent({
   const [isClient, setIsClient] = useState(false); // Track if the component is on the client
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState<Program[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([
@@ -472,9 +473,19 @@ export default function HomeClientComponent({
     setTimeout(() => setIsClient(true), 0);
   };
 
-  // Toggle mobile menu
+  // Toggle mobile menu function - ensure expanded view on mobile
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    // If we're opening the mobile menu, always set sidebar to expanded mode
+    if (!isMobileMenuOpen) {
+      setIsSidebarCollapsed(false);
+    }
+    setIsMobileMenuOpen(prev => !prev);
+    console.log("Mobile menu toggled:", !isMobileMenuOpen);
+  };
+
+  // Add a handler for sidebar collapse toggle
+  const handleSidebarToggle = () => {
+    setIsSidebarCollapsed(prev => !prev);
   };
 
   // Use effect to monitor scroll position
@@ -525,6 +536,8 @@ export default function HomeClientComponent({
             user={user}
             isOpen={isMobileMenuOpen}
             onToggle={toggleMobileMenu}
+            isCollapsed={isSidebarCollapsed}
+            onCollapseToggle={handleSidebarToggle}
           />
           
           {/* Main content */}
@@ -550,13 +563,9 @@ export default function HomeClientComponent({
               }}
             >
               <div className="px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+                {/* Empty div to maintain space for flex */}
                 <div className="flex items-center">
-                  <button
-                    onClick={toggleMobileMenu}
-                    className="mr-4 lg:hidden text-light-text dark:text-dark-text"
-                  >
-                    <Menu className="w-6 h-6" />
-                  </button>
+                  {/* Remove the hamburger menu button that was here */}
                 </div>
 
                 <div className="flex items-center space-x-4">
