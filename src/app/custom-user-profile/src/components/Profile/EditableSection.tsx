@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Check, X, Plus, Trash2 } from 'lucide-react';
+import { Edit3, Check, X, Plus, Trash2, Copy } from 'lucide-react';
 import { FieldEditor } from './FieldEditor';
 import { useTheme } from '../../../../contexts/ThemeContext';
 
@@ -36,6 +36,7 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState(data);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [copiedFields, setCopiedFields] = useState<Record<string, boolean>>({});
 
   const handleEdit = () => {
     setEditingData(data);
@@ -151,6 +152,51 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
     }
   };
 
+  // Format individual field data for copying to clipboard
+  const formatFieldForCopy = (field: Field, value: any) => {
+    let result = `${field.label}:\n`;
+    
+    if (!value || (Array.isArray(value) && value.length === 0)) {
+      return `${field.label}: Not provided`;
+    }
+    
+    if (field.type === 'array') {
+      if (field.arrayType === 'object') {
+        value.forEach((item: any, index: number) => {
+          result += `  Item ${index + 1}:\n`;
+          field.objectFields?.forEach(objField => {
+            if (item[objField.key]) {
+              result += `    ${objField.label}: ${item[objField.key]}\n`;
+            }
+          });
+          result += '\n';
+        });
+      } else {
+        result += `  ${value.join(', ')}`;
+      }
+    } else {
+      result += `  ${value}`;
+    }
+    
+    return result;
+  };
+
+  // Handle copy to clipboard for a specific field
+  const handleCopyField = (fieldKey: string) => {
+    const field = fields.find(f => f.key === fieldKey);
+    if (!field) return;
+    
+    const value = getNestedValue(data, fieldKey);
+    const formattedData = formatFieldForCopy(field, value);
+    
+    navigator.clipboard.writeText(formattedData).then(() => {
+      setCopiedFields(prev => ({ ...prev, [fieldKey]: true }));
+      setTimeout(() => {
+        setCopiedFields(prev => ({ ...prev, [fieldKey]: false }));
+      }, 2000);
+    });
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       <div className="p-6">
@@ -195,10 +241,27 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
         <div className="space-y-6">
           {fields.map(field => (
             <div key={field.key}>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {field.label}
-                {field.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
-              </label>
+              <div className="flex items-center mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {field.label}
+                  {field.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
+                </label>
+                
+                {!isEditing && (
+                  <button
+                    onClick={() => handleCopyField(field.key)}
+                    className="ml-2 p-1 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title={`Copy ${field.label}`}
+                    aria-label={`Copy ${field.label}`}
+                  >
+                    {copiedFields[field.key] ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                )}
+              </div>
               
               {isEditing ? (
                 <div>

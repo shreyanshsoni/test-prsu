@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Award, Plus, X } from 'lucide-react';
+import { BookOpen, Award, Plus, X, Copy, Check } from 'lucide-react';
 import { StudentData } from '../../../types/student';
 import { useTheme } from '../../../../../contexts/ThemeContext';
 
@@ -13,6 +13,11 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
   const [newTest, setNewTest] = useState({ type: '', score: '', date: '' });
   const [newClass, setNewClass] = useState({ type: '', subject: '', score: '' });
   const [newAward, setNewAward] = useState('');
+  const [copyStatus, setCopyStatus] = useState({
+    tests: false,
+    classes: false,
+    awards: false
+  });
 
   const addTest = () => {
     if (newTest.type && newTest.score) {
@@ -59,6 +64,32 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
     onUpdate({ academicAwards: awards });
   };
 
+  const copyToClipboard = (section: 'tests' | 'classes' | 'awards') => {
+    let textToCopy = '';
+    
+    if (section === 'tests' && data.standardizedTests) {
+      textToCopy = data.standardizedTests.map(test => 
+        `${test.type}: ${test.score}${test.date ? ` (${test.date})` : ''}`
+      ).join('\n');
+    } else if (section === 'classes' && data.advancedClasses) {
+      textToCopy = data.advancedClasses.map(cls => 
+        `${cls.type} ${cls.subject}${cls.score ? ` (Score: ${cls.score})` : ''}`
+      ).join('\n');
+    } else if (section === 'awards' && data.academicAwards) {
+      textToCopy = data.academicAwards.join('\n');
+    }
+    
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        setCopyStatus({ ...copyStatus, [section]: true });
+        
+        setTimeout(() => {
+          setCopyStatus({ ...copyStatus, [section]: false });
+        }, 2000);
+      });
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
       <div className="text-center mb-8">
@@ -79,7 +110,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
       <div className="space-y-8">
         {/* Standardized Tests */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">📊 Standardized Tests</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">📊 Standardized Tests</h3>
+            <button 
+              onClick={() => copyToClipboard('tests')}
+              className="p-1.5 text-gray-500 hover:text-emerald-600 dark:text-gray-400 dark:hover:text-emerald-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Copy test scores"
+            >
+              {copyStatus.tests ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Include any tests you've taken - SAT, ACT, PSAT, AP exams, or others. 
             Even if you plan to retake them, your current scores show your progress!
@@ -144,7 +184,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
 
         {/* Advanced Classes */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">🎓 Advanced Classes</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">🎓 Advanced Classes</h3>
+            <button 
+              onClick={() => copyToClipboard('classes')}
+              className="p-1.5 text-gray-500 hover:text-emerald-600 dark:text-gray-400 dark:hover:text-emerald-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Copy class information"
+            >
+              {copyStatus.classes ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             AP, IB, Dual Enrollment, Honors - any challenging courses you've taken show your 
             willingness to push yourself. Include classes you're currently taking too!
@@ -207,10 +256,19 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
 
         {/* Academic Awards */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            <Award className="inline w-5 h-5 mr-2" />
-            Academic Awards & Recognition
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <Award className="inline w-5 h-5 mr-2" />
+              Academic Awards & Recognition
+            </h3>
+            <button 
+              onClick={() => copyToClipboard('awards')}
+              className="p-1.5 text-gray-500 hover:text-emerald-600 dark:text-gray-400 dark:hover:text-emerald-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Copy awards"
+            >
+              {copyStatus.awards ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Honor roll, perfect attendance, subject awards, academic competitions - 
             any recognition counts! These show consistency and excellence in your studies.

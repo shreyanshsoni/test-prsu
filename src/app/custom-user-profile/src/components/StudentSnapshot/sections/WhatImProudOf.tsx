@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Code, Music, Plus, X } from 'lucide-react';
+import { Star, Code, Music, Plus, X, Copy, Check } from 'lucide-react';
 import { StudentData } from '../../../types/student';
 import { useTheme } from '../../../../../contexts/ThemeContext';
 
@@ -15,6 +15,10 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
   });
   const [newPassion, setNewPassion] = useState('');
   const [projectSkill, setProjectSkill] = useState('');
+  const [copyStatus, setCopyStatus] = useState({
+    projects: false,
+    passions: false
+  });
 
   const addProject = () => {
     if (newProject.title && newProject.description) {
@@ -62,6 +66,28 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
     onUpdate({ passions });
   };
 
+  const copyToClipboard = (section: 'projects' | 'passions') => {
+    let textToCopy = '';
+    
+    if (section === 'projects' && data.projects) {
+      textToCopy = data.projects.map(project => 
+        `${project.title}${project.skills && project.skills.length > 0 ? `\nSkills: ${project.skills.join(', ')}` : ''}${project.description ? `\n${project.description}` : ''}`
+      ).join('\n\n');
+    } else if (section === 'passions' && data.passions) {
+      textToCopy = data.passions.join('\n');
+    }
+    
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        setCopyStatus({ ...copyStatus, [section]: true });
+        
+        setTimeout(() => {
+          setCopyStatus({ ...copyStatus, [section]: false });
+        }, 2000);
+      });
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
       <div className="text-center mb-8">
@@ -82,10 +108,19 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
       <div className="space-y-8">
         {/* Projects */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            <Code className="inline w-5 h-5 mr-2" />
-            Independent Projects & Research
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <Code className="inline w-5 h-5 mr-2" />
+              Independent Projects & Research
+            </h3>
+            <button 
+              onClick={() => copyToClipboard('projects')}
+              className="p-1.5 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Copy projects"
+            >
+              {copyStatus.projects ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Apps you've built, research you've done, art you've created, businesses you've started, 
             YouTube channels, blogs - anything you've worked on outside of class assignments!
@@ -191,10 +226,19 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
 
         {/* Passions */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            <Music className="inline w-5 h-5 mr-2" />
-            My Passions & Hobbies
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <Music className="inline w-5 h-5 mr-2" />
+              My Passions & Hobbies
+            </h3>
+            <button 
+              onClick={() => copyToClipboard('passions')}
+              className="p-1.5 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="Copy passions"
+            >
+              {copyStatus.passions ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             What gets you excited? What do you do in your free time? Photography, gaming, cooking, 
             reading, hiking - these interests make you who you are and often connect to future goals!
