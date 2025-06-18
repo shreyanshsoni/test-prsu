@@ -169,8 +169,8 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
     // Convert velocity to a number if it's an array
     const velocityX = typeof velocity === 'number' ? velocity : (Array.isArray(velocity) ? velocity[0] : 0);
     
-    // Determine if card should be swiped away
-    const trigger = velocityX > 0.2; 
+    // Lower the threshold to make swipes more responsive
+    const trigger = velocityX > 0.1; // Was 0.2, lower for more responsive swipes
     const dir = xDir < 0 ? -1 : 1;
     const isGone = !active && trigger;
 
@@ -196,7 +196,8 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       const isGoneCard = gone.has(index);
       
       // Calculate new positions based on drag status
-      const x = isGoneCard ? (200 + window.innerWidth) * dir : active ? mx : randomPositions[i]?.x || 0;
+      // Make cards fly out faster by increasing the multiplier
+      const x = isGoneCard ? (300 + window.innerWidth) * dir : active ? mx : randomPositions[i]?.x || 0;
       const y = active ? randomPositions[i]?.y || 0 : randomPositions[i]?.y || 0;
       const rot = isGoneCard 
         ? dir * (20 + Math.random() * 10) 
@@ -212,8 +213,8 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
         rot,
         scale,
         config: { 
-          friction: isGoneCard ? 50 : active ? 28 : 32,
-          tension: isGoneCard ? 300 : active ? 240 : 200,
+          friction: isGoneCard ? 30 : active ? 20 : 30, // Lower friction for faster movement
+          tension: isGoneCard ? 400 : active ? 300 : 200, // Higher tension for snappier animations
         }
       };
     });
@@ -301,10 +302,10 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
               api.start(i => {
                 if (i !== index) return;
                 return {
-                  x: -200 - window.innerWidth,
+                  x: -300 - window.innerWidth, // Increase for faster animation
                   rot: -10 - Math.random() * 15,
                   scale: 0.9,
-                  config: { friction: 40, tension: 500 },
+                  config: { friction: 30, tension: 400 }, // Faster physics
                 };
               });
             }}
@@ -330,10 +331,10 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
               api.start(i => {
                 if (i !== index) return;
                 return {
-                  x: 200 + window.innerWidth,
+                  x: 300 + window.innerWidth, // Increase for faster animation
                   rot: 10 + Math.random() * 15,
                   scale: 0.9,
-                  config: { friction: 40, tension: 500 },
+                  config: { friction: 30, tension: 400 }, // Faster physics
                 };
               });
             }}
