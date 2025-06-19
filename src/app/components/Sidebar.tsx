@@ -5,6 +5,7 @@ import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, Log
 import Link from 'next/link';
 import { UserProfile } from '../hooks/useAuth';
 import ProfileAvatar from './ProfileAvatar';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onCollapseToggle
 }) => {
+  const { theme } = useTheme();
   const TABS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'search', label: 'Program Search', icon: Search },
@@ -70,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               />
             ) : (
               <img 
-                src="/fulllogo_transparent_nobuffer.png" 
+                src={theme === 'dark' ? "/light_mode_logo.png" : "/fulllogo_transparent_nobuffer.png"} 
                 alt="PRSU" 
                 className="h-12 object-contain transition-all duration-500 ease-in-out"
               />

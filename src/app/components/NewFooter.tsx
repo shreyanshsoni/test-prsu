@@ -12,7 +12,7 @@ const NewFooter: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Image 
-                src="/fulllogo_transparent_nobuffer.png" 
+                src="/light_mode_logo.png" 
                 alt="PRSU Logo" 
                 width={140}
                 height={40}

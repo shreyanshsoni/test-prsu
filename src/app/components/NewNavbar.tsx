@@ -7,11 +7,13 @@ import { Button } from './ui/Button';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { ThemeToggle } from './ui/ThemeToggle';
+import { useTheme } from '../contexts/ThemeContext';
 
 const NewNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +50,7 @@ const NewNavbar: React.FC = () => {
           <div className="flex items-center">
             <a href={user ? '/?tab=search' : '/'} className="flex items-center">
               <Image 
-                src="/fulllogo_transparent_nobuffer.png" 
+                src={theme === 'dark' ? "/light_mode_logo.png" : "/fulllogo_transparent_nobuffer.png"} 
                 alt="PRSU Logo" 
                 width={200}
                 height={60}
