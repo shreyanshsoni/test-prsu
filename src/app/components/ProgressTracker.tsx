@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PieChart as ChartPie } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProgressTrackerProps {
   completed: number;
@@ -12,6 +13,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ completed, total }) =
   const percentage = Math.round((completed / total) * 100);
   const circleCircumference = 2 * Math.PI * 36; // radius is 36
   const strokeDashoffset = circleCircumference - (percentage / 100) * circleCircumference;
+  const { theme } = useTheme();
 
   return (
     <section className="py-12 md:py-16 bg-light-card dark:bg-dark-card/50">
@@ -46,7 +48,8 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ completed, total }) =
                 <text
                   x="50"
                   y="50"
-                  className="text-primary-600 dark:text-primary-400 text-lg font-bold"
+                  className="text-lg font-bold"
+                  fill={theme === 'dark' ? '#ffffff' : '#1181f8'}
                   dominantBaseline="middle"
                   textAnchor="middle"
                 >

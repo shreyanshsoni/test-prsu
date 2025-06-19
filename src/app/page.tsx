@@ -10,6 +10,7 @@ import VisionStatement from './components/VisionStatement';
 import FeatureCards from './components/FeatureCards';
 import ProgressTracker from './components/ProgressTracker';
 import Partners from './components/Partners';
+import FAQ from './components/FAQ';
 import NewFooter from './components/NewFooter';
 import { useTheme } from './contexts/ThemeContext';
 import { StarryBackground } from './components/ui/StarryBackground';
@@ -79,6 +80,7 @@ export default function Home() {
         <FeatureCards />
         <ProgressTracker completed={7} total={15} />
         <Partners />
+        <FAQ />
       </main>
       
       <NewFooter />
