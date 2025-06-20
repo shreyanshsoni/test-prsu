@@ -110,9 +110,9 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              <Code className="inline w-5 h-5 mr-2" />
-              Independent Projects & Research
-            </h3>
+            <Code className="inline w-5 h-5 mr-2" />
+            Independent Projects & Research
+          </h3>
             <button 
               onClick={() => copyToClipboard('projects')}
               className="p-1.5 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -228,9 +228,9 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              <Music className="inline w-5 h-5 mr-2" />
-              My Passions & Hobbies
-            </h3>
+            <Music className="inline w-5 h-5 mr-2" />
+            My Passions & Hobbies
+          </h3>
             <button 
               onClick={() => copyToClipboard('passions')}
               className="p-1.5 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

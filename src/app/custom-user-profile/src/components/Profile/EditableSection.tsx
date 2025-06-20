@@ -243,9 +243,9 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
             <div key={field.key}>
               <div className="flex items-center mb-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {field.label}
-                  {field.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
-                </label>
+                {field.label}
+                {field.required && <span className="text-red-500 dark:text-red-400 ml-1">*</span>}
+              </label>
                 
                 {!isEditing && (
                   <button

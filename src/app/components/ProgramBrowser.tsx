@@ -34,7 +34,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
   const [landed, setLanded] = useState<boolean[]>([]);
   const [randomPositions, setRandomPositions] = useState<Array<{x: number, y: number, rot: number}>>([]);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  
+
   // Keep a stable reference to the programs array
   const [stablePrograms, setStablePrograms] = useState<Program[]>([]);
   
@@ -81,7 +81,7 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       newPositions[i] = getRandomPosition();
     }
     setRandomPositions(newPositions);
-
+    
     // Preserve landed state for existing cards, initialise false for new ones
     setLanded(prev => {
       const updated = [...prev];
@@ -90,21 +90,21 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       }
       return updated;
     });
-
+    
     // Set landing timers only for the newly-added cards
     const timers = [] as NodeJS.Timeout[];
     for (let i = prevLen; i < programs.length; i++) {
       timers.push(
         setTimeout(() => {
-          setLanded(prev => {
-            const updated = [...prev];
-            updated[i] = true;
-            return updated;
-          });
+        setLanded(prev => {
+          const updated = [...prev];
+          updated[i] = true;
+          return updated;
+        });
         }, 1000 + i * 400)
       );
     }
-
+    
     return () => timers.forEach(timer => clearTimeout(timer));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [programs.length]);
@@ -285,63 +285,63 @@ export default function ProgramBrowser({ programs, onApprove, onReject, onGoBack
       {/* Controls - only show after cards have landed */}
       {landed.some(Boolean) && (
         <div className="flex justify-center gap-4 sm:gap-8 my-3 sm:my-4 z-20">
-          <button
-            onClick={() => {
+        <button
+          onClick={() => {
               // Find the first card (lowest index) that's landed and hasn't been swiped yet
               const index = [...Array(displayPrograms.length).keys()]
                 .find(i => landed[i] && !gone.has(i));
                 
               // Only proceed if we found a valid card
               if (index === undefined) return;
-              
+            
               triggerHapticFeedback(false); // Rejection vibration
               console.log('Rejecting card with index:', index, 'program:', displayPrograms[index].title);
-              gone.add(index);
+            gone.add(index);
               onReject(displayPrograms[index]);
-              
-              api.start(i => {
-                if (i !== index) return;
-                return {
+            
+            api.start(i => {
+              if (i !== index) return;
+              return {
                   x: -300 - window.innerWidth, // Increase for faster animation
                   rot: -10 - Math.random() * 15,
-                  scale: 0.9,
+                scale: 0.9,
                   config: { friction: 30, tension: 400 }, // Faster physics
-                };
-              });
-            }}
+              };
+            });
+          }}
             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-          >
+        >
             <X className="w-6 h-6 sm:w-7 sm:h-7" />
-          </button>
-          
-          <button
-            onClick={() => {
+        </button>
+        
+        <button
+          onClick={() => {
               // Find the first card (lowest index) that's landed and hasn't been swiped yet
               const index = [...Array(displayPrograms.length).keys()]
                 .find(i => landed[i] && !gone.has(i));
                 
               // Only proceed if we found a valid card
               if (index === undefined) return;
-              
+            
               triggerHapticFeedback(true); // Success vibration
               console.log('Approving card with index:', index, 'program:', displayPrograms[index].title);
-              gone.add(index);
+            gone.add(index);
               onApprove(displayPrograms[index]);
-              
-              api.start(i => {
-                if (i !== index) return;
-                return {
+            
+            api.start(i => {
+              if (i !== index) return;
+              return {
                   x: 300 + window.innerWidth, // Increase for faster animation
                   rot: 10 + Math.random() * 15,
-                  scale: 0.9,
+                scale: 0.9,
                   config: { friction: 30, tension: 400 }, // Faster physics
-                };
-              });
-            }}
+              };
+            });
+          }}
             className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-light-card dark:bg-dark-card shadow-lg dark:shadow-dark-border/30 flex items-center justify-center text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-          >
+        >
             <Heart className="w-6 h-6 sm:w-7 sm:h-7" />
-          </button>
+        </button>
         </div>
       )}
     </div>

@@ -215,17 +215,17 @@ export default function ProgramCard({ program, style, isSwipeMode = false, ...pr
                   <span className="program-card-text text-2xs md:text-xs text-light-text dark:text-dark-text font-medium truncate">
                     {program.location}
                   </span>
-                </div>
-              )}
-              
+        </div>
+      )}
+      
               {program.deadline && (
                 <div className="flex items-center">
                   <Calendar className="w-3 h-3 text-primary-500 dark:text-primary-400 mr-1 flex-shrink-0" />
                   <span className="program-card-text text-2xs md:text-xs text-light-text dark:text-dark-text font-medium truncate">
                     {formatDate(program.deadline)}
                   </span>
-                </div>
-              )}
+        </div>
+      )}
 
               {program.degreeLevel && (
                 <div className="flex items-center">
@@ -242,9 +242,9 @@ export default function ProgramCard({ program, style, isSwipeMode = false, ...pr
                   <span className="program-card-text text-2xs md:text-xs text-light-text dark:text-dark-text font-medium truncate">
                     {program.cost === 0 ? "Free" : `$${program.cost.toLocaleString()}`}
                   </span>
-                </div>
+        </div>
               )}
-            </div>
+      </div>
             
             {/* Swipe instruction overlay with improved readability */}
             <div className="absolute bottom-2 left-0 right-0 flex justify-center">
@@ -274,12 +274,12 @@ export default function ProgramCard({ program, style, isSwipeMode = false, ...pr
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-light-background dark:bg-dark-background">
                 <div className="text-light-muted dark:text-dark-muted">Image unavailable</div>
-              </div>
+          </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
               <h3 className="text-white font-semibold text-lg">{program.title}</h3>
             </div>
-          </div>
+        </div>
 
           <div className="p-4 flex-1 flex flex-col">
             <p className="text-light-muted dark:text-dark-muted text-sm mb-4 line-clamp-3">
@@ -308,9 +308,9 @@ export default function ProgramCard({ program, style, isSwipeMode = false, ...pr
                 <span className="font-medium text-sm text-light-text dark:text-dark-text">
                   {program.cost === 0 ? "Free" : `$${program.cost.toLocaleString()}`}
                 </span>
-              )}
-            </div>
-          </div>
+          )}
+        </div>
+      </div>
         </div>
       )}
     </AnimatedDiv>

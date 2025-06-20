@@ -372,6 +372,15 @@ export default function HomeClientComponent({
     );
   };
 
+  // Add new checklist item
+  const handleAddChecklist = (item: Omit<ChecklistItem, 'id'>) => {
+    const newItem: ChecklistItem = {
+      ...item,
+      id: `checklist-${item.programId}-${Date.now()}`
+    };
+    setChecklist(prev => [...prev, newItem]);
+  };
+
   // Update academic years
   const handleUpdateAcademicYears = (years: AcademicYear[]) => {
     setAcademicYears(years);
@@ -635,11 +644,14 @@ export default function HomeClientComponent({
                     </>
                   )}
                   {activeTab === 'checklist' && (
-                    <ApplicationChecklist
-                      checklist={checklist}
-                      programs={savedPrograms}
-                      onUpdateStatus={handleUpdateChecklistStatus}
-                    />
+                    <div>
+                      <ApplicationChecklist 
+                        programs={savedPrograms} 
+                        checklist={checklist} 
+                        onUpdateStatus={handleUpdateChecklistStatus}
+                        onAddChecklist={handleAddChecklist}
+                      />
+                    </div>
                   )}
                   {activeTab === 'goals' && (
                     <div>

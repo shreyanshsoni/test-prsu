@@ -211,9 +211,9 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              <Briefcase className="inline w-5 h-5 mr-2" />
-              Work Experience
-            </h3>
+            <Briefcase className="inline w-5 h-5 mr-2" />
+            Work Experience
+          </h3>
             <button 
               onClick={() => copyToClipboard('work')}
               className="p-1.5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -297,9 +297,9 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              <Heart className="inline w-5 h-5 mr-2" />
-              Family Responsibilities
-            </h3>
+            <Heart className="inline w-5 h-5 mr-2" />
+            Family Responsibilities
+          </h3>
             <button 
               onClick={() => copyToClipboard('responsibilities')}
               className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
