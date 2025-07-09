@@ -50,14 +50,14 @@ export default function ConfirmationModal({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border transition-colors border border-light-border dark:border-dark-border rounded-md"
+              className="px-5 py-2.5 text-sm font-medium text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border transition-colors border border-light-border dark:border-dark-border rounded-md min-w-[100px] flex items-center justify-center"
             >
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
               disabled={isConfirmDisabled}
-              className={`px-4 py-2 rounded-md text-white transition-colors ${
+              className={`px-5 py-2.5 rounded-md text-white transition-colors font-medium min-w-[100px] flex items-center justify-center ${
                 isDanger 
                   ? 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600' 
                   : 'bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-600'
