@@ -484,7 +484,32 @@ export default function PhaseAccordion({
                 className="px-4 pb-4 pt-0"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Add title input field */}
+                <div className="mb-3">
+                  <label htmlFor={`phase-title-${phaseIndex}`} className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+                    Phase Title
+                  </label>
+                  <input
+                    id={`phase-title-${phaseIndex}`}
+                    type="text"
+                    value={phaseEditData[phaseIndex]?.title || phase.title || ''}
+                    onChange={(e) => setPhaseEditData({
+                      ...phaseEditData,
+                      [phaseIndex]: {
+                        ...phaseEditData[phaseIndex],
+                        title: e.target.value
+                      }
+                    })}
+                    className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-background text-gray-800 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                    placeholder="Enter phase title..."
+                  />
+                </div>
+                
+                <label htmlFor={`phase-description-${phaseIndex}`} className="block text-sm font-medium text-gray-700 dark:text-dark-text mb-1">
+                  Description
+                </label>
                 <textarea
+                  id={`phase-description-${phaseIndex}`}
                   value={phaseEditData[phaseIndex]?.description || phase.description || ''}
                   onChange={(e) => setPhaseEditData({
                     ...phaseEditData,
