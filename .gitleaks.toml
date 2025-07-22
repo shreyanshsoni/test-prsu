@@ -1,0 +1,52 @@
+# GitLeaks configuration file
+# See: https://github.com/zricethezav/gitleaks/blob/master/config/gitleaks.toml
+
+title = "PRSU Application GitLeaks Config"
+
+# Global allowlist
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''\.gitleaks\.toml$''',
+    '''\.env\.example$''',
+    '''\.env\.sample$''',
+    '''README\.md$''',
+]
+
+# Custom rules
+[[rules]]
+id = "auth0-secret"
+description = "Auth0 Secret"
+regex = '''AUTH0_SECRET[ =:]["']?[0-9A-F]{32}["']?'''
+tags = ["auth", "auth0", "secret"]
+
+[[rules]]
+id = "auth0-client-secret"
+description = "Auth0 Client Secret"
+regex = '''AUTH0_CLIENT_SECRET[ =:]["']?[a-zA-Z0-9_\-!@#$%^&*()]{32,}["']?'''
+tags = ["auth", "auth0", "secret"]
+
+[[rules]]
+id = "database-url"
+description = "Database URL with credentials"
+regex = '''postgres(?:ql)?:\/\/[a-zA-Z0-9_-]+:[a-zA-Z0-9_\-!@#$%^&*()]+@[a-zA-Z0-9_\-\.]+'''
+tags = ["database", "credentials"]
+
+[[rules]]
+id = "openrouter-api-key"
+description = "OpenRouter API Key"
+regex = '''sk-or-v1-[a-zA-Z0-9]{64}'''
+tags = ["api", "key", "openrouter"]
+
+# Standard rules
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["aws", "key"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Key"
+regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
+tags = ["aws", "key"] 
