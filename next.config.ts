@@ -32,21 +32,18 @@ const config: NextConfig = {
   },
   // Add output config for standalone
   output: 'standalone',
-  // Add environment variables
+  // Add environment variables - ONLY non-sensitive ones that are needed client-side
   env: {
-    AUTH0_SECRET: '035C08832FF8B4F6822A2011DBF59AEF',
-    // Use dynamic base URL that supports both custom domain and Amplify domain
-    AUTH0_BASE_URL: getBaseUrl(),
-    AUTH0_ISSUER_BASE_URL: 'https://dev-rd6ngmdjrin41op1.us.auth0.com',
-    AUTH0_CLIENT_ID: 'bKTISFkk7y8t6U8hUEwcPR79aqTRDE4B',
-    AUTH0_CLIENT_SECRET: 'uWrDx8ww-SxviAaAQIAw1l8KV2HoWa1pJ0DlbzbTR_H-AN-Bewg1dVHAdsCcKT5n',
-    AUTH0_SCOPE: 'openid profile email',
-    AUTH0_AUDIENCE: '',
-    AUTH0_ORGANIZATION: '',
-    DATABASE_URL: 'postgresql://neondb_owner:npg_MsBRLcZy14fT@ep-bitter-smoke-a56n6lnq-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require',
-    POSTGRES_URL: 'postgresql://neondb_owner:npg_MsBRLcZy14fT@ep-bitter-smoke-a56n6lnq-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require',
-    // Force direct logout URL without recursion
-    AUTH0_LOGOUT_URL: 'https://plan.goprsu.com'
+    // Public URLs and non-sensitive configuration
+    NEXT_PUBLIC_BASE_URL: getBaseUrl(),
+    // Non-sensitive Auth0 configuration (needed for client-side Auth0 SDK)
+    NEXT_PUBLIC_AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID || '',
+    NEXT_PUBLIC_AUTH0_ISSUER_BASE_URL: process.env.AUTH0_ISSUER_BASE_URL || '',
+    NEXT_PUBLIC_AUTH0_SCOPE: process.env.AUTH0_SCOPE || 'openid profile email',
+    NEXT_PUBLIC_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || '',
+    NEXT_PUBLIC_AUTH0_ORGANIZATION: process.env.AUTH0_ORGANIZATION || '',
+    // Public app URLs
+    NEXT_PUBLIC_AUTH0_LOGOUT_URL: process.env.AUTH0_LOGOUT_URL || 'https://plan.goprsu.com',
   },
 };
 

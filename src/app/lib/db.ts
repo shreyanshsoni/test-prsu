@@ -1,8 +1,9 @@
 import { Pool } from 'pg';
+import { getDatabaseUrl } from '../../lib/server/env';
 
 // Create a singleton pool for database connections with better error handling
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: getDatabaseUrl(),
   ssl: {
     rejectUnauthorized: false
   },
