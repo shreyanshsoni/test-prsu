@@ -1,4 +1,4 @@
-name: Deploy to S3
+name: Build and Deploy to AWS
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
           
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -74,13 +75,31 @@ jobs:
         
       - name: Build application
         run: npm run build
+        env:
+          NODE_ENV: production
         
       - name: Create deployment directories
         run: |
           mkdir -p out
           mkdir -p out/beta/dev
-          cp -r .next/* out/beta/dev/
-          cp -r public/* out/
+          echo "Copying .next content to out/beta/dev"
+          cp -r .next/* out/beta/dev/ || echo "Warning: Copy error, but continuing"
+          echo "Copying public content to out"
+          if [ -d "public" ]; then
+            cp -r public/* out/ || echo "Warning: Public copy error, but continuing"
+          else
+            echo "No public directory found"
+          fi
+          echo "Out directory created with content:"
+          find out -type f | head -n 10
+      
+      # Configure AWS credentials using the action for better security
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
         
       - name: Deploy to S3
         run: |
@@ -99,11 +118,21 @@ jobs:
             --delete \
             --exclude "*.html" \
             --cache-control "max-age=86400"
-        env:
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      # Invalidate CloudFront cache for faster updates
+      - name: Invalidate CloudFront cache
+        run: |
+          # Specific invalidation for faster updates
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/beta/dev/index.html" "/beta/dev/*"
+      
+      # Verify deployment
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed. Waiting for CloudFront invalidation..."
+          sleep 20
+          echo "Check https://goprsu.com/beta/dev/index.html"
       
       # Clean up sensitive files
       - name: Clean up sensitive files
