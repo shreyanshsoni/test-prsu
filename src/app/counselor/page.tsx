@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../contexts/ThemeContext';
-import { ThemeToggle } from '../components/ui/ThemeToggle';
-import { StarryBackground } from '../components/ui/StarryBackground';
+import { ThemeToggle } from '../../components/ui/ThemeToggle';
+import { StarryBackground } from '../../components/ui/StarryBackground';
 import { LogOut } from 'lucide-react';
 
 interface Student {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
-import { StarryBackground } from '../components/ui/StarryBackground';
+import { StarryBackground } from '../../components/ui/StarryBackground';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';

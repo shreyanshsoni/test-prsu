@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { StarryBackground } from '../components/ui/StarryBackground';
+import { StarryBackground } from '../../components/ui/StarryBackground';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { Upload, Edit, ArrowRight } from 'lucide-react';

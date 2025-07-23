@@ -10,7 +10,7 @@ import { StudentData } from '../custom-user-profile/src/types/student';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';
-import { StarryBackground } from '../components/ui/StarryBackground';
+import { StarryBackground } from '../../components/ui/StarryBackground';
 
 export default function ProfilePageWrapper() {
   const { user, error, isLoading } = useAuth();

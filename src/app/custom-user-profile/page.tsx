@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 import { StudentSnapshotFlow } from './src/components/StudentSnapshot/StudentSnapshotFlow';
-import ProtectedRoute from '../components/ProtectedRoute';
+import ProtectedRoute from '../../components/ProtectedRoute';
 import { useTheme } from '../contexts/ThemeContext';
-import { StarryBackground } from '../components/ui/StarryBackground';
+import { StarryBackground } from '../../components/ui/StarryBackground';
 
 export default function CustomUserProfilePage() {
   const { theme } = useTheme();

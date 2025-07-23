@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Program } from '../types/types';
-import { fetchOpportunities } from '../services/opportunityService';
+import { searchOpportunities } from '../../lib/services/opportunityService';
 
 type ProgramSearchContextType = {
   programs: Program[];
@@ -59,7 +59,7 @@ export const ProgramSearchProvider = ({ children }: { children: ReactNode }) => 
     }, 200);
     
     try {
-      const result = await fetchOpportunities(page, itemsPerPage);
+      const result = await searchOpportunities(page, itemsPerPage);
       
       // Check if we're getting data from mock
       if (result.fromMock) {

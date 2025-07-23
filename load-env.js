@@ -6,21 +6,13 @@ const dotenv = require('dotenv');
 // Load .env.local
 const envFile = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envFile)) {
-  console.log(`Loading environment from ${envFile}`);
+  // Silently load environment variables without logging them
   const envConfig = dotenv.parse(fs.readFileSync(envFile));
   
-  // Set environment variables
+  // Set environment variables without logging
   for (const key in envConfig) {
     process.env[key] = envConfig[key];
-    // Log non-sensitive keys
-    if (!key.includes('SECRET') && !key.includes('PASSWORD') && !key.includes('KEY')) {
-      console.log(`Set ${key}=${process.env[key]}`);
-    } else {
-      console.log(`Set ${key}=[hidden]`);
-    }
   }
-  
-  console.log('Environment variables loaded successfully');
 } else {
   console.error(`.env.local file not found at ${envFile}`);
   process.exit(1);
@@ -40,6 +32,4 @@ const missingVars = requiredVars.filter(varName => !process.env[varName]);
 if (missingVars.length > 0) {
   console.error('Missing required environment variables:', missingVars.join(', '));
   process.exit(1);
-}
-
-console.log('All required environment variables are set'); 
+} 

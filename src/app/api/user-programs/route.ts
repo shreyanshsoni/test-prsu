@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
-import pool, { getClientWithRetry } from '@/app/lib/db';
+import pool, { getClientWithRetry } from '../../../lib/db';
 
 // Initialize the database by creating the user_programs table if it doesn't exist
 async function initializeDatabase() {

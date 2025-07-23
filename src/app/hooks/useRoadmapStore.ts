@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { AcademicRoadmapModel } from '../types/types';
-import { fetchUserRoadmaps, createRoadmap, deleteRoadmap as apiDeleteRoadmap } from '../services/roadmapService';
+import { fetchUserRoadmaps, createRoadmap, deleteRoadmap as apiDeleteRoadmap } from '../../lib/services/roadmapService';
 
 // Create a singleton store for application-wide state
 type StoreSubscriber = () => void;

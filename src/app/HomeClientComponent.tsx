@@ -2,23 +2,23 @@
 
 import { Search, BookmarkCheck, CheckSquare, LogIn, LogOut, LayoutDashboard, Target, Route, Menu, X, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Program, ChecklistItem, AcademicYear } from './types/types';
-import ProgramSearch from './components/ProgramSearch';
-import SavedPrograms from './components/SavedPrograms';
-import ApplicationChecklist from './components/ApplicationChecklist';
+import { Program, ChecklistItem, AcademicYear } from '../types/types';
+import ProgramSearch from '../components/ProgramSearch';
+import SavedPrograms from '../components/SavedPrograms';
+import ApplicationChecklist from '../components/ApplicationChecklist';
 import { useAuth, UserProfile } from './hooks/useAuth';
 import Link from 'next/link';
-import ProfileAvatar from './components/ProfileAvatar';
-import { fetchUserSavedPrograms, saveUserProgram, removeUserProgram } from './services/userProgramService';
-import UserDashboard from './components/UserDashboard';
-import AcademicGoals from './components/AcademicGoals';
-import AcademicRoadmapPlanner from './components/AcademicRoadmapPlanner';
+import ProfileAvatar from '../components/ProfileAvatar';
+import { fetchUserSavedPrograms, saveUserProgram, removeUserProgram } from '../lib/services/userProgramService';
+import UserDashboard from '../components/UserDashboard';
+import AcademicGoals from '../components/AcademicGoals';
+import AcademicRoadmapPlanner from '../components/AcademicRoadmapPlanner';
 import toast from 'react-hot-toast';
-import { createGoal, GoalInput, fetchGoals, Goal, toggleGoalCompletion } from './services/goalService';
-import Sidebar from './components/Sidebar';
+import { createGoal, GoalInput, fetchGoals, Goal, toggleGoalCompletion } from '../lib/services/goalService';
+import Sidebar from '../components/Sidebar';
 import { useTheme } from './contexts/ThemeContext';
-import { ThemeToggle } from './components/ui/ThemeToggle';
-import { StarryBackground } from './components/ui/StarryBackground';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { StarryBackground } from '../components/ui/StarryBackground';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },

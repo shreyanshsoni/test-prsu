@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import HomeClientComponent from './HomeClientComponent';
-import NewNavbar from './components/NewNavbar';
-import Hero from './components/Hero';
-import VisionStatement from './components/VisionStatement';
-import FeatureCards from './components/FeatureCards';
-import ProgressTracker from './components/ProgressTracker';
-import Partners from './components/Partners';
-import FAQ from './components/FAQ';
-import NewFooter from './components/NewFooter';
+import NewNavbar from '../components/NewNavbar';
+import Hero from '../components/Hero';
+import VisionStatement from '../components/VisionStatement';
+import FeatureCards from '../components/FeatureCards';
+import ProgressTracker from '../components/ProgressTracker';
+import Partners from '../components/Partners';
+import FAQ from '../components/FAQ';
+import NewFooter from '../components/NewFooter';
 import { useTheme } from './contexts/ThemeContext';
-import { StarryBackground } from './components/ui/StarryBackground';
+import { StarryBackground } from '../components/ui/StarryBackground';
 
 export default function Home() {
   const { user, isLoading: isAuthLoading } = useAuth();
