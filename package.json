@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node load-env.js && next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "node load-env.js && next build",
+    "start": "node load-env.js && next start",
     "lint": "next lint",
     "serve": "cross-env NODE_ENV=development npx serve out",
     "build:prod": "NODE_ENV=production next build && chmod +x scripts/build.sh && ./scripts/build.sh",
