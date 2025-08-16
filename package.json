@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node load-env.js && next dev",
+    "dev": "cross-env NODE_ENV=development node load-env.js && next dev",
     "build": "node load-env.js && next build",
     "start": "node load-env.js && next start",
     "lint": "next lint",
