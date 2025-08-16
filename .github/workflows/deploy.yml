@@ -32,7 +32,7 @@ jobs:
           echo "::add-mask::${{ secrets.OPENROUTER_API_KEY }}"
           
           # Check for required secrets
-          if [ -z "${{ secrets.AUTH0_SECRET }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_ID }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_SECRET }}" ] || [ -z "${{ secrets.DATABASE_URL }}" ] || [ -z "${{ secrets.POSTGRES_URL }}" ] || [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then
+          if [ -z "${{ secrets.AUTH0_SECRET }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_ID }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_SECRET }}" ] || [ -z "${{ secrets.DATABASE_URL }}" ] || [ -z "${{ secrets.POSTGRES_URL }}" ]; then
             echo "Error: Missing required secrets. Please ensure all required secrets are set in the repository settings."
             exit 1
           fi
@@ -77,13 +77,13 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          AWS_AMPLIFY: 'true'
         
       - name: Create deployment directories
         run: |
           mkdir -p out
-          echo "Copying .next content to out"
-          cp -r .next/* out/ || echo "Warning: Copy error, but continuing"
+          mkdir -p out/beta/dev
+          echo "Copying .next content to out/beta/dev"
+          cp -r .next/* out/beta/dev/ || echo "Warning: Copy error, but continuing"
           echo "Copying public content to out"
           if [ -d "public" ]; then
             cp -r public/* out/ || echo "Warning: Public copy error, but continuing"
@@ -103,15 +103,18 @@ jobs:
         
       - name: Deploy to S3
         run: |
+          # Create beta/dev directory if it doesn't exist
+          aws s3api put-object --bucket goprsu.com --key beta/dev/ --content-type "application/x-directory"
+          
           # Deploy HTML files with short cache time
-          aws s3 sync ./out/ s3://goprsu.com/ \
+          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
             --delete \
             --exclude "*" \
             --include "*.html" \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate"
           
           # Deploy other static assets with longer cache
-          aws s3 sync ./out/ s3://goprsu.com/ \
+          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
             --delete \
             --exclude "*.html" \
             --cache-control "max-age=86400"
@@ -119,17 +122,17 @@ jobs:
       # Invalidate CloudFront cache for faster updates
       - name: Invalidate CloudFront cache
         run: |
-          # Invalidate all paths for faster updates
+          # Specific invalidation for faster updates
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+            --paths "/beta/dev/index.html" "/beta/dev/*"
       
       # Verify deployment
       - name: Verify deployment
         run: |
           echo "Deployment completed. Waiting for CloudFront invalidation..."
           sleep 20
-          echo "Check https://plan.goprsu.com"
+          echo "Check https://goprsu.com/beta/dev/index.html"
       
       # Clean up sensitive files
       - name: Clean up sensitive files
