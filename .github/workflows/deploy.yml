@@ -1,83 +1,35 @@
-name: Build and Deploy to AWS
-
+name: Build and Deploy NextJS App to AWS
 on:
   push:
     branches:
-      - main
+      - main  # Deploy only when pushing to main branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         
+      # Setup Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
           cache: 'npm'
-          
+        
+      # Install dependencies (using npm install to update lock file)
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-      
-      # Validate critical secrets are available
-      - name: Validate required secrets
-        run: |
-          # Mask secrets in logs for extra security
-          echo "::add-mask::${{ secrets.AUTH0_SECRET }}"
-          echo "::add-mask::${{ secrets.AUTH0_CLIENT_SECRET }}"
-          echo "::add-mask::${{ secrets.DATABASE_URL }}"
-          echo "::add-mask::${{ secrets.POSTGRES_URL }}"
-          echo "::add-mask::${{ secrets.OPENROUTER_API_KEY }}"
-          
-          # Check for required secrets
-          if [ -z "${{ secrets.AUTH0_SECRET }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_ID }}" ] || [ -z "${{ secrets.AUTH0_CLIENT_SECRET }}" ] || [ -z "${{ secrets.DATABASE_URL }}" ] || [ -z "${{ secrets.POSTGRES_URL }}" ]; then
-            echo "Error: Missing required secrets. Please ensure all required secrets are set in the repository settings."
-            exit 1
-          fi
-          
-          echo "All required secrets are available."
-      
-      # Create .env.local file with secrets before build
-      - name: Generate .env.local file
-        run: |
-          cat > .env.local << EOL
-          # Auth0 Configuration
-          AUTH0_SECRET='${{ secrets.AUTH0_SECRET }}'
-          AUTH0_BASE_URL='${{ secrets.AUTH0_BASE_URL }}'
-          AUTH0_ISSUER_BASE_URL='${{ secrets.AUTH0_ISSUER_BASE_URL }}'
-          AUTH0_CLIENT_ID='${{ secrets.AUTH0_CLIENT_ID }}'
-          AUTH0_CLIENT_SECRET='${{ secrets.AUTH0_CLIENT_SECRET }}'
-          AUTH0_SCOPE='${{ secrets.AUTH0_SCOPE || 'openid profile email' }}'
-          AUTH0_AUDIENCE='${{ secrets.AUTH0_AUDIENCE || '' }}'
-          AUTH0_ORGANIZATION='${{ secrets.AUTH0_ORGANIZATION || '' }}'
-          AUTH0_LOGOUT_URL='${{ secrets.AUTH0_LOGOUT_URL || secrets.AUTH0_BASE_URL }}'
-          
-          # Database Configuration
-          DATABASE_URL='${{ secrets.DATABASE_URL }}'
-          POSTGRES_URL='${{ secrets.POSTGRES_URL }}'
-          
-          # External API Keys
-          OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}'
-          
-          # Environment
-          NODE_ENV='production'
-          EOL
-          
-          # Verify file was created (without showing contents)
-          if [ -f .env.local ]; then
-            echo "Successfully created .env.local file"
-          else
-            echo "Failed to create .env.local file"
-            exit 1
-          fi
         
-      - name: Build application
+      # Build the NextJS app with production env
+      - name: Build NextJS app
         run: npm run build
         env:
           NODE_ENV: production
-        
+          
+      # Create and populate the out directory
       - name: Create deployment directories
         run: |
           mkdir -p out
@@ -92,19 +44,25 @@ jobs:
           fi
           echo "Out directory created with content:"
           find out -type f | head -n 10
-      
-      # Configure AWS credentials using the action for better security
+        
+      # Configure AWS credentials
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
         
+      # Deploy to S3 - separate commands for different content types
       - name: Deploy to S3
         run: |
           # Create beta/dev directory if it doesn't exist
           aws s3api put-object --bucket goprsu.com --key beta/dev/ --content-type "application/x-directory"
+          
+          echo "Checking if out directory exists:"
+          ls -la
+          echo "Contents of out directory:"
+          ls -la out || echo "Out directory not found!"
           
           # Deploy HTML files with short cache time
           aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
@@ -118,27 +76,18 @@ jobs:
             --delete \
             --exclude "*.html" \
             --cache-control "max-age=86400"
-      
-      # Invalidate CloudFront cache for faster updates
+        
+      # Invalidate CloudFront cache
       - name: Invalidate CloudFront cache
         run: |
           # Specific invalidation for faster updates
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/beta/dev/index.html" "/beta/dev/*"
-      
+          
       # Verify deployment
       - name: Verify deployment
         run: |
           echo "Deployment completed. Waiting for CloudFront invalidation..."
           sleep 20
           echo "Check https://goprsu.com/beta/dev/index.html"
-      
-      # Clean up sensitive files
-      - name: Clean up sensitive files
-        if: always()
-        run: |
-          if [ -f .env.local ]; then
-            rm .env.local
-            echo "Removed .env.local file"
-          fi 
