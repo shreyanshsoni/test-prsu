@@ -1,6 +1,6 @@
 import React from 'react';
 import { RoadmapPlanner } from '../types/types';
-import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2 } from 'lucide-react';
+import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2, Sparkles } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 import { useTheme } from '../app/contexts/ThemeContext';
 
@@ -9,13 +9,15 @@ interface RoadmapsListProps {
   onSelectRoadmap: (id: string) => void;
   onCreateRoadmap: () => void;
   onDeleteRoadmap: (id: string) => void;
+  onAIBuildRoadmap?: () => void;
 }
 
 export default function RoadmapsList({
   roadmaps,
   onSelectRoadmap,
   onCreateRoadmap,
-  onDeleteRoadmap
+  onDeleteRoadmap,
+  onAIBuildRoadmap
 }: RoadmapsListProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -51,13 +53,24 @@ export default function RoadmapsList({
           <Map size={24} className="mr-2 text-primary-600 dark:text-primary-400" />
           My Academic Roadmaps
         </h1>
-        <button
-          onClick={onCreateRoadmap}
-          className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg flex items-center hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-        >
-          <PlusCircle size={18} className="mr-2" />
-          New Roadmap
-        </button>
+        <div className="flex items-center space-x-3">
+          {onAIBuildRoadmap && (
+            <button
+              onClick={onAIBuildRoadmap}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 text-white rounded-lg flex items-center hover:from-blue-700 hover:to-cyan-700 dark:hover:from-blue-600 dark:hover:to-cyan-600 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              <Sparkles size={18} className="mr-2" />
+              AI-Roadmap Builder
+            </button>
+          )}
+          <button
+            onClick={onCreateRoadmap}
+            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg flex items-center hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
+          >
+            <PlusCircle size={18} className="mr-2" />
+            New Roadmap
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">

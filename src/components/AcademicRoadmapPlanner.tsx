@@ -4,6 +4,7 @@ import RoadmapsList from './RoadmapsListNew';
 import RoadmapDetail from './RoadmapDetail';
 import NewRoadmapModal from './NewRoadmapModal';
 import ConfirmationModal from './ConfirmationModal';
+import AIRoadmapBuilder from './AIRoadmapBuilder';
 import { useTheme } from '../app/contexts/ThemeContext';
 import { 
   fetchRoadmapPlanners, 
@@ -40,6 +41,8 @@ export default function AcademicRoadmapPlanner() {
     }
     return false;
   });
+  
+  const [showAIRoadmapBuilder, setShowAIRoadmapBuilder] = useState<boolean>(false);
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -269,6 +272,10 @@ export default function AcademicRoadmapPlanner() {
     } finally {
     setIsModalOpen(false);
     }
+  };
+
+  const handleAIBuildRoadmap = () => {
+    setShowAIRoadmapBuilder(true);
   };
 
   const handleDeleteRoadmap = (id: string) => {
@@ -523,8 +530,12 @@ export default function AcademicRoadmapPlanner() {
   }
 
   return (
-    <div className="container mx-auto px-4">
-      {selectedRoadmap ? (
+    <>
+      {showAIRoadmapBuilder ? (
+        <AIRoadmapBuilder onClose={() => setShowAIRoadmapBuilder(false)} />
+      ) : (
+        <div className="container mx-auto px-4">
+          {selectedRoadmap ? (
         <RoadmapDetail
           roadmap={selectedRoadmap}
           activePhase={activePhase}
@@ -547,7 +558,10 @@ export default function AcademicRoadmapPlanner() {
           onSelectRoadmap={handleSelectRoadmap}
           onCreateRoadmap={() => setIsModalOpen(true)}
           onDeleteRoadmap={handleDeleteRoadmap}
+          onAIBuildRoadmap={handleAIBuildRoadmap}
         />
+      )}
+        </div>
       )}
       
       <NewRoadmapModal
@@ -575,6 +589,6 @@ export default function AcademicRoadmapPlanner() {
         isDanger={true}
         isConfirmDisabled={isDeletingRoadmap}
       />
-    </div>
+    </>
   );
 } 

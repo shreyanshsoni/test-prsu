@@ -2,6 +2,7 @@
 
 import { Search, BookmarkCheck, CheckSquare, LogIn, LogOut, LayoutDashboard, Target, Route, Menu, X, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Program, ChecklistItem, AcademicYear } from '../types/types';
 import ProgramSearch from '../components/ProgramSearch';
 import SavedPrograms from '../components/SavedPrograms';
@@ -41,8 +42,27 @@ export default function HomeClientComponent({
 }: HomeClientComponentProps) {
   const { user: authUser } = useAuth();
   const { theme } = useTheme();
+  const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false); // Track if the component is on the client
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+
+  // Read URL parameters to set initial tab
+  useEffect(() => {
+    const tabParam = searchParams.get('tab') as TabId;
+    if (tabParam && TABS.some(tab => tab.id === tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.pushState({}, '', url.toString());
+    }
+  };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState<Program[]>([]);
@@ -463,13 +483,13 @@ export default function HomeClientComponent({
   // Handle switching to goals tab directly
   const handleSwitchToGoalsTab = () => {
     // Switch to the goals tab
-    setActiveTab('goals');
+    handleTabChange('goals');
   };
 
   // Handle switching to roadmap planner with modal open
   const handleSwitchToRoadmapPlannerWithModal = () => {
     // First switch to the roadmap planner tab
-    setActiveTab('roadmapPlanner');
+    handleTabChange('roadmapPlanner');
     
     // Use URL parameter to signal that the modal should be opened
     // This will be detected by the AcademicRoadmapPlanner component
@@ -541,7 +561,7 @@ export default function HomeClientComponent({
           {/* Sidebar */}
           <Sidebar 
             activeTab={activeTab} 
-            onTabChange={setActiveTab} 
+            onTabChange={handleTabChange} 
             user={user}
             isOpen={isMobileMenuOpen}
             onToggle={toggleMobileMenu}

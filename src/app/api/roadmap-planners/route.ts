@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const { goal } = await req.json();
+    const { goal, phases = [] } = await req.json();
     
     if (!goal || !goal.title) {
       return NextResponse.json({ error: 'Goal title is required' }, { status: 400 });
@@ -109,10 +109,60 @@ export async function POST(req: NextRequest) {
       )
     `;
     
+    // Insert phases if provided
+    const createdPhases = [];
+    for (let i = 0; i < phases.length; i++) {
+      const phase = phases[i];
+      const phaseId = `phase-${uuidv4()}`;
+      
+             // Insert phase
+       await sql`
+         INSERT INTO roadmap_phases (
+           id, roadmap_id, title, description, reflection, position, created_at
+         ) VALUES (
+           ${phaseId}, ${roadmapId}, ${phase.title}, ${phase.description || ''}, 
+           ${phase.reflection || ''}, ${i}, ${now}
+         )
+       `;
+       
+       // Insert tasks for this phase
+       const phaseTasks = [];
+       for (let j = 0; j < phase.tasks.length; j++) {
+         const task = phase.tasks[j];
+         const taskId = `task-${uuidv4()}`;
+         
+         await sql`
+           INSERT INTO roadmap_tasks (
+             id, phase_id, title, notes, due_date, completed, position, created_at
+           ) VALUES (
+             ${taskId}, ${phaseId}, ${task.title}, ${task.notes || ''}, 
+             ${task.dueDate ? new Date(task.dueDate) : null}, 
+             ${task.completed || false}, ${j}, ${now}
+           )
+         `;
+        
+        phaseTasks.push({
+          id: taskId,
+          title: task.title,
+          completed: task.completed || false,
+          notes: task.notes || '',
+          dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : null
+        });
+      }
+      
+      createdPhases.push({
+        id: phaseId,
+        title: phase.title,
+        description: phase.description || '',
+        reflection: phase.reflection || '',
+        tasks: phaseTasks
+      });
+    }
+    
     const roadmapPlanner = {
       id: roadmapId,
       goal,
-      phases: [],
+      phases: createdPhases,
       createdAt: now.toISOString(),
       lastModified: now.toISOString()
     };
