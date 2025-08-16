@@ -82,9 +82,8 @@ jobs:
       - name: Create deployment directories
         run: |
           mkdir -p out
-          mkdir -p out/beta/dev
-          echo "Copying .next content to out/beta/dev"
-          cp -r .next/* out/beta/dev/ || echo "Warning: Copy error, but continuing"
+          echo "Copying .next content to out"
+          cp -r .next/* out/ || echo "Warning: Copy error, but continuing"
           echo "Copying public content to out"
           if [ -d "public" ]; then
             cp -r public/* out/ || echo "Warning: Public copy error, but continuing"
@@ -104,18 +103,15 @@ jobs:
         
       - name: Deploy to S3
         run: |
-          # Create beta/dev directory if it doesn't exist
-          aws s3api put-object --bucket goprsu.com --key beta/dev/ --content-type "application/x-directory"
-          
           # Deploy HTML files with short cache time
-          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
+          aws s3 sync ./out/ s3://goprsu.com/ \
             --delete \
             --exclude "*" \
             --include "*.html" \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate"
           
           # Deploy other static assets with longer cache
-          aws s3 sync ./out/ s3://goprsu.com/beta/dev/ \
+          aws s3 sync ./out/ s3://goprsu.com/ \
             --delete \
             --exclude "*.html" \
             --cache-control "max-age=86400"
@@ -123,17 +119,17 @@ jobs:
       # Invalidate CloudFront cache for faster updates
       - name: Invalidate CloudFront cache
         run: |
-          # Specific invalidation for faster updates
+          # Invalidate all paths for faster updates
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/beta/dev/index.html" "/beta/dev/*"
+            --paths "/*"
       
       # Verify deployment
       - name: Verify deployment
         run: |
           echo "Deployment completed. Waiting for CloudFront invalidation..."
           sleep 20
-          echo "Check https://goprsu.com/beta/dev/index.html"
+          echo "Check https://plan.goprsu.com"
       
       # Clean up sensitive files
       - name: Clean up sensitive files
