@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Load .env.local
+// Load .env.local (optional - for local development)
 const envFile = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envFile)) {
   // Silently load environment variables without logging them
@@ -13,9 +13,9 @@ if (fs.existsSync(envFile)) {
   for (const key in envConfig) {
     process.env[key] = envConfig[key];
   }
+  console.log('Loaded environment variables from .env.local');
 } else {
-  console.error(`.env.local file not found at ${envFile}`);
-  process.exit(1);
+  console.log('No .env.local file found - using environment variables from Amplify');
 }
 
 // Verify critical environment variables
@@ -30,6 +30,6 @@ const requiredVars = [
 const missingVars = requiredVars.filter(varName => !process.env[varName]);
 
 if (missingVars.length > 0) {
-  console.error('Missing required environment variables:', missingVars.join(', '));
-  process.exit(1);
+  console.warn('Missing environment variables (will use defaults if available):', missingVars.join(', '));
+  // Don't exit - let the app handle missing vars gracefully
 } 
