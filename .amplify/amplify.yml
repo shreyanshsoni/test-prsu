@@ -28,30 +28,25 @@ frontend:
         - echo "Environment file created successfully"
     build:
       commands:
-        - echo "Starting build process..."
+        - echo "Starting SSR build process..."
         - npm run build
-        - echo "Build completed. Creating output directories..."
-        - mkdir -p out/beta/dev
-        - ls -la .next || echo "No .next directory found!"
-        - cp -r .next out/beta/dev/ || echo "Failed to copy .next directory"
-        - cp -r public/* out/ || echo "No public files to copy"
-        - echo "Output directory structure:"
-        - find out -type f | head -20
+        - echo "SSR build completed successfully"
       env:
         NODE_ENV: production
   artifacts:
-    baseDirectory: out
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
+      - .next/cache/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
         - key: 'Cache-Control'
           value: 'public, max-age=0, must-revalidate'
   rewrites:
-    - source: '/beta/dev/*'
-      target: '/*'
+    - source: '/(.*)'
+      target: '/index.html'
       status: '200' 
