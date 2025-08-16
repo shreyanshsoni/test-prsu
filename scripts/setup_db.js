@@ -4,8 +4,13 @@ const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Database connection string from next.config.ts
-const databaseUrl = 'postgresql://neondb_owner:npg_MsBRLcZy14fT@ep-bitter-smoke-a56n6lnq-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require';
+// Use environment variable for database connection
+const databaseUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  console.error('❌ Error: POSTGRES_URL or DATABASE_URL environment variable is required');
+  process.exit(1);
+}
 
 async function setupDatabase() {
   const client = new Client({

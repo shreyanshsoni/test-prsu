@@ -12,41 +12,18 @@ frontend:
         - echo "Installing dependencies with --legacy-peer-deps..."
         - npm install --legacy-peer-deps --verbose
         - echo "Current working directory: $(pwd)"
-        - echo "Setting up environment variables..."
+        - echo "Environment variables are automatically loaded by Amplify"
+        - echo "Verifying critical environment variables..."
         - |
-          # Always create .env.local in the repo root (Amplify already clones into prsu_web_v1)
-          cat > .env.local << EOL
-          AUTH0_SECRET='${AUTH0_SECRET}'
-          AUTH0_BASE_URL='${AUTH0_BASE_URL}'
-          AUTH0_ISSUER_BASE_URL='${AUTH0_ISSUER_BASE_URL}'
-          AUTH0_CLIENT_ID='${AUTH0_CLIENT_ID}'
-          AUTH0_CLIENT_SECRET='${AUTH0_CLIENT_SECRET}'
-          AUTH0_SCOPE='${AUTH0_SCOPE:-openid profile email}'
-          AUTH0_AUDIENCE='${AUTH0_AUDIENCE:-}'
-          AUTH0_ORGANIZATION='${AUTH0_ORGANIZATION:-}'
-          AUTH0_LOGOUT_URL='${AUTH0_LOGOUT_URL:-$AUTH0_BASE_URL}'
-          DATABASE_URL='${DATABASE_URL}'
-          POSTGRES_URL='${POSTGRES_URL}'
-          OPENROUTER_API_KEY='${OPENROUTER_API_KEY}'
-          NODE_ENV='production'
-          EOL
-        - echo ".env.local created at $(pwd)/.env.local"
-        - ls -la .env.local
-        - echo "File size: $(wc -c < .env.local) bytes"
-        - echo "Testing load-env.js..."
-        - node load-env.js || (echo "load-env.js validation failed" && exit 1)
-        - echo "Environment validation passed"
-        - echo "Verifying critical variables are loaded..."
-        - |
+          # Test that required environment variables are available
           node -e "
-            require('./load-env.js');
-            const required = ['AUTH0_SECRET', 'AUTH0_CLIENT_ID', 'DATABASE_URL', 'POSTGRES_URL'];
+            const required = ['AUTH0_SECRET', 'AUTH0_CLIENT_ID', 'POSTGRES_URL'];
             const missing = required.filter(v => !process.env[v]);
             if (missing.length > 0) {
-              console.error('Missing variables after load-env.js:', missing);
+              console.error('Missing required environment variables:', missing);
               process.exit(1);
             }
-            console.log('All required variables loaded successfully');
+            console.log('All required environment variables are available');
           "
     build:
       commands:
