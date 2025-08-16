@@ -6,6 +6,24 @@ frontend:
         - echo "Node version $(node -v)"
         - echo "NPM version $(npm -v)"
         - npm install --legacy-peer-deps
+        - echo "Setting up environment variables..."
+        - |
+          cat > .env.local << EOL
+          AUTH0_SECRET='${{ secrets.AUTH0_SECRET }}'
+          AUTH0_BASE_URL='${{ secrets.AUTH0_BASE_URL }}'
+          AUTH0_ISSUER_BASE_URL='${{ secrets.AUTH0_ISSUER_BASE_URL }}'
+          AUTH0_CLIENT_ID='${{ secrets.AUTH0_CLIENT_ID }}'
+          AUTH0_CLIENT_SECRET='${{ secrets.AUTH0_CLIENT_SECRET }}'
+          AUTH0_SCOPE='${{ secrets.AUTH0_SCOPE || 'openid profile email' }}'
+          AUTH0_AUDIENCE='${{ secrets.AUTH0_AUDIENCE || '' }}'
+          AUTH0_ORGANIZATION='${{ secrets.AUTH0_ORGANIZATION || '' }}'
+          AUTH0_LOGOUT_URL='${{ secrets.AUTH0_LOGOUT_URL || secrets.AUTH0_BASE_URL }}'
+          DATABASE_URL='${{ secrets.DATABASE_URL }}'
+          POSTGRES_URL='${{ secrets.POSTGRES_URL }}'
+          OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}'
+          NODE_ENV='production'
+          EOL
+        - echo "Environment file created successfully"
     build:
       commands:
         - echo "Starting build process..."
@@ -13,10 +31,12 @@ frontend:
         - echo "Build completed. Creating output directories..."
         - mkdir -p out/beta/dev
         - ls -la .next || echo "No .next directory found!"
-        - cp -r .next/* out/beta/dev/ || echo "Failed to copy .next directory"
+        - cp -r .next out/beta/dev/ || echo "Failed to copy .next directory"
         - cp -r public/* out/ || echo "No public files to copy"
         - echo "Output directory structure:"
         - find out -type f | head -20
+      env:
+        NODE_ENV: production
   artifacts:
     baseDirectory: out
     files:
