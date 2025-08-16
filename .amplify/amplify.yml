@@ -4,7 +4,11 @@ frontend:
     preBuild:
       commands:
         - echo "Setting up Node.js 20..."
-        - nvm use 20 || nvm install 20
+        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+        - export NVM_DIR="$HOME/.nvm"
+        - [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        - nvm install 20
+        - nvm use 20
         - echo "Node version $(node -v)"
         - echo "NPM version $(npm -v)"
         - echo "Clearing npm cache..."
@@ -34,10 +38,15 @@ frontend:
         - ls -la .next/
         - echo "Checking for required-server-files.json..."
         - test -f .next/required-server-files.json && echo "✅ required-server-files.json found" || echo "❌ required-server-files.json missing"
+        - echo "Copying .next to output directory..."
+        - cp -r .next/* out/
+        - echo "Verifying output directory..."
+        - ls -la out/
+        - test -f out/required-server-files.json && echo "✅ required-server-files.json in output" || echo "❌ required-server-files.json missing from output"
       env:
         NODE_ENV: production
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
       - '**/*'
   cache:
