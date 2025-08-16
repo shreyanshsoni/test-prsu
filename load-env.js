@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 
 // Check if we're in development or production
 const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' && process.env.AWS_AMPLIFY === 'true';
 
 console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
