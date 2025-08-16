@@ -3,12 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Use Node.js 20 (Amplify drops Node 18 soon)
-        - nvm install 20
-        - nvm use 20
         - echo "Node: $(node -v)"
         - echo "NPM: $(npm -v)"
-
         # Clean + deterministic install
         - npm ci
     build:
