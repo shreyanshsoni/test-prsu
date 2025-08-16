@@ -45,5 +45,76 @@ export async function getClientWithRetry(maxRetries = 3) {
   throw lastError;
 }
 
+// Generic query execution function
+export async function executeQuery<T = any>(query: string, params: any[] = []): Promise<T[]> {
+  const client = await getClientWithRetry();
+  try {
+    const result = await client.query(query, params);
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+// Database initialization function
+export async function initializeDatabase(): Promise<void> {
+  const client = await getClientWithRetry();
+  try {
+    // Create user_profiles table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_profiles (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) UNIQUE NOT NULL,
+        profile_data JSONB NOT NULL DEFAULT '{}',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    // Create roadmap_planners table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS roadmap_planners (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    // Create roadmap_phases table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS roadmap_phases (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        roadmap_id UUID REFERENCES roadmap_planners(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        order_index INTEGER NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    // Create roadmap_tasks table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS roadmap_tasks (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        phase_id UUID REFERENCES roadmap_phases(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        order_index INTEGER NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    console.log('Database tables initialized successfully');
+  } finally {
+    client.release();
+  }
+}
+
 // Export the pool as default
 export default pool; 

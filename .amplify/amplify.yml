@@ -3,6 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Setting up Node.js 20..."
+        - nvm use 20 || nvm install 20
         - echo "Node version $(node -v)"
         - echo "NPM version $(npm -v)"
         - echo "Clearing npm cache..."
@@ -11,11 +13,9 @@ frontend:
         - rm -f package-lock.json
         - echo "Installing dependencies with --legacy-peer-deps..."
         - npm install --legacy-peer-deps --verbose
-        - echo "Current working directory: $(pwd)"
         - echo "Environment variables are automatically loaded by Amplify"
         - echo "Verifying critical environment variables..."
         - |
-          # Test that required environment variables are available
           node -e "
             const required = ['AUTH0_SECRET', 'AUTH0_CLIENT_ID', 'POSTGRES_URL'];
             const missing = required.filter(v => !process.env[v]);
@@ -30,6 +30,10 @@ frontend:
         - echo "Starting SSR build process..."
         - npm run build
         - echo "SSR build completed successfully"
+        - echo "Verifying build output..."
+        - ls -la .next/
+        - echo "Checking for required-server-files.json..."
+        - test -f .next/required-server-files.json && echo "✅ required-server-files.json found" || echo "❌ required-server-files.json missing"
       env:
         NODE_ENV: production
   artifacts:
@@ -40,11 +44,6 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
-  customHeaders:
-    - pattern: '**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'public, max-age=0, must-revalidate'
   rewrites:
     - source: '/(.*)'
       target: '/index.html'
