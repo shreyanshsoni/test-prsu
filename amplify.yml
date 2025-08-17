@@ -4,6 +4,7 @@ frontend:
     preBuild:
       commands:
         - npm install
+        - cp .env.example .env || echo "No .env.example found"
     build:
       commands:
         - npm run build

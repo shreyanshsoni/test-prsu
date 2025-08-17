@@ -7,6 +7,9 @@
  * IMPORTANT: Never import this file in client components!
  */
 
+// Load environment variables from .env file
+import 'dotenv/config';
+
 // Auth0 sensitive variables
 export const getAuth0Secret = (): string => {
   const secret = process.env.AUTH0_SECRET;
