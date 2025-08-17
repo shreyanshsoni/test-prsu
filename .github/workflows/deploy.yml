@@ -1,8 +1,10 @@
 name: Build and Deploy NextJS App to AWS
 on:
-  push:
-    branches:
-      - main  # Deploy only when pushing to main branch
+  # Disabled for Amplify deployment
+  # push:
+  #   branches:
+  #     - main  # Deploy only when pushing to main branch
+  workflow_dispatch: # Only run manually if needed
 
 jobs:
   build-and-deploy:
