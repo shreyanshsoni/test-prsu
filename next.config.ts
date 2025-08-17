@@ -3,13 +3,12 @@ import { NextConfig } from 'next';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Determine the correct base URL based on environment (local vs production)
-// and handle both the Amplify URL and custom domain
 const getBaseUrl = () => {
   if (isDevelopment) {
     return 'http://localhost:3000';
   }
   
-  // In production, prefer environment variable (set in amplify.yml) or fall back to Amplify domain
+  // In production, use environment variables or fallback
   return process.env.NEXT_PUBLIC_BASE_URL || 
          process.env.AUTH0_BASE_URL || 
          'https://plan.goprsu.com';

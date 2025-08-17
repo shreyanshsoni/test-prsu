@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "serve": "cross-env NODE_ENV=development npx serve out",
-    "build:prod": "NODE_ENV=production next build && chmod +x scripts/build.sh && ./scripts/build.sh",
+    "build:prod": "NODE_ENV=production next build",
     "prebuild": "echo 'Running prebuild script to sync package-lock.json' && npm install --package-lock-only --legacy-peer-deps"
   },
   "dependencies": {

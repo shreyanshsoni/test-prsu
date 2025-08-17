@@ -40,17 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#amplify-do-not-edit-begin
-amplify/\#current-cloud-backend
-amplify/.config/local-*
-amplify/logs
-amplify/mock-data
-amplify/mock-api-resources
-amplify/backend/amplify-meta.json
-amplify/backend/.temp
-build/
-dist/
-node_modules/
+# Amplify (will be re-added when needed)
+amplify/
 aws-exports.js
 awsconfiguration.json
 amplifyconfiguration.json
@@ -60,4 +51,3 @@ amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
-#amplify-do-not-edit-end
