@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TASK_LIBRARY } from "@/lib/types/taskLibrary";
+import { TASK_LIBRARY } from "../../../lib/types/taskLibrary";
 
 /**
  * AI Roadmap Generator API
