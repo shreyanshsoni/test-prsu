@@ -29,8 +29,8 @@ const config: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Add output config for standalone
-  output: 'standalone',
+  // Remove standalone output for Amplify hosting
+  // output: 'standalone',
   // Add environment variables - ONLY non-sensitive ones that are needed client-side
   env: {
     // Public URLs and non-sensitive configuration
