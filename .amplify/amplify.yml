@@ -3,33 +3,25 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node version $(node -v)"
-        - echo "NPM version $(npm -v)"
-        - npm install --legacy-peer-deps
+        # Use Node.js 20 (Amplify drops Node 18 soon)
+        - nvm install 20
+        - nvm use 20
+        - echo "Node: $(node -v)"
+        - echo "NPM: $(npm -v)"
+
+        # Clean + deterministic install
+        - npm ci
     build:
       commands:
-        - echo "Starting build process..."
+        - echo "Building Next.js app..."
         - npm run build
-        - echo "Build completed. Creating output directories..."
-        - mkdir -p out/beta/dev
-        - ls -la .next || echo "No .next directory found!"
-        - cp -r .next/* out/beta/dev/ || echo "Failed to copy .next directory"
-        - cp -r public/* out/ || echo "No public files to copy"
-        - echo "Output directory structure:"
-        - find out -type f | head -20
+        - echo "✅ Build complete"
   artifacts:
-    baseDirectory: out
+    # Keep .next as output dir (needed for SSR + required-server-files.json)
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
       - node_modules/**/*
-  customHeaders:
-    - pattern: '**/*'
-      headers:
-        - key: 'Cache-Control'
-          value: 'public, max-age=0, must-revalidate'
-  rewrites:
-    - source: '/beta/dev/*'
-      target: '/*'
-      status: '200' 
+      - .next/cache/**/*
