@@ -6,8 +6,22 @@ export async function GET() {
   //   return NextResponse.json({ error: 'Not available in production' }, { status: 403 });
   // }
 
+  // Get all environment variables
+  const allEnvVars = process.env;
+  
+  // Filter for relevant variables
+  const relevantVars = Object.keys(allEnvVars).filter(key => 
+    key.includes('AUTH0') || 
+    key.includes('DATABASE') || 
+    key.includes('POSTGRES') || 
+    key.includes('OPENROUTER')
+  );
+
   const envVars = {
     NODE_ENV: process.env.NODE_ENV,
+    totalEnvVars: Object.keys(allEnvVars).length,
+    relevantEnvVars: relevantVars.length,
+    allRelevantVars: relevantVars,
     AUTH0_SECRET: process.env.AUTH0_SECRET ? 'SET' : 'MISSING',
     AUTH0_BASE_URL: process.env.AUTH0_BASE_URL,
     AUTH0_ISSUER_BASE_URL: process.env.AUTH0_ISSUER_BASE_URL,
