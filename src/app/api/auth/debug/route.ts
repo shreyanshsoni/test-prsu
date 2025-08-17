@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import '../env-loader.js';
 
 export async function GET(req: NextRequest) {
   try {
@@ -46,6 +47,10 @@ export async function GET(req: NextRequest) {
       clientId: process.env.AUTH0_CLIENT_ID ? 'Set' : 'Missing',
       issuerUrl: process.env.AUTH0_ISSUER_BASE_URL || 'Missing',
       secret: process.env.AUTH0_SECRET ? 'Set' : 'Missing',
+      // Additional debug info
+      envLoaderStatus: 'Environment loader imported',
+      currentWorkingDir: process.cwd(),
+      nodeEnv: process.env.NODE_ENV,
     });
   } catch (error: any) {
     return NextResponse.json(

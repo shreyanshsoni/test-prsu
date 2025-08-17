@@ -1,5 +1,6 @@
 import { handleAuth, handleLogout } from '@auth0/nextjs-auth0';
 import { getAuth0BaseUrl } from '../../../../lib/server/env';
+import './env-loader.js';
 
 // Set runtime to nodejs for Auth0 compatibility
 export const runtime = 'nodejs';
