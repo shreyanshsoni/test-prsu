@@ -3,10 +3,15 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Current working directory: $(pwd)"
+        - echo "Build path: $CODEBUILD_SRC_DIR"
+        - echo "Listing directory contents:"
+        - ls -la
         - npm install
         - cp .env.example .env || echo "No .env.example found"
     build:
       commands:
+        - echo "Build phase - working directory: $(pwd)"
         - npm run build
   artifacts:
     baseDirectory: .next
