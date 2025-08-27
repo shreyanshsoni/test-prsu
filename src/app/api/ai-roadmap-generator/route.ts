@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TASK_LIBRARY } from "../../../lib/types/taskLibrary";
 
 /**
  * AI Roadmap Generator API
@@ -11,10 +10,22 @@ export const runtime = 'nodejs';
 interface AssessmentData {
   stage: string;
   totalScore: number;
-  clarity: { score: number; category: string };
-  engagement: { score: number; category: string };
-  preparation: { score: number; category: string };
-  support: { score: number; category: string };
+  clarity: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
+  engagement: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
+  preparation: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
+  support: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
+  percentages?: {
+    clarity: number;
+    engagement: number;
+    preparation: number;
+    support: number;
+    overall: number;
+  };
+  userPreferences?: {
+    interests: string;
+    futureJob: string;
+    targetDate: string;
+  };
 }
 
 interface ReadinessData {
@@ -26,10 +37,15 @@ interface ReadinessData {
 
 export async function POST(req: NextRequest) {
   try {
-    const { assessmentData } = await req.json();
+    console.log("🚀 AI Roadmap Generator API called");
+    const body = await req.json();
+    console.log("📥 Request body:", body);
+    
+    const { assessmentData } = body;
     
     // Validate assessment data
     if (!assessmentData || !assessmentData.stage) {
+      console.error("❌ Invalid assessment data:", assessmentData);
       return NextResponse.json({ 
         error: "Invalid assessment data" 
       }, { status: 400 });
@@ -37,15 +53,28 @@ export async function POST(req: NextRequest) {
 
     // Extract stage and readiness from assessment data
     const stage = assessmentData.stage;
+    
+    // Use readiness zones directly from assessment data
     const readiness: ReadinessData = {
-      Clarity: assessmentData.clarity.category,
-      Engagement: assessmentData.engagement.category,
-      Preparation: assessmentData.preparation.category,
-      Support: assessmentData.support.category
+      Clarity: assessmentData.clarity,
+      Engagement: assessmentData.engagement,
+      Preparation: assessmentData.preparation,
+      Support: assessmentData.support
     };
+    
+    console.log("📊 Readiness zones from assessment data:", readiness);
+
+    console.log("🎯 Calling generateLLMRoadmap with:", { stage, readiness, userPreferences: assessmentData.userPreferences });
+    console.log("🔍 User Preferences details:", {
+      interests: assessmentData.userPreferences?.interests,
+      futureJob: assessmentData.userPreferences?.futureJob,
+      targetDate: assessmentData.userPreferences?.targetDate
+    });
 
     // Generate LLM-powered roadmap
-    const roadmap = await generateLLMRoadmap(stage, readiness);
+    const roadmap = await generateLLMRoadmap(stage, readiness, assessmentData.userPreferences);
+    
+    console.log("✅ LLM roadmap generated:", roadmap);
     
     return NextResponse.json({
       success: true,
@@ -60,48 +89,120 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateLLMRoadmap(stage: string, readiness: ReadinessData) {
+async function generateLLMRoadmap(stage: string, readiness: ReadinessData, userPreferences?: any) {
   const systemPrompt = `
-You are PRSU's AI Academic Counselor.
+You are an expert in generating high school career roadmaps. Given a student's Interests, Role, Timeline, Stage, and Area Readiness Zones, your job is to produce a structured output that includes only a career blurb, stage summary, and a phase-based roadmap.
 
-INPUT:
-- stage: one of Early, Mid, Late
-- readiness: readiness zone for each area (Clarity, Engagement, Preparation, Support)
-- taskLibrary: full list of tasks with stage and zone tags
+IMPORTANT: You MUST return ONLY valid JSON. Do not include any text before or after the JSON. Do not include markdown formatting, explanations, or additional text.
 
-TASK:
-Select tasks ONLY from taskLibrary where BOTH:
-1. stage matches student stage
-2. zone matches readiness zone for that area
+Step 1 – Career Blurb
 
-RULES:
-- 4 months total
-- Each month: 3 tasks (Clarity, Engagement, Preparation) + 1 reflection (Support)
-- No task repetition
-- Keep task names exactly as in taskLibrary
-- Include readiness zone for each task in output
-- Output valid JSON only, no text outside JSON
+Use the student's Interest + Role combination to generate a 2–3 sentence career blurb.
 
-FORMAT:
+If Interest = "Other" → Use the custom interest text provided by the student to create a personalized blurb.
+If Interest = "I'm not sure" → Suggest broad exploratory high school paths (clubs, electives, volunteering, shadowing).
+
+The blurb should always sound high school–specific, practical, and encouraging.
+
+Step 2 – Stage & Scores Summary
+
+Use provided readiness zones directly (strings: Development, Balanced, Proficiency).
+
+Use provided overall_stage directly (Early, Mid, Late).
+
+Present them in JSON form only (no markdown, no tables).
+
+Step 3 – Roadmap Generation
+
+Roadmap must have phases:
+
+Exploration
+
+Skill Building
+
+Application
+
+Impact & Showcase
+
+Each phase must contain:
+
+3–4 tasks (high school level, concrete, automatically generated by LLM)
+
+1 reflection question
+
+1 timeline field:
+
+short_term (1–3 months)
+
+mid_term (3–6 months)
+
+long_term (6–12 months)
+
+Rules:
+
+Timeline scales intensity: short timeline → fewer/lighter tasks; long timeline → deeper projects + leadership.
+
+Stage adjusts depth: Early → light & exploratory; Mid → balanced; Late → advanced + leadership.
+
+Area readiness differentiates: Development → foundational tasks; Balanced → practice & emerging responsibility; Proficiency → advanced/leadership.
+
+Always include at least 1 task per area per phase.
+
+Generate creative, relevant tasks based on the student's interests, career goals, and readiness level.
+
+Step 4 – Output Rules
+
+Output ONLY in this structure (no extra text, no markdown):
+
 {
-  "summary": "1–2 sentence motivational message",
+"career_blurb": "string",
+"scores_summary": {
+"Clarity": "Development/Balanced/Proficiency",
+"Engagement": "…",
+"Preparation": "…",
+"Support": "…",
+"overall_stage": "Early/Mid/Late"
+},
   "roadmap": [
     {
-      "month": 1,
-      "tasks": [
-        {"task": "...", "area": "Clarity", "zone": "..."},
-        {"task": "...", "area": "Engagement", "zone": "..."},
-        {"task": "...", "area": "Preparation", "zone": "..."}
-      ],
-      "reflection": {"task": "...", "area": "Support", "zone": "..."}
-    }
-  ]
+"phase": "Exploration",
+"timeline": "short_term/mid_term/long_term",
+"tasks": ["task1", "task2", "task3"],
+"reflection": "reflection question"
+},
+{
+"phase": "Skill Building",
+"timeline": "…",
+"tasks": ["…"],
+"reflection": "…"
+},
+{
+"phase": "Application",
+"timeline": "…",
+"tasks": ["…"],
+"reflection": "…"
+},
+{
+"phase": "Impact & Showcase",
+"timeline": "…",
+"tasks": ["…"],
+"reflection": "…"
 }
+]
+}
+
+Do not add explanations or markdown formatting. Always return valid JSON with Roadmap.
 
 INPUT VALUES:
 stage: ${stage}
 readiness: ${JSON.stringify(readiness)}
-taskLibrary: ${JSON.stringify(TASK_LIBRARY)}
+userPreferences: ${userPreferences ? JSON.stringify(userPreferences) : 'Not provided'}
+
+SPECIAL INSTRUCTIONS:
+- If userPreferences.interests is "other", use the actual custom text provided by the student
+- Always generate exactly 4 phases with 3-4 tasks each
+- Return ONLY the JSON object, no additional text or formatting
+- Ensure all required fields are present in the response
 `;
 
   try {
@@ -127,25 +228,55 @@ taskLibrary: ${JSON.stringify(TASK_LIBRARY)}
 
     // Enhanced JSON validation and cleaning
     try {
-      // Clean the JSON string
-      const cleanedJson = roadmapJson.trim();
+      console.log('🔍 Raw LLM Response:', roadmapJson);
+      
+      // Clean the JSON string - remove any text before or after JSON
+      let cleanedJson = roadmapJson.trim();
+      
+      // Try to extract JSON if there's extra text
+      const jsonMatch = cleanedJson.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanedJson = jsonMatch[0];
+      }
+      
+      console.log('🧹 Cleaned JSON:', cleanedJson);
       
       // Parse JSON
       const parsed = JSON.parse(cleanedJson);
+      console.log('✅ Parsed JSON:', parsed);
       
-      // Validate structure
-      if (!parsed.summary || !parsed.roadmap || !Array.isArray(parsed.roadmap)) {
-        throw new Error('Invalid JSON structure from LLM');
+      // Validate structure for new format
+      if (!parsed.career_blurb || !parsed.scores_summary || !parsed.roadmap || !Array.isArray(parsed.roadmap)) {
+        throw new Error('Invalid JSON structure from LLM - missing required fields');
+      }
+      
+      // Validate scores_summary structure
+      if (!parsed.scores_summary.Clarity || !parsed.scores_summary.Engagement || 
+          !parsed.scores_summary.Preparation || !parsed.scores_summary.Support || 
+          !parsed.scores_summary.overall_stage) {
+        throw new Error('Invalid JSON structure from LLM - missing scores_summary fields');
+      }
+      
+      // Validate roadmap structure
+      if (parsed.roadmap.length !== 4) {
+        throw new Error('Invalid JSON structure from LLM - roadmap must have exactly 4 phases');
       }
       
       return parsed;
     } catch (parseError) {
-      console.error('JSON Parse Error:', parseError);
-      console.error('Raw LLM Response:', roadmapJson);
+      console.error('❌ JSON Parse Error:', parseError);
+      console.error('📝 Raw LLM Response:', roadmapJson);
       
       // Return fallback structure with error info
       return {
-        summary: "Unable to generate personalized roadmap. Please try again.",
+        career_blurb: "Unable to generate personalized roadmap. Please try again.",
+        scores_summary: {
+          Clarity: "Development",
+          Engagement: "Development", 
+          Preparation: "Development",
+          Support: "Development",
+          overall_stage: "Early"
+        },
         roadmap: [],
         error: "Invalid JSON response from AI service"
       };

@@ -43,6 +43,14 @@ export default function AcademicRoadmapPlanner() {
   });
   
   const [showAIRoadmapBuilder, setShowAIRoadmapBuilder] = useState<boolean>(false);
+  const [showAIRoadmapModal, setShowAIRoadmapModal] = useState<boolean>(false);
+  const [aiRoadmapForm, setAiRoadmapForm] = useState({
+    interests: '',
+    futureJob: '',
+    targetDate: ''
+  });
+  const [customInterests, setCustomInterests] = useState('');
+  const [customFutureJob, setCustomFutureJob] = useState('');
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -63,6 +71,8 @@ export default function AcademicRoadmapPlanner() {
     if (typeof window !== 'undefined') {
       const handleUrlChange = () => {
         const searchParams = new URLSearchParams(window.location.search);
+        
+        // Handle create modal parameter
         if (searchParams.get('openCreateModal') === 'true') {
           setIsModalOpen(true);
           
@@ -74,6 +84,24 @@ export default function AcademicRoadmapPlanner() {
             window.location.pathname + (searchParams.toString() ? '?' + searchParams.toString() : '')
           );
         }
+        
+        // Handle roadmapId parameter for auto-selection
+        const roadmapId = searchParams.get('roadmapId');
+        if (roadmapId && roadmaps.length > 0) {
+          // Check if the roadmap exists in our list
+          const roadmapExists = roadmaps.find(r => r.id === roadmapId);
+          if (roadmapExists) {
+            setSelectedRoadmapId(roadmapId);
+            
+            // Remove the parameter without refreshing the page
+            searchParams.delete('roadmapId');
+            window.history.replaceState(
+              {}, 
+              document.title, 
+              window.location.pathname + (searchParams.toString() ? '?' + searchParams.toString() : '')
+            );
+          }
+        }
       };
       
       // Check on mount and when URL changes
@@ -83,7 +111,7 @@ export default function AcademicRoadmapPlanner() {
       window.addEventListener('popstate', handleUrlChange);
       return () => window.removeEventListener('popstate', handleUrlChange);
     }
-  }, []);
+  }, [roadmaps]);
   
   // Get the currently selected roadmap
   const selectedRoadmap = selectedRoadmapId 
@@ -275,7 +303,29 @@ export default function AcademicRoadmapPlanner() {
   };
 
   const handleAIBuildRoadmap = () => {
-    setShowAIRoadmapBuilder(true);
+    setShowAIRoadmapModal(true);
+  };
+
+  const handleAIRoadmapSubmit = () => {
+    if (aiRoadmapForm.interests && aiRoadmapForm.futureJob && aiRoadmapForm.targetDate) {
+      setShowAIRoadmapModal(false);
+      setShowAIRoadmapBuilder(true);
+    }
+  };
+
+  const resetAIRoadmapForm = () => {
+    setAiRoadmapForm({
+      interests: '',
+      futureJob: '',
+      targetDate: ''
+    });
+    setCustomInterests('');
+    setCustomFutureJob('');
+  };
+
+  const closeAIRoadmapModal = () => {
+    setShowAIRoadmapModal(false);
+    resetAIRoadmapForm();
   };
 
   const handleDeleteRoadmap = (id: string) => {
@@ -532,7 +582,14 @@ export default function AcademicRoadmapPlanner() {
   return (
     <>
       {showAIRoadmapBuilder ? (
-        <AIRoadmapBuilder onClose={() => setShowAIRoadmapBuilder(false)} />
+        <AIRoadmapBuilder 
+          onClose={() => setShowAIRoadmapBuilder(false)} 
+          userPreferences={{
+            interests: aiRoadmapForm.interests === 'other' ? customInterests : aiRoadmapForm.interests,
+            futureJob: aiRoadmapForm.futureJob === 'other' ? customFutureJob : aiRoadmapForm.futureJob,
+            targetDate: aiRoadmapForm.targetDate
+          }}
+        />
       ) : (
         <div className="container mx-auto px-4">
           {selectedRoadmap ? (
@@ -569,6 +626,132 @@ export default function AcademicRoadmapPlanner() {
         onClose={() => setIsModalOpen(false)}
         onCreateRoadmap={handleCreateRoadmap}
       />
+
+      {/* AI Roadmap Builder Modal */}
+      {showAIRoadmapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+          <div className={`${isDark ? 'bg-dark-card' : 'bg-white'} rounded-2xl shadow-2xl max-w-lg w-full p-6`}>
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-light-text dark:text-dark-text mb-2">
+                Let's build your personalized academic journey!
+              </h2>
+              <p className="text-light-muted dark:text-dark-muted">
+                Answer these 3 questions and watch AI create your custom roadmap.
+              </p>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-4">
+              {/* Interests */}
+              <div>
+                <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                  What are some of your interests or things you enjoy?
+                </label>
+                <select
+                  value={aiRoadmapForm.interests}
+                  onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, interests: e.target.value})}
+                  className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                >
+                  <option value="" disabled>Select an interest...</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Arts & Humanities">Arts & Humanities (like music, literature, history)</option>
+                  <option value="Healthcare & Medicine">Healthcare & Medicine</option>
+                  <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
+                  <option value="Science & Engineering">Science & Engineering</option>
+                  <option value="Social Sciences">Social Sciences (like psychology, sociology)</option>
+                  <option value="Environment & Sustainability">Environment & Sustainability</option>
+                  <option value="other">Other (please tell us)</option>
+                  <option value="I'm not sure">I'm not sure</option>
+                </select>
+                
+                {/* Conditional text input for Other interests */}
+                {aiRoadmapForm.interests === 'other' && (
+                  <input
+                    type="text"
+                    placeholder="Please specify your interests..."
+                    value={customInterests}
+                    onChange={(e) => setCustomInterests(e.target.value)}
+                    className="w-full mt-3 px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                  />
+                )}
+              </div>
+
+              {/* Future Job */}
+              <div>
+                <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                  What kind of future job do you think you might like?
+                </label>
+                <select
+                  value={aiRoadmapForm.futureJob}
+                  onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, futureJob: e.target.value})}
+                  className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                >
+                  <option value="" disabled>Select a future job...</option>
+                  <option value="Leader or Manager">Leader or Manager</option>
+                  <option value="Tech Expert">Tech Expert</option>
+                  <option value="Creative">Creative (like designer, artist)</option>
+                  <option value="Entrepreneur">Entrepreneur (starting your own business)</option>
+                  <option value="Researcher or Scientist">Researcher or Scientist</option>
+                  <option value="Helping or Support role">Helping or Support role</option>
+                  <option value="other">Other (please tell us)</option>
+                  <option value="I'm not sure">I'm not sure</option>
+                </select>
+                {aiRoadmapForm.futureJob === 'other' && (
+                  <input
+                    type="text"
+                    placeholder="Please specify your desired job..."
+                    value={customFutureJob}
+                    onChange={(e) => setCustomFutureJob(e.target.value)}
+                    className="w-full mt-3 px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                  />
+                )}
+              </div>
+
+              {/* Target Date */}
+              <div>
+                <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                  What is your target timeline or date for achieving this goal?
+                </label>
+                <input
+                  type="date"
+                  value={aiRoadmapForm.targetDate}
+                  onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, targetDate: e.target.value})}
+                  className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-8">
+                <button
+                  onClick={closeAIRoadmapModal}
+                  className="flex-1 px-4 py-3 border-2 border-light-border dark:border-dark-border text-light-text dark:text-dark-text font-medium rounded-xl hover:bg-light-background dark:hover:bg-dark-background transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAIRoadmapSubmit}
+                  disabled={
+                    !aiRoadmapForm.interests || 
+                    !aiRoadmapForm.futureJob || 
+                    !aiRoadmapForm.targetDate ||
+                    (aiRoadmapForm.interests === 'other' && !customInterests.trim()) ||
+                    (aiRoadmapForm.futureJob === 'other' && !customFutureJob.trim())
+                  }
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-cyan-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  Generate AI Roadmap
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmationModal 
         isOpen={deleteConfirmation.isOpen}

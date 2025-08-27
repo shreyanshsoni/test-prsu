@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Program, ChecklistItem, AcademicYear } from '../types/types';
-import { ListChecks, CalendarClock, PlusCircle, X, Map, Plus, FolderPlus, Loader2, Calendar } from 'lucide-react';
+import { ListChecks, CalendarClock, PlusCircle, X, Map, Plus, FolderPlus, Loader2, Calendar, Sparkles } from 'lucide-react';
 import { GoalInput, Goal, toggleGoalCompletion } from '../lib/services/goalService';
 import { ScrollableGoals } from './ScrollableGoals';
 import { useTheme } from '../app/contexts/ThemeContext';
+import AIRoadmapBuilder from './AIRoadmapBuilder';
 
 interface UserDashboardProps {
   savedPrograms: Program[];
@@ -92,6 +93,15 @@ export default function UserDashboard({
   const [newYear, setNewYear] = useState<string>("");
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [isSavingGoal, setIsSavingGoal] = useState(false);
+  const [showAIRoadmapModal, setShowAIRoadmapModal] = useState(false);
+  const [showAIRoadmapBuilder, setShowAIRoadmapBuilder] = useState(false);
+  const [aiRoadmapForm, setAiRoadmapForm] = useState({
+    interests: '',
+    futureJob: '',
+    targetDate: ''
+  });
+  const [customInterests, setCustomInterests] = useState('');
+  const [customFutureJob, setCustomFutureJob] = useState('');
   const [milestones, setMilestones] = useState<{
     title: string;
     description: string;
@@ -285,6 +295,50 @@ export default function UserDashboard({
     } finally {
       setIsSavingGoal(false);
     }
+  };
+
+  // AI Roadmap Builder functions
+  const handleAIRoadmapSubmit = () => {
+    // Prepare final form data with custom inputs
+    let finalInterests = aiRoadmapForm.interests;
+    let finalFutureJob = aiRoadmapForm.futureJob;
+    
+    // If "other" is selected, use the custom text input
+    if (aiRoadmapForm.interests === 'other' && customInterests.trim()) {
+      finalInterests = customInterests.trim();
+    }
+    
+    if (aiRoadmapForm.futureJob === 'other' && customFutureJob.trim()) {
+      finalFutureJob = customFutureJob.trim();
+    }
+    
+    // Check if all required fields are filled
+    if (finalInterests && finalFutureJob && aiRoadmapForm.targetDate) {
+      // Store the final answers in the form state
+      setAiRoadmapForm({
+        ...aiRoadmapForm,
+        interests: finalInterests,
+        futureJob: finalFutureJob
+      });
+      
+      setShowAIRoadmapModal(false);
+      setShowAIRoadmapBuilder(true);
+    }
+  };
+
+  const resetAIRoadmapForm = () => {
+    setAiRoadmapForm({
+      interests: '',
+      futureJob: '',
+      targetDate: ''
+    });
+    setCustomInterests('');
+    setCustomFutureJob('');
+  };
+
+  const closeAIRoadmapModal = () => {
+    setShowAIRoadmapModal(false);
+    resetAIRoadmapForm();
   };
   
   // Close goal form
@@ -693,16 +747,17 @@ export default function UserDashboard({
         style={{ borderColor: isDark ? '#1e40af' : '#3b82f6' }}
       >
         <div className="flex flex-col items-center justify-center text-center py-4">
-          <PlusCircle className="h-10 w-10 text-primary-500 dark:text-primary-400 mb-3" />
-          <h2 className="text-xl font-bold text-light-text dark:text-dark-text mb-2">Create a New Roadmap</h2>
+          <Sparkles className="h-10 w-10 text-primary-500 dark:text-primary-400 mb-3" />
+          <h2 className="text-xl font-bold text-light-text dark:text-dark-text mb-2">AI Roadmap Builder</h2>
           <p className="text-light-muted dark:text-dark-muted mb-4 max-w-md">
-            Plan your academic journey with a personalized roadmap to reach your educational goals.
+            Answer a few questions to get a personalized academic roadmap tailored to your goals.
           </p>
           <button 
-            className="px-5 py-2 bg-primary-600 dark:bg-primary-700 text-white font-medium rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-            onClick={handleCreateRoadmapClick}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-cyan-600 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            onClick={() => setShowAIRoadmapModal(true)}
           >
-            Create Roadmap
+            <Sparkles className="w-5 h-5" />
+            AI Roadmap Builder
           </button>
         </div>
       </div>
@@ -832,12 +887,148 @@ export default function UserDashboard({
               </form>
             </div>
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      , document.body)}
 
       {/* Modal Portal */}
       {isModalOpen && isBrowser && createPortal(<Modal />, document.body)}
+
+      {/* AI Roadmap Builder Modal */}
+      {showAIRoadmapModal && isBrowser && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-light-card dark:bg-dark-card rounded-2xl shadow-2xl max-w-lg w-full mx-auto">
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-light-text dark:text-dark-text mb-2">
+                  Let's build your personalized academic journey!
+                </h2>
+                <p className="text-light-muted dark:text-dark-muted">
+                  Answer these 3 questions and watch AI create your custom roadmap.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Interests Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                    What are some of your interests or things you enjoy?
+                  </label>
+                  <select
+                    value={aiRoadmapForm.interests}
+                    onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, interests: e.target.value})}
+                    className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                  >
+                    <option value="" disabled>Select an interest...</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Arts & Humanities">Arts & Humanities (like music, literature, history)</option>
+                    <option value="Healthcare & Medicine">Healthcare & Medicine</option>
+                    <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
+                    <option value="Science & Engineering">Science & Engineering</option>
+                    <option value="Social Sciences">Social Sciences (like psychology, sociology)</option>
+                    <option value="Environment & Sustainability">Environment & Sustainability</option>
+                    <option value="other">Other (please tell us)</option>
+                    <option value="I'm not sure">I'm not sure</option>
+                  </select>
+                  
+                  {/* Conditional text input for Other interests */}
+                  {aiRoadmapForm.interests === 'other' && (
+                    <input
+                      type="text"
+                      placeholder="Please specify your interests..."
+                      value={customInterests}
+                      onChange={(e) => setCustomInterests(e.target.value)}
+                      className="w-full mt-3 px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                    />
+                  )}
+                </div>
+
+                {/* Future Job Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                    What kind of future job do you think you might like?
+                  </label>
+                  <select
+                    value={aiRoadmapForm.futureJob}
+                    onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, futureJob: e.target.value})}
+                    className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                  >
+                    <option value="" disabled>Select a future job...</option>
+                    <option value="Leader or Manager">Leader or Manager</option>
+                    <option value="Tech Expert">Tech Expert</option>
+                    <option value="Creative">Creative (like designer, artist)</option>
+                    <option value="Entrepreneur">Entrepreneur (starting your own business)</option>
+                    <option value="Researcher or Scientist">Researcher or Scientist</option>
+                    <option value="Helping or Support role">Helping or Support role</option>
+                    <option value="other">Other (please tell us)</option>
+                    <option value="I'm not sure">I'm not sure</option>
+                  </select>
+                  
+                  {/* Conditional text input for Other future job */}
+                  {aiRoadmapForm.futureJob === 'other' && (
+                    <input
+                      type="text"
+                      placeholder="Please specify your desired job..."
+                      value={customFutureJob}
+                      onChange={(e) => setCustomFutureJob(e.target.value)}
+                      className="w-full mt-3 px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                    />
+                  )}
+                </div>
+
+                {/* Target Date */}
+                <div>
+                  <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-2">
+                    What is your target timeline or date for achieving this goal?
+                  </label>
+                  <input
+                    type="date"
+                    value={aiRoadmapForm.targetDate}
+                    onChange={(e) => setAiRoadmapForm({...aiRoadmapForm, targetDate: e.target.value})}
+                    className="w-full px-4 py-3 border border-light-border dark:border-dark-border bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  onClick={closeAIRoadmapModal}
+                  className="flex-1 px-4 py-3 border-2 border-light-border dark:border-dark-border text-light-text dark:text-dark-text font-medium rounded-xl hover:bg-light-background dark:hover:bg-dark-background transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAIRoadmapSubmit}
+                  disabled={
+                    !aiRoadmapForm.interests || 
+                    !aiRoadmapForm.futureJob || 
+                    !aiRoadmapForm.targetDate ||
+                    (aiRoadmapForm.interests === 'other' && !customInterests.trim()) ||
+                    (aiRoadmapForm.futureJob === 'other' && !customFutureJob.trim())
+                  }
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-cyan-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  Generate AI Roadmap
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      , document.body)}
+
+      {/* Full-screen AI Roadmap Builder */}
+      {showAIRoadmapBuilder && isBrowser && createPortal(
+        <AIRoadmapBuilder 
+          onClose={() => setShowAIRoadmapBuilder(false)} 
+          userPreferences={{
+            interests: aiRoadmapForm.interests === 'other' ? customInterests : aiRoadmapForm.interests,
+            futureJob: aiRoadmapForm.futureJob === 'other' ? customFutureJob : aiRoadmapForm.futureJob,
+            targetDate: aiRoadmapForm.targetDate
+          }}
+        />
+      , document.body)}
     </div>
   );
 } 
