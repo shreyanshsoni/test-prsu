@@ -433,4 +433,32 @@ export async function updatePhase(phaseId: string, updates: { title?: string; de
     console.error(`Error updating phase ${phaseId}:`, error);
     return false;
   }
+}
+
+/**
+ * Update a roadmap's career blurb
+ */
+export async function updateCareerBlurb(roadmapId: string, careerBlurb: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/roadmap-planners/${roadmapId}/career-blurb`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ careerBlurb }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error updating career blurb: ${response.status}`);
+    }
+    
+    // Clear cache
+    cache.delete(`roadmap-planner:${roadmapId}`);
+    cache.clear('roadmap-planners');
+    
+    return true;
+  } catch (error) {
+    console.error(`Error updating career blurb for roadmap ${roadmapId}:`, error);
+    return false;
+  }
 } 

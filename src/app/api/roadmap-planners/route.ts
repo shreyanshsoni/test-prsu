@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
           identity: roadmap.goal_identity,
           deadline: roadmap.goal_deadline ? roadmap.goal_deadline.toISOString().split('T')[0] : ''
         },
+        careerBlurb: roadmap.career_blurb || '',
         phases,
         createdAt: roadmap.created_at.toISOString(),
         lastModified: roadmap.last_modified.toISOString()
@@ -101,10 +102,11 @@ export async function POST(req: NextRequest) {
     // Insert the new roadmap planner
     await sql`
       INSERT INTO roadmap_planners (
-        id, user_id, goal_title, goal_identity, goal_deadline, created_at, last_modified
+        id, user_id, goal_title, goal_identity, goal_deadline, career_blurb, created_at, last_modified
       ) VALUES (
         ${roadmapId}, ${userId}, ${goal.title}, ${goal.identity || ''}, 
-        ${goal.deadline ? new Date(goal.deadline) : null}, 
+        ${goal.deadline ? new Date(goal.deadline) : null},
+        ${goal.careerBlurb || ''},
         ${now}, ${now}
       )
     `;
@@ -162,6 +164,7 @@ export async function POST(req: NextRequest) {
     const roadmapPlanner = {
       id: roadmapId,
       goal,
+      careerBlurb: goal.careerBlurb || '',
       phases: createdPhases,
       createdAt: now.toISOString(),
       lastModified: now.toISOString()

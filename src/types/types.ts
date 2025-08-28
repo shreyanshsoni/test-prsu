@@ -77,11 +77,13 @@ export interface Goal {
   title: string;
   identity: string;
   deadline: string;
+  careerBlurb?: string;
 }
 
 export interface RoadmapPlanner {
   id: string;
   goal: Goal;
+  careerBlurb?: string;
   phases: PhaseData[];
   createdAt: string;
   lastModified: string;

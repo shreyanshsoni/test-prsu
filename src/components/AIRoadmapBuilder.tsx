@@ -938,7 +938,8 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
       const goal = {
         title: generateMeaningfulTitle(userPreferences?.interests, userPreferences?.futureJob),
         identity: `${dataToUse.scores_summary?.overall_stage || 'Student'} Stage Student`,
-        deadline: userPreferences?.targetDate || new Date(Date.now() + 4 * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Use student's target date or fallback to 4 months
+        deadline: userPreferences?.targetDate || new Date(Date.now() + 4 * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Use student's target date or fallback to 4 months
+        careerBlurb: dataToUse.career_blurb || ''
       };
 
       console.log('🎯 Created goal:', goal);

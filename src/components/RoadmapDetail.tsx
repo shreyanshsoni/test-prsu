@@ -1,10 +1,12 @@
 import React from 'react';
 import RoadmapOverview from './RoadmapOverview';
 import PhaseAccordion from './PhaseAccordion';
+import CareerBlurbEditor from './CareerBlurbEditor';
 import { RoadmapPlanner, Goal, PhaseData, Task } from '../types/types';
 import { ArrowLeft } from 'lucide-react';
 import AddPhaseButton from './AddPhaseButton';
 import { useTheme } from '../app/contexts/ThemeContext';
+import { updateCareerBlurb } from '../lib/services/roadmapPlannerService';
 
 interface RoadmapDetailProps {
   roadmap: RoadmapPlanner;
@@ -73,6 +75,12 @@ export default function RoadmapDetail({
             deadline={roadmap.goal.deadline}
             progress={progress}
             onUpdateGoal={onUpdateGoal}
+          />
+          
+          {/* Career Blurb Editor */}
+          <CareerBlurbEditor
+            careerBlurb={roadmap.careerBlurb || ''}
+            onUpdate={(blurb) => updateCareerBlurb(roadmap.id, blurb)}
           />
           
           {roadmap.phases.length > 0 ? (
