@@ -1,43 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Orchestrator } from '../../../lib/orchestrator/orchestrator';
+import {
+  CollectResponsesStep,
+  ReadinessScoringStep,
+  PromptBuilderStep,
+  LLMGenerationStep,
+  ValidationStep,
+  FinalizeStep
+} from '../../../lib/orchestrator/steps';
 
 /**
- * AI Roadmap Generator API
+ * AI Roadmap Generator API - Orchestrator Pattern
  * Integrates assessment scoring with LLM-powered roadmap generation
  */
 
 export const runtime = 'nodejs';
 
-interface AssessmentData {
-  stage: string;
-  totalScore: number;
-  clarity: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
-  engagement: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
-  preparation: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
-  support: string;  // Readiness zone: "Development", "Balanced", "Proficiency"
-  percentages?: {
-    clarity: number;
-    engagement: number;
-    preparation: number;
-    support: number;
-    overall: number;
-  };
-  userPreferences?: {
-    interests: string;
-    futureJob: string;
-    targetDate: string;
-  };
-}
-
-interface ReadinessData {
-  Clarity: string;
-  Engagement: string;
-  Preparation: string;
-  Support: string;
-}
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("🚀 AI Roadmap Generator API called");
+    console.log("🚀 AI Roadmap Generator API called (Orchestrator Pattern)");
     const body = await req.json();
     console.log("📥 Request body:", body);
     
@@ -51,34 +33,38 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Extract stage and readiness from assessment data
-    const stage = assessmentData.stage;
-    
-    // Use readiness zones directly from assessment data
-    const readiness: ReadinessData = {
-      Clarity: assessmentData.clarity,
-      Engagement: assessmentData.engagement,
-      Preparation: assessmentData.preparation,
-      Support: assessmentData.support
-    };
-    
-    console.log("📊 Readiness zones from assessment data:", readiness);
-
-    console.log("🎯 Calling generateLLMRoadmap with:", { stage, readiness, userPreferences: assessmentData.userPreferences });
-    console.log("🔍 User Preferences details:", {
-      interests: assessmentData.userPreferences?.interests,
-      futureJob: assessmentData.userPreferences?.futureJob,
-      targetDate: assessmentData.userPreferences?.targetDate
+    // Create orchestrator with initial state
+    const orchestrator = new Orchestrator({
+      assessmentData,
+      userPreferences: assessmentData.userPreferences
     });
 
-    // Generate LLM-powered roadmap
-    const roadmap = await generateLLMRoadmap(stage, readiness, assessmentData.userPreferences);
-    
-    console.log("✅ LLM roadmap generated:", roadmap);
-    
+    // Add all steps to the orchestrator
+    orchestrator
+      .addStep(new CollectResponsesStep())
+      .addStep(new ReadinessScoringStep())
+      .addStep(new PromptBuilderStep())
+      .addStep(new LLMGenerationStep())
+      .addStep(new ValidationStep())
+      .addStep(new FinalizeStep());
+
+    // Execute the orchestrator pipeline
+    const result = await orchestrator.run();
+
+    // Check if the pipeline completed successfully
+    if (result.error) {
+      console.error('❌ Orchestrator pipeline failed:', result.error);
+      return NextResponse.json({ 
+        error: result.error,
+        data: result.roadmap // Return fallback roadmap if available
+      }, { status: 500 });
+    }
+
+    // Return successful result
+    console.log("✅ Orchestrator pipeline completed successfully");
     return NextResponse.json({
       success: true,
-      data: roadmap
+      data: result.roadmap
     });
 
   } catch (error) {
@@ -86,220 +72,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ 
       error: "Failed to generate roadmap" 
     }, { status: 500 });
-  }
-}
-
-async function generateLLMRoadmap(stage: string, readiness: ReadinessData, userPreferences?: any) {
-  const systemPrompt = `
-You are an expert in generating high school career roadmaps. Given a student's Interests, Role, Timeline, Stage, and Area Readiness Zones, your job is to produce a structured output that includes only a career blurb, stage summary, and a phase-based roadmap.
-
-IMPORTANT: You MUST return ONLY valid JSON. Do not include any text before or after the JSON. Do not include markdown formatting, explanations, or additional text.
-
-Step 1 – Career Blurb
-
-Use the student's Interest + Role combination to generate a 2–3 sentence career blurb.
-
-If Interest = "Other" → Use the custom interest text provided by the student to create a personalized blurb.
-If Interest = "I'm not sure" → Suggest broad exploratory high school paths (clubs, electives, volunteering, shadowing).
-
-The blurb should always sound high school–specific, practical, and encouraging.
-
-Step 2 – Stage & Scores Summary
-
-Use provided readiness zones directly (strings: Development, Balanced, Proficiency).
-
-Use provided overall_stage directly (Early, Mid, Late).
-
-Present them in JSON form only (no markdown, no tables).
-
-Step 3 – Roadmap Generation
-
-Roadmap must have phases:
-
-Exploration
-
-Skill Building
-
-Application
-
-Impact & Showcase
-
-Each phase must contain:
-
-3–4 tasks (high school level, concrete, automatically generated by LLM)
-
-1 reflection question
-
-1 timeline field:
-
-short_term (1–3 months)
-
-mid_term (3–6 months)
-
-long_term (6–12 months)
-
-Rules:
-
-Timeline scales intensity: short timeline → fewer/lighter tasks; long timeline → deeper projects + leadership.
-
-Stage adjusts depth: Early → light & exploratory; Mid → balanced; Late → advanced + leadership.
-
-Area readiness differentiates: Development → foundational tasks; Balanced → practice & emerging responsibility; Proficiency → advanced/leadership.
-
-Always include at least 1 task per area per phase.
-
-Generate creative, relevant tasks based on the student's interests, career goals, and readiness level.
-
-Step 4 – Output Rules
-
-Output ONLY in this structure (no extra text, no markdown):
-
-{
-"career_blurb": "string",
-"scores_summary": {
-"Clarity": "Development/Balanced/Proficiency",
-"Engagement": "…",
-"Preparation": "…",
-"Support": "…",
-"overall_stage": "Early/Mid/Late"
-},
-  "roadmap": [
-    {
-"phase": "Exploration",
-"timeline": "short_term/mid_term/long_term",
-"tasks": ["task1", "task2", "task3"],
-"reflection": "reflection question"
-},
-{
-"phase": "Skill Building",
-"timeline": "…",
-"tasks": ["…"],
-"reflection": "…"
-},
-{
-"phase": "Application",
-"timeline": "…",
-"tasks": ["…"],
-"reflection": "…"
-},
-{
-"phase": "Impact & Showcase",
-"timeline": "…",
-"tasks": ["…"],
-"reflection": "…"
-}
-]
-}
-
-Do not add explanations or markdown formatting. Always return valid JSON with Roadmap.
-
-INPUT VALUES:
-stage: ${stage}
-readiness: ${JSON.stringify(readiness)}
-userPreferences: ${userPreferences ? JSON.stringify(userPreferences) : 'Not provided'}
-
-SPECIAL INSTRUCTIONS:
-- If userPreferences.interests is "other", use the actual custom text provided by the student
-- Always generate exactly 4 phases with 3-4 tasks each
-- Return ONLY the JSON object, no additional text or formatting
-- Ensure all required fields are present in the response
-`;
-
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "moonshotai/kimi-k2:free",
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt }
-        ]
-      })
-    });
-
-    const data = await response.json();
-
-    // Extract assistant content
-    const roadmapJson = data.choices?.[0]?.message?.content || "{}";
-
-    // Enhanced JSON validation and cleaning
-    try {
-      console.log('🔍 Raw LLM Response:', roadmapJson);
-      
-      // Clean the JSON string - remove any text before or after JSON
-      let cleanedJson = roadmapJson.trim();
-      
-      // Try to extract JSON if there's extra text
-      const jsonMatch = cleanedJson.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        cleanedJson = jsonMatch[0];
-      }
-      
-      console.log('🧹 Cleaned JSON:', cleanedJson);
-      
-      // Parse JSON
-      const parsed = JSON.parse(cleanedJson);
-      console.log('✅ Parsed JSON:', parsed);
-      
-      // Validate structure for new format
-      if (!parsed.career_blurb || !parsed.scores_summary || !parsed.roadmap || !Array.isArray(parsed.roadmap)) {
-        throw new Error('Invalid JSON structure from LLM - missing required fields');
-      }
-      
-      // Validate scores_summary structure
-      if (!parsed.scores_summary.Clarity || !parsed.scores_summary.Engagement || 
-          !parsed.scores_summary.Preparation || !parsed.scores_summary.Support || 
-          !parsed.scores_summary.overall_stage) {
-        throw new Error('Invalid JSON structure from LLM - missing scores_summary fields');
-      }
-      
-      // Validate roadmap structure
-      if (parsed.roadmap.length !== 4) {
-        throw new Error('Invalid JSON structure from LLM - roadmap must have exactly 4 phases');
-      }
-      
-      return parsed;
-    } catch (parseError) {
-      console.error('❌ JSON Parse Error:', parseError);
-      console.error('📝 Raw LLM Response:', roadmapJson);
-      
-      // Return fallback structure with error info
-      return {
-        career_blurb: "Unable to generate personalized roadmap. Please try again.",
-        scores_summary: {
-          Clarity: "Development",
-          Engagement: "Development", 
-          Preparation: "Development",
-          Support: "Development",
-          overall_stage: "Early"
-        },
-        roadmap: [],
-        error: "Invalid JSON response from AI service"
-      };
-    }
-  } catch (error) {
-    console.error('LLM Roadmap Generation Error:', error);
-    
-    // Determine specific error type
-    let errorMessage = 'Failed to generate LLM roadmap';
-    if (error instanceof Error) {
-      if (error.message.includes('fetch') || error.message.includes('network')) {
-        errorMessage = 'Network error: Unable to connect to AI service';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Request timeout: AI service took too long to respond';
-      } else if (error.message.includes('rate limit') || error.message.includes('quota')) {
-        errorMessage = 'Rate limit exceeded: AI service usage limit reached';
-      } else if (error.message.includes('authentication') || error.message.includes('API key')) {
-        errorMessage = 'Authentication error: Invalid API configuration';
-      } else {
-        errorMessage = `AI service error: ${error.message}`;
-      }
-    }
-    
-    throw new Error(errorMessage);
   }
 }

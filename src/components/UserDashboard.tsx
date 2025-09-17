@@ -8,6 +8,7 @@ import { GoalInput, Goal, toggleGoalCompletion } from '../lib/services/goalServi
 import { ScrollableGoals } from './ScrollableGoals';
 import { useTheme } from '../app/contexts/ThemeContext';
 import AIRoadmapBuilder from './AIRoadmapBuilder';
+import Tooltip from './ui/Tooltip';
 
 interface UserDashboardProps {
   savedPrograms: Program[];
@@ -618,7 +619,10 @@ export default function UserDashboard({
       
       {/* Hero Section */}
       <div className="mb-2">
-        <h1 className="text-4xl font-bold text-primary-700 dark:text-primary-400 mb-3">Start Your Academic Journey</h1>
+        <div className="flex items-center gap-3 mb-3">
+          <h1 className="text-4xl font-bold text-primary-700 dark:text-primary-400">Start Your Academic Journey</h1>
+          <Tooltip content="Track your progress, deadlines, goals, and roadmap in one place." />
+        </div>
         <p className="text-lg text-light-muted dark:text-dark-muted">
           Discover and track academic programs that match your interests and goals.
         </p>

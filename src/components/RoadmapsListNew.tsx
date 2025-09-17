@@ -3,6 +3,7 @@ import { RoadmapPlanner } from '../types/types';
 import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2, Sparkles } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 import { useTheme } from '../app/contexts/ThemeContext';
+import Tooltip from './ui/Tooltip';
 
 interface RoadmapsListProps {
   roadmaps: RoadmapPlanner[];
@@ -49,10 +50,13 @@ export default function RoadmapsList({
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-light-text dark:text-dark-text flex items-center">
-          <Map size={24} className="mr-2 text-primary-600 dark:text-primary-400" />
-          My Academic Roadmaps
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-light-text dark:text-dark-text flex items-center">
+            <Map size={24} className="mr-2 text-primary-600 dark:text-primary-400" />
+            My Academic Roadmaps
+          </h1>
+          <Tooltip content="Plan your journey manually or generate an AI roadmap." />
+        </div>
         <div className="flex items-center space-x-3">
           {onAIBuildRoadmap && (
             <button

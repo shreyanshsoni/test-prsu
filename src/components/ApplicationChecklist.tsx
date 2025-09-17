@@ -7,6 +7,7 @@ import { getStatusIcon } from '../lib/utils/iconUtils';
 import { useTheme } from '../app/contexts/ThemeContext';
 import toast from 'react-hot-toast';
 import ConfirmationModal from './ConfirmationModal';
+import Tooltip from './ui/Tooltip';
 
 interface ApplicationChecklistProps {
   programs: Program[];
@@ -365,7 +366,10 @@ export default function ApplicationChecklist({
       {/* Header with title and Add Checklist button */}
       <header className="p-4 border-b border-light-border dark:border-dark-border mb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">My Checklists</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">My Checklists</h1>
+            <Tooltip content="Stay organized with auto-generated and custom checklists." />
+          </div>
           <button
             onClick={handleOpenModal}
             className="flex items-center gap-2 px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors shadow-sm"

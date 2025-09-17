@@ -15,6 +15,7 @@ import { useRoadmapStore } from '../app/hooks/useRoadmapStore';
 import { addProgramToRoadmap } from '../lib/services/roadmapService';
 import { useProgramSearch } from '../app/contexts/ProgramSearchContext';
 import { useTheme } from '../app/contexts/ThemeContext';
+import Tooltip from './ui/Tooltip';
 
 interface ProgramSearchProps {
   onSaveProgram: (program: Program) => void;
@@ -416,7 +417,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       {/* Header with title */}
       <header className="p-5 border-b border-light-border dark:border-dark-border mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">Program Search</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">Program Search</h1>
+            <Tooltip content="Explore and filter programs, then save ones you like." />
+          </div>
           
           {/* View mode toggle - enhanced with icons */}
           <div className="flex items-center">

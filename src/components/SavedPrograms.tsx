@@ -5,6 +5,7 @@ import { Program } from "../types/types";
 import { Trash2, Calendar, Clock, Building, ArrowUpDown } from "lucide-react";
 import { formatDate } from '../lib/utils/dateUtils';
 import { useTheme } from '../app/contexts/ThemeContext';
+import Tooltip from './ui/Tooltip';
 
 interface SavedProgramsProps {
   programs: Program[];
@@ -58,7 +59,10 @@ export default function SavedPrograms({ programs, onRemoveProgram }: SavedProgra
       {/* ✅ Improved SEO with heading structure */}
       <header className="p-4 border-b border-light-border dark:border-dark-border">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">My Selected Programs</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-light-text dark:text-dark-text">My Selected Programs</h1>
+            <Tooltip content="View and manage all the programs you've saved." />
+          </div>
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4 text-light-muted dark:text-dark-muted" aria-hidden="true" />
             <label htmlFor="sort" className="sr-only">Sort programs</label>

@@ -17,6 +17,7 @@ import {
 } from '../lib/services/goalService';
 import ConfirmationModal from './ConfirmationModal';
 import { useTheme } from '../app/contexts/ThemeContext';
+import Tooltip from './ui/Tooltip';
 
 interface AcademicGoalsProps {
   initialShowForm?: boolean;
@@ -343,7 +344,10 @@ export default function AcademicGoals({
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-light-text dark:text-dark-text">Academic Goals</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-light-text dark:text-dark-text">Academic Goals</h2>
+          <Tooltip content="Set and monitor academic, extracurricular, and career goals." />
+        </div>
         <button
           onClick={() => {
             setEditingGoalId(null);
