@@ -124,16 +124,19 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
         {/* Profile Picture */}
         <div className="flex flex-col items-center">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center overflow-hidden">
               {(isEditing ? editingInfo.profilePicture : personalInfo.profilePicture) ? (
                 <img
                   src={isEditing ? editingInfo.profilePicture! : personalInfo.profilePicture!}
                   alt="Profile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
                 />
-              ) : (
-                <User className="w-12 h-12 text-white" />
-              )}
+              ) : null}
+              <User className={`w-12 h-12 text-white ${(isEditing ? editingInfo.profilePicture : personalInfo.profilePicture) ? 'hidden' : ''}`} />
             </div>
             
             {isEditing && !readOnly && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Briefcase, Heart, Plus, X, Copy, Check } from 'lucide-react';
+import { Clock, Briefcase, Heart, Plus, X, Copy, Check, Save } from 'lucide-react';
 import { StudentData } from '../../../types/student';
 import { useTheme } from '../../../../../contexts/ThemeContext';
 
@@ -17,6 +17,12 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
     title: '', company: '', duration: '', description: ''
   });
   const [newResponsibility, setNewResponsibility] = useState('');
+  const [activityErrors, setActivityErrors] = useState<{ titleMissing: boolean; roleMissing: boolean }>({ titleMissing: false, roleMissing: false });
+  const [activityGeneralError, setActivityGeneralError] = useState<string>('');
+  const [workErrors, setWorkErrors] = useState<{ titleMissing: boolean; companyMissing: boolean }>({ titleMissing: false, companyMissing: false });
+  const [workGeneralError, setWorkGeneralError] = useState<string>('');
+  const [respMissing, setRespMissing] = useState<boolean>(false);
+  const [respGeneralError, setRespGeneralError] = useState<string>('');
   const [copyStatus, setCopyStatus] = useState({
     activities: false,
     work: false,
@@ -24,12 +30,19 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
   });
 
   const addActivity = () => {
-    if (newActivity.title && newActivity.role) {
-      onUpdate({
-        extracurriculars: [...(data.extracurriculars || []), newActivity]
-      });
-      setNewActivity({ title: '', role: '', hoursPerWeek: '', duration: '', description: '' });
+    const missingTitle = !newActivity.title;
+    const missingRole = !newActivity.role;
+    if (missingTitle || missingRole) {
+      setActivityErrors({ titleMissing: missingTitle, roleMissing: missingRole });
+      setActivityGeneralError('Fill all required fields to continue');
+      return;
     }
+    setActivityErrors({ titleMissing: false, roleMissing: false });
+    setActivityGeneralError('');
+    onUpdate({
+      extracurriculars: [...(data.extracurriculars || []), newActivity]
+    });
+    setNewActivity({ title: '', role: '', hoursPerWeek: '', duration: '', description: '' });
   };
 
   const removeActivity = (index: number) => {
@@ -39,12 +52,19 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
   };
 
   const addWork = () => {
-    if (newWork.title && newWork.company) {
-      onUpdate({
-        workExperience: [...(data.workExperience || []), newWork]
-      });
-      setNewWork({ title: '', company: '', duration: '', description: '' });
+    const missingTitle = !newWork.title;
+    const missingCompany = !newWork.company;
+    if (missingTitle || missingCompany) {
+      setWorkErrors({ titleMissing: missingTitle, companyMissing: missingCompany });
+      setWorkGeneralError('Fill all required fields to continue');
+      return;
     }
+    setWorkErrors({ titleMissing: false, companyMissing: false });
+    setWorkGeneralError('');
+    onUpdate({
+      workExperience: [...(data.workExperience || []), newWork]
+    });
+    setNewWork({ title: '', company: '', duration: '', description: '' });
   };
 
   const removeWork = (index: number) => {
@@ -54,12 +74,18 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
   };
 
   const addResponsibility = () => {
-    if (newResponsibility.trim()) {
-      onUpdate({
-        familyResponsibilities: [...(data.familyResponsibilities || []), newResponsibility.trim()]
-      });
-      setNewResponsibility('');
+    const value = newResponsibility.trim();
+    if (!value) {
+      setRespMissing(true);
+      setRespGeneralError('Fill all required fields to continue');
+      return;
     }
+    setRespMissing(false);
+    setRespGeneralError('');
+    onUpdate({
+      familyResponsibilities: [...(data.familyResponsibilities || []), value]
+    });
+    setNewResponsibility('');
   };
 
   const removeResponsibility = (index: number) => {
@@ -162,17 +188,36 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
                   type="text"
                   placeholder="Activity name (e.g., Soccer Team, Drama Club)"
                   value={newActivity.title}
-                  onChange={(e) => setNewActivity({ ...newActivity, title: e.target.value })}
-                  className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setNewActivity({ ...newActivity, title: v });
+                    if (v) {
+                      const next = { ...activityErrors, titleMissing: false };
+                      setActivityErrors(next);
+                      if (!next.titleMissing && !next.roleMissing) setActivityGeneralError('');
+                    }
+                  }}
+                  className={`p-2 border ${activityErrors.titleMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 dark:focus:ring-orange-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 />
                 <input
                   type="text"
                   placeholder="Your role (e.g., Captain, Member, Volunteer)"
                   value={newActivity.role}
-                  onChange={(e) => setNewActivity({ ...newActivity, role: e.target.value })}
-                  className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setNewActivity({ ...newActivity, role: v });
+                    if (v) {
+                      const next = { ...activityErrors, roleMissing: false };
+                      setActivityErrors(next);
+                      if (!next.titleMissing && !next.roleMissing) setActivityGeneralError('');
+                    }
+                  }}
+                  className={`p-2 border ${activityErrors.roleMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 dark:focus:ring-orange-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 />
               </div>
+              {activityGeneralError && (
+                <p className="text-red-600 text-sm mt-2">{activityGeneralError}</p>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -198,10 +243,10 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
               />
               <button
                 onClick={addActivity}
-                className="flex items-center text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
+                className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg shadow-sm transition-colors"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Activity
+                <Save className="w-4 h-4 mr-2 text-white" />
+                Save
               </button>
             </div>
           </div>
@@ -257,17 +302,36 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
                   type="text"
                   placeholder="Job title (e.g., Cashier, Tutor, Intern)"
                   value={newWork.title}
-                  onChange={(e) => setNewWork({ ...newWork, title: e.target.value })}
-                  className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setNewWork({ ...newWork, title: v });
+                    if (v) {
+                      const next = { ...workErrors, titleMissing: false };
+                      setWorkErrors(next);
+                      if (!next.titleMissing && !next.companyMissing) setWorkGeneralError('');
+                    }
+                  }}
+                  className={`p-2 border ${workErrors.titleMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 />
                 <input
                   type="text"
                   placeholder="Company/Organization"
                   value={newWork.company}
-                  onChange={(e) => setNewWork({ ...newWork, company: e.target.value })}
-                  className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setNewWork({ ...newWork, company: v });
+                    if (v) {
+                      const next = { ...workErrors, companyMissing: false };
+                      setWorkErrors(next);
+                      if (!next.titleMissing && !next.companyMissing) setWorkGeneralError('');
+                    }
+                  }}
+                  className={`p-2 border ${workErrors.companyMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 />
               </div>
+              {workGeneralError && (
+                <p className="text-red-600 text-sm mt-2">{workGeneralError}</p>
+              )}
               <input
                 type="text"
                 placeholder="When? (e.g., Summer 2023, Weekends since 2022)"
@@ -284,10 +348,10 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
               />
               <button
                 onClick={addWork}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Work Experience
+                <Save className="w-4 h-4 mr-2 text-white" />
+                Save
               </button>
             </div>
           </div>
@@ -339,12 +403,15 @@ export const HowISpendTime: React.FC<HowISpendTimeProps> = ({ data, onUpdate }) 
               />
               <button
                 onClick={addResponsibility}
-                className="flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium px-3"
+                className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-sm transition-colors"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add
+                <Save className="w-4 h-4 mr-2 text-white" />
+                Save
               </button>
             </div>
+            {respGeneralError && (
+              <p className="text-red-600 text-sm mt-2">{respGeneralError}</p>
+            )}
           </div>
         </div>
       </div>

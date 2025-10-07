@@ -14,14 +14,22 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
   const [newCollegeGoal, setNewCollegeGoal] = useState('');
   const [newInterest, setNewInterest] = useState('');
   const [newOpportunityType, setNewOpportunityType] = useState('');
+  const [careerError, setCareerError] = useState<string>('');
+  const [collegeError, setCollegeError] = useState<string>('');
+  const [interestError, setInterestError] = useState<string>('');
+  const [oppTypeError, setOppTypeError] = useState<string>('');
 
   const addCareerGoal = () => {
-    if (newCareerGoal.trim()) {
-      onUpdate({
-        careerGoals: [...(data.careerGoals || []), newCareerGoal.trim()]
-      });
-      setNewCareerGoal('');
+    const v = newCareerGoal.trim();
+    if (!v) {
+      setCareerError('Fill all required fields to continue');
+      return;
     }
+    setCareerError('');
+    onUpdate({
+      careerGoals: [...(data.careerGoals || []), v]
+    });
+    setNewCareerGoal('');
   };
 
   const removeCareerGoal = (index: number) => {
@@ -31,12 +39,16 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
   };
 
   const addCollegeGoal = () => {
-    if (newCollegeGoal.trim()) {
-      onUpdate({
-        collegeGoals: [...(data.collegeGoals || []), newCollegeGoal.trim()]
-      });
-      setNewCollegeGoal('');
+    const v = newCollegeGoal.trim();
+    if (!v) {
+      setCollegeError('Fill all required fields to continue');
+      return;
     }
+    setCollegeError('');
+    onUpdate({
+      collegeGoals: [...(data.collegeGoals || []), v]
+    });
+    setNewCollegeGoal('');
   };
 
   const removeCollegeGoal = (index: number) => {
@@ -46,12 +58,16 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
   };
 
   const addInterest = () => {
-    if (newInterest.trim()) {
-      onUpdate({
-        interests: [...(data.interests || []), newInterest.trim()]
-      });
-      setNewInterest('');
+    const v = newInterest.trim();
+    if (!v) {
+      setInterestError('Fill all required fields to continue');
+      return;
     }
+    setInterestError('');
+    onUpdate({
+      interests: [...(data.interests || []), v]
+    });
+    setNewInterest('');
   };
 
   const removeInterest = (index: number) => {
@@ -61,12 +77,16 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
   };
 
   const addOpportunityType = () => {
-    if (newOpportunityType.trim()) {
-      onUpdate({
-        opportunityTypes: [...(data.opportunityTypes || []), newOpportunityType.trim()]
-      });
-      setNewOpportunityType('');
+    const v = newOpportunityType.trim();
+    if (!v) {
+      setOppTypeError('Fill all required fields to continue');
+      return;
     }
+    setOppTypeError('');
+    onUpdate({
+      opportunityTypes: [...(data.opportunityTypes || []), v]
+    });
+    setNewOpportunityType('');
   };
 
   const removeOpportunityType = (index: number) => {
@@ -125,8 +145,12 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 type="text"
                 placeholder="e.g., Software Engineer, Doctor, Teacher, Entrepreneur, Help the environment"
                 value={newCareerGoal}
-                onChange={(e) => setNewCareerGoal(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewCareerGoal(v);
+                  if (v) setCareerError('');
+                }}
+                className={`flex-1 p-2 border ${careerError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-green-500 dark:focus:ring-green-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 onKeyPress={(e) => e.key === 'Enter' && addCareerGoal()}
               />
               <button
@@ -137,6 +161,9 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 Add
               </button>
             </div>
+            {careerError && (
+              <p className="text-red-600 text-sm mt-2">{careerError}</p>
+            )}
           </div>
         </div>
 
@@ -172,8 +199,12 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 type="text"
                 placeholder="e.g., Study Computer Science, Attend a small liberal arts college, Graduate debt-free"
                 value={newCollegeGoal}
-                onChange={(e) => setNewCollegeGoal(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewCollegeGoal(v);
+                  if (v) setCollegeError('');
+                }}
+                className={`flex-1 p-2 border ${collegeError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 onKeyPress={(e) => e.key === 'Enter' && addCollegeGoal()}
               />
               <button
@@ -184,6 +215,9 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 Add
               </button>
             </div>
+            {collegeError && (
+              <p className="text-red-600 text-sm mt-2">{collegeError}</p>
+            )}
           </div>
         </div>
 
@@ -220,8 +254,12 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 type="text"
                 placeholder="e.g., Environmental Science, Creative Writing, Robotics, Psychology"
                 value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewInterest(v);
+                  if (v) setInterestError('');
+                }}
+                className={`flex-1 p-2 border ${interestError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 onKeyPress={(e) => e.key === 'Enter' && addInterest()}
               />
               <button
@@ -232,6 +270,9 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 Add
               </button>
             </div>
+            {interestError && (
+              <p className="text-red-600 text-sm mt-2">{interestError}</p>
+            )}
           </div>
         </div>
 
@@ -267,8 +308,12 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 type="text"
                 placeholder="e.g., Internships, Mentorship, Study abroad, Research opportunities"
                 value={newOpportunityType}
-                onChange={(e) => setNewOpportunityType(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-yellow-500 dark:focus:ring-yellow-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewOpportunityType(v);
+                  if (v) setOppTypeError('');
+                }}
+                className={`flex-1 p-2 border ${oppTypeError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-yellow-500 dark:focus:ring-yellow-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 onKeyPress={(e) => e.key === 'Enter' && addOpportunityType()}
               />
               <button
@@ -279,6 +324,9 @@ export const WhatImWorkingToward: React.FC<WhatImWorkingTowardProps> = ({ data, 
                 Add
               </button>
             </div>
+            {oppTypeError && (
+              <p className="text-red-600 text-sm mt-2">{oppTypeError}</p>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Award, Plus, X, Copy, Check } from 'lucide-react';
+import { BookOpen, Award, Plus, X, Copy, Check, Save } from 'lucide-react';
 import { StudentData } from '../../../types/student';
 import { useTheme } from '../../../../../contexts/ThemeContext';
 
@@ -13,6 +13,12 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
   const [newTest, setNewTest] = useState({ type: '', score: '', date: '' });
   const [newClass, setNewClass] = useState({ type: '', subject: '', score: '' });
   const [newAward, setNewAward] = useState('');
+  const [testErrors, setTestErrors] = useState<{ typeMissing: boolean; scoreMissing: boolean }>({ typeMissing: false, scoreMissing: false });
+  const [testGeneralError, setTestGeneralError] = useState<string>('');
+  const [classErrors, setClassErrors] = useState<{ typeMissing: boolean; subjectMissing: boolean }>({ typeMissing: false, subjectMissing: false });
+  const [classGeneralError, setClassGeneralError] = useState<string>('');
+  const [awardMissing, setAwardMissing] = useState<boolean>(false);
+  const [awardGeneralError, setAwardGeneralError] = useState<string>('');
   const [copyStatus, setCopyStatus] = useState({
     tests: false,
     classes: false,
@@ -20,12 +26,19 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
   });
 
   const addTest = () => {
-    if (newTest.type && newTest.score) {
-      onUpdate({
-        standardizedTests: [...(data.standardizedTests || []), newTest]
-      });
-      setNewTest({ type: '', score: '', date: '' });
+    const missingType = !newTest.type;
+    const missingScore = !newTest.score;
+    if (missingType || missingScore) {
+      setTestErrors({ typeMissing: missingType, scoreMissing: missingScore });
+      setTestGeneralError('Fill all required fields to continue');
+      return;
     }
+    setTestErrors({ typeMissing: false, scoreMissing: false });
+    setTestGeneralError('');
+    onUpdate({
+      standardizedTests: [...(data.standardizedTests || []), newTest]
+    });
+    setNewTest({ type: '', score: '', date: '' });
   };
 
   const removeTest = (index: number) => {
@@ -35,12 +48,19 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
   };
 
   const addClass = () => {
-    if (newClass.type && newClass.subject) {
-      onUpdate({
-        advancedClasses: [...(data.advancedClasses || []), newClass]
-      });
-      setNewClass({ type: '', subject: '', score: '' });
+    const missingType = !newClass.type;
+    const missingSubject = !newClass.subject;
+    if (missingType || missingSubject) {
+      setClassErrors({ typeMissing: missingType, subjectMissing: missingSubject });
+      setClassGeneralError('Fill all required fields to continue');
+      return;
     }
+    setClassErrors({ typeMissing: false, subjectMissing: false });
+    setClassGeneralError('');
+    onUpdate({
+      advancedClasses: [...(data.advancedClasses || []), newClass]
+    });
+    setNewClass({ type: '', subject: '', score: '' });
   };
 
   const removeClass = (index: number) => {
@@ -50,12 +70,18 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
   };
 
   const addAward = () => {
-    if (newAward.trim()) {
-      onUpdate({
-        academicAwards: [...(data.academicAwards || []), newAward.trim()]
-      });
-      setNewAward('');
+    const value = newAward.trim();
+    if (!value) {
+      setAwardMissing(true);
+      setAwardGeneralError('Fill all required fields to continue');
+      return;
     }
+    setAwardMissing(false);
+    setAwardGeneralError('');
+    onUpdate({
+      academicAwards: [...(data.academicAwards || []), value]
+    });
+    setNewAward('');
   };
 
   const removeAward = (index: number) => {
@@ -147,8 +173,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
               <select
                 value={newTest.type}
-                onChange={(e) => setNewTest({ ...newTest, type: e.target.value })}
-                className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewTest({ ...newTest, type: value });
+                  if (value) {
+                    const next = { ...testErrors, typeMissing: false };
+                    setTestErrors(next);
+                    if (!next.typeMissing && !next.scoreMissing) setTestGeneralError('');
+                  }
+                }}
+                className={`p-2 border ${testErrors.typeMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-emerald-500 dark:focus:ring-emerald-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
               >
                 <option value="">Select Test</option>
                 <option value="SAT">SAT</option>
@@ -161,8 +195,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
                 type="text"
                 placeholder="Score"
                 value={newTest.score}
-                onChange={(e) => setNewTest({ ...newTest, score: e.target.value })}
-                className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewTest({ ...newTest, score: value });
+                  if (value) {
+                    const next = { ...testErrors, scoreMissing: false };
+                    setTestErrors(next);
+                    if (!next.typeMissing && !next.scoreMissing) setTestGeneralError('');
+                  }
+                }}
+                className={`p-2 border ${testErrors.scoreMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-emerald-500 dark:focus:ring-emerald-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
               />
               <input
                 type="text"
@@ -172,13 +214,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
                 className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
               />
             </div>
-            <button
-              onClick={addTest}
-              className="flex items-center text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Add Test Score
-            </button>
+            {testGeneralError && (
+              <p className="text-red-600 text-sm mt-2">{testGeneralError}</p>
+            )}
+          <button
+            onClick={addTest}
+            className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors"
+          >
+            <Save className="w-4 h-4 mr-2 text-white" />
+            Save
+          </button>
           </div>
         </div>
 
@@ -220,8 +265,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
               <select
                 value={newClass.type}
-                onChange={(e) => setNewClass({ ...newClass, type: e.target.value })}
-                className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewClass({ ...newClass, type: value });
+                  if (value) {
+                    const next = { ...classErrors, typeMissing: false };
+                    setClassErrors(next);
+                    if (!next.typeMissing && !next.subjectMissing) setClassGeneralError('');
+                  }
+                }}
+                className={`p-2 border ${classErrors.typeMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-emerald-500 dark:focus:ring-emerald-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
               >
                 <option value="">Class Type</option>
                 <option value="AP">AP</option>
@@ -233,8 +286,16 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
                 type="text"
                 placeholder="Subject"
                 value={newClass.subject}
-                onChange={(e) => setNewClass({ ...newClass, subject: e.target.value })}
-                className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewClass({ ...newClass, subject: value });
+                  if (value) {
+                    const next = { ...classErrors, subjectMissing: false };
+                    setClassErrors(next);
+                    if (!next.typeMissing && !next.subjectMissing) setClassGeneralError('');
+                  }
+                }}
+                className={`p-2 border ${classErrors.subjectMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-emerald-500 dark:focus:ring-emerald-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
               />
               <input
                 type="text"
@@ -244,12 +305,15 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
                 className="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
               />
             </div>
+            {classGeneralError && (
+              <p className="text-red-600 text-sm mt-2">{classGeneralError}</p>
+            )}
             <button
               onClick={addClass}
-              className="flex items-center text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
+              className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Add Advanced Class
+              <Save className="w-4 h-4 mr-2 text-white" />
+              Save
             </button>
           </div>
         </div>
@@ -300,12 +364,15 @@ export const WhatIveDone: React.FC<WhatIveDoneProps> = ({ data, onUpdate }) => {
               />
               <button
                 onClick={addAward}
-                className="flex items-center text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium px-3"
+                className="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add
+                <Save className="w-4 h-4 mr-2 text-white" />
+                Save
               </button>
             </div>
+            {awardGeneralError && (
+              <p className="text-red-600 text-sm mt-2">{awardGeneralError}</p>
+            )}
           </div>
         </div>
       </div>

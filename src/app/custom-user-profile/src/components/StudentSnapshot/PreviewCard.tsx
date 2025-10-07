@@ -177,27 +177,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
         </div>
       </div>
 
-      {/* Copy Button */}
-      {(hasBasicInfo || hasAchievements || hasActivities || hasProjects || hasGoals) && onCopy && (
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => onCopy(formatForApplication())}
-            className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 font-medium"
-          >
-            {copiedFormat === formatForApplication() ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Profile
-              </>
-            )}
-          </button>
-        </div>
-      )}
+      {/* Copy Button - removed as requested */}
     </div>
   );
 };

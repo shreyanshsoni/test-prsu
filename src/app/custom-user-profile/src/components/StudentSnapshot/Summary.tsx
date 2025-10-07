@@ -233,15 +233,15 @@ export const Summary: React.FC<SummaryProps> = ({ data, onEdit }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button
           onClick={onEdit}
-            className="flex items-center justify-center px-4 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors"
-          >
-            Edit Your Profile
-          </button>
-          <button
-            onClick={() => window.location.href = '/'}
-            className="flex items-center justify-center px-4 py-3 border border-indigo-500 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+          className="flex items-center justify-center px-4 py-3 bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
         >
-            Explore Opportunities
+          Return To Editing Profile
+        </button>
+        <button
+          onClick={() => window.location.href = '/'}
+          className="flex items-center justify-center px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+        >
+          Explore Opportunities
         </button>
         </div>
       </div>

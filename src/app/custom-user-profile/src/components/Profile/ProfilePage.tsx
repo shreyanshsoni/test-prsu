@@ -379,16 +379,19 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
               </button>
             )}
             <div className="flex items-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full mr-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full mr-4 flex items-center justify-center overflow-hidden">
                 {personalInfo.profilePicture ? (
                   <img 
                     src={personalInfo.profilePicture} 
                     alt="Profile" 
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
                   />
-                ) : (
-                <User className="w-6 h-6 text-white" />
-                )}
+                ) : null}
+                <User className={`w-6 h-6 text-white ${personalInfo.profilePicture ? 'hidden' : ''}`} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white">My Profile</h1>

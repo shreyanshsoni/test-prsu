@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Code, Music, Plus, X, Copy, Check } from 'lucide-react';
+import { Star, Code, Music, Plus, X, Copy, Check, Save } from 'lucide-react';
 import { StudentData } from '../../../types/student';
 import { useTheme } from '../../../../../contexts/ThemeContext';
 
@@ -19,14 +19,25 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
     projects: false,
     passions: false
   });
+  const [projectErrors, setProjectErrors] = useState<{ titleMissing: boolean; descriptionMissing: boolean }>({ titleMissing: false, descriptionMissing: false });
+  const [projectGeneralError, setProjectGeneralError] = useState<string>('');
+  const [passionMissing, setPassionMissing] = useState<boolean>(false);
+  const [passionGeneralError, setPassionGeneralError] = useState<string>('');
 
   const addProject = () => {
-    if (newProject.title && newProject.description) {
-      onUpdate({
-        projects: [...(data.projects || []), newProject]
-      });
-      setNewProject({ title: '', description: '', skills: [] });
+    const missingTitle = !newProject.title;
+    const missingDesc = !newProject.description;
+    if (missingTitle || missingDesc) {
+      setProjectErrors({ titleMissing: missingTitle, descriptionMissing: missingDesc });
+      setProjectGeneralError('Fill all required fields to continue');
+      return;
     }
+    setProjectErrors({ titleMissing: false, descriptionMissing: false });
+    setProjectGeneralError('');
+    onUpdate({
+      projects: [...(data.projects || []), newProject]
+    });
+    setNewProject({ title: '', description: '', skills: [] });
   };
 
   const removeProject = (index: number) => {
@@ -52,12 +63,18 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
   };
 
   const addPassion = () => {
-    if (newPassion.trim()) {
-      onUpdate({
-        passions: [...(data.passions || []), newPassion.trim()]
-      });
-      setNewPassion('');
+    const value = newPassion.trim();
+    if (!value) {
+      setPassionMissing(true);
+      setPassionGeneralError('Fill all required fields to continue');
+      return;
     }
+    setPassionMissing(false);
+    setPassionGeneralError('');
+    onUpdate({
+      passions: [...(data.passions || []), value]
+    });
+    setNewPassion('');
   };
 
   const removePassion = (index: number) => {
@@ -163,16 +180,35 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
                 type="text"
                 placeholder="Project title (e.g., Personal Website, Science Fair Project)"
                 value={newProject.title}
-                onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewProject({ ...newProject, title: v });
+                  if (v) {
+                    const next = { ...projectErrors, titleMissing: false };
+                    setProjectErrors(next);
+                    if (!next.titleMissing && !next.descriptionMissing) setProjectGeneralError('');
+                  }
+                }}
+                className={`w-full p-2 border ${projectErrors.titleMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
               />
               <textarea
                 placeholder="What did you create? What problem did it solve? What impact did it have? Be specific!"
                 value={newProject.description}
-                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setNewProject({ ...newProject, description: v });
+                  if (v) {
+                    const next = { ...projectErrors, descriptionMissing: false };
+                    setProjectErrors(next);
+                    if (!next.titleMissing && !next.descriptionMissing) setProjectGeneralError('');
+                  }
+                }}
+                className={`w-full p-2 border ${projectErrors.descriptionMissing ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400'} bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2`}
                 rows={3}
               />
+              {projectGeneralError && (
+                <p className="text-red-600 text-sm mt-2">{projectGeneralError}</p>
+              )}
               
               {/* Skills */}
               <div>
@@ -206,8 +242,9 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
                   />
                   <button
                     onClick={addSkillToProject}
-                    className="px-3 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-200 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/70"
+                    className="flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
                   >
+                    <Plus className="w-4 h-4 mr-1" />
                     Add
                   </button>
                 </div>
@@ -215,10 +252,10 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
 
               <button
                 onClick={addProject}
-                className="flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+                className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-sm transition-colors"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Project
+                <Save className="w-4 h-4 mr-2 text-white" />
+                Save
               </button>
             </div>
           </div>
@@ -278,6 +315,9 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
                 Add
               </button>
             </div>
+            {passionGeneralError && (
+              <p className="text-red-600 text-sm mt-2">{passionGeneralError}</p>
+            )}
           </div>
         </div>
 
