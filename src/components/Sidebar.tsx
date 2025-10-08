@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               />
             ) : (
               <img 
-                src={theme === 'dark' ? "/light_mode_logo.png" : "/fulllogo_transparent_nobuffer.png"} 
+                src={theme === 'dark' ? "/light_mode_logo.png" : "/dark_mode_logo.png"} 
                 alt="PRSU" 
                 className="h-12 object-contain transition-all duration-500 ease-in-out"
               />

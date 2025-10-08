@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Trophy, GraduationCap as Graduation } from 'lucide-react';
 
@@ -110,7 +112,7 @@ const StudentJourney = () => {
                         <h3 className="text-xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
                           {step.title}
                         </h3>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className="text-gray-300 dark:text-gray-400 leading-relaxed">
                           {step.description}
                         </p>
                       </div>
@@ -139,7 +141,7 @@ const StudentJourney = () => {
                     <h3 className="text-2xl font-bold text-white">
                       {journeySteps[activeStep].title}
                     </h3>
-                    <p className="text-gray-200 leading-relaxed">
+                    <p className="text-gray-200 dark:text-gray-300 leading-relaxed">
                       {journeySteps[activeStep].description}
                     </p>
                   </div>
@@ -163,10 +165,13 @@ const StudentJourney = () => {
 
           {/* CTA */}
           <div className="text-center mt-16">
-            <button className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+            <a 
+              href="/api/auth/login"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
               Start Your Story
               <Trophy className="w-5 h-5" />
-            </button>
+            </a>
           </div>
         </div>
       </div>

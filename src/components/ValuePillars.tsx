@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { User, Filter, TrendingUp, Sparkles } from 'lucide-react';
 
@@ -50,17 +52,17 @@ const ValuePillars = () => {
   }, []);
 
   return (
-    <section id="value-pillars-section" className="py-24 bg-white">
+    <section id="value-pillars-section" className="py-24 bg-white dark:bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-semibold mb-6">
             <Sparkles className="w-4 h-4" />
             Why PRSU Works
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Built for Your <span className="text-blue-600">Success</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Built for Your <span className="text-blue-600 dark:text-blue-400">Success</span>
           </h2>
-          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 leading-relaxed">
+          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
             We've designed every feature with one goal in mind: helping you transform your ambitions 
             into concrete achievements through personalized guidance and support.
           </p>
@@ -83,18 +85,18 @@ const ValuePillars = () => {
               >
                 <div className="relative h-full">
                   {/* Card */}
-                  <div className={`relative bg-gradient-to-br ${pillar.bgColor} rounded-3xl p-8 h-full transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl cursor-pointer`}>
+                  <div className={`relative bg-gradient-to-br ${pillar.bgColor} dark:from-gray-900/20 dark:to-gray-800/20 dark:backdrop-blur-sm dark:border dark:border-gray-700/50 rounded-3xl p-8 h-full transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl cursor-pointer`}>
                     {/* Icon */}
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${pillar.color} flex items-center justify-center mb-6 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     
                     {/* Content */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {pillar.title}
                     </h3>
                     
-                    <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                    <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
                       {pillar.description}
                     </p>
                     
@@ -102,18 +104,18 @@ const ValuePillars = () => {
                     <div className={`transition-all duration-500 overflow-hidden ${
                       activePillar === pillar.id ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
                     }`}>
-                      <div className="pt-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-500 leading-relaxed">
+                      <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                           {pillar.detail}
                         </p>
                       </div>
                     </div>
                     
                     {/* Hover Indicator */}
-                    <div className={`absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center transform transition-all duration-300 ${
+                    <div className={`absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center transform transition-all duration-300 ${
                       activePillar === pillar.id ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                     }`}>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
                     </div>
                   </div>
 

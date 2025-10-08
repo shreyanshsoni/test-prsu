@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, Target, Map } from 'lucide-react';
 
@@ -39,11 +41,13 @@ const roadmapNodes = [
 const InteractiveRoadmap = () => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [inView, setInView] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setInView(entry.isIntersecting);
+        console.log('Roadmap section in view:', entry.isIntersecting);
       },
       { threshold: 0.3 }
     );
@@ -54,14 +58,27 @@ const InteractiveRoadmap = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Handle animation state
+  useEffect(() => {
+    if (inView) {
+      setIsAnimating(true);
+    } else {
+      // Add a small delay before starting reverse animation
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [inView]);
+
   return (
-    <section id="roadmap-section" className="py-24 bg-gradient-to-b from-white to-gray-50">
+    <section id="roadmap-section" className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Your Journey, <span className="text-blue-600">Visualized</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Your Journey, <span className="text-blue-600 dark:text-blue-400">Visualized</span>
           </h2>
-          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 leading-relaxed">
+          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
             Watch your path unfold as you explore opportunities, set goals, and track your progress 
             on a personalized roadmap designed just for you.
           </p>
@@ -69,7 +86,7 @@ const InteractiveRoadmap = () => {
 
         <div className="relative">
           {/* Clean Roadmap Container */}
-          <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 rounded-3xl p-8 sm:p-12 md:p-16 shadow-xl border border-gray-200">
+          <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-gray-800 dark:via-blue-900 dark:to-purple-900 rounded-3xl p-8 sm:p-12 md:p-16 shadow-xl border border-gray-200 dark:border-gray-700">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-5">
               <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -95,6 +112,7 @@ const InteractiveRoadmap = () => {
               {roadmapNodes.slice(0, -1).map((node, index) => {
                 const nextNode = roadmapNodes[index + 1];
                 const delay = index * 0.2;
+                const reverseDelay = (roadmapNodes.length - 2 - index) * 0.15;
                 
                 return (
                   <line
@@ -106,12 +124,15 @@ const InteractiveRoadmap = () => {
                     stroke="url(#pathGradient)"
                     strokeWidth="2"
                     strokeDasharray="5,5"
-                    className={`transition-all duration-1000 ${
-                      inView ? 'opacity-100' : 'opacity-0'
+                    className={`svg-line-animate ${
+                      isAnimating ? 'opacity-100 draw-line' : 'opacity-0'
                     }`}
                     style={{
-                      animationDelay: `${delay}s`,
-                      strokeDashoffset: inView ? '0' : '100'
+                      animationDelay: isAnimating ? `${delay}s` : '0s',
+                      strokeDashoffset: isAnimating ? '0' : '100',
+                      transition: isAnimating 
+                        ? `opacity 1s ease-in-out ${delay}s, stroke-dashoffset 1s ease-in-out ${delay}s`
+                        : `opacity 0.8s ease-in-out, stroke-dashoffset 0.8s ease-in-out ${reverseDelay}s`
                     }}
                   />
                 );
@@ -161,9 +182,9 @@ const InteractiveRoadmap = () => {
               return (
                 <div
                   key={`card-${node.id}`}
-                  className={`bg-white rounded-2xl p-6 shadow-lg border border-gray-100 transition-all duration-700 hover:shadow-xl hover:scale-105 cursor-pointer ${
+                  className={`bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-700 hover:shadow-xl hover:scale-105 cursor-pointer ${
                     inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  } ${activeNode === node.id ? 'ring-2 ring-blue-500 shadow-blue-100' : ''}`}
+                  } ${activeNode === node.id ? 'ring-2 ring-blue-500 shadow-blue-100 dark:shadow-blue-900' : ''}`}
                   style={{ transitionDelay: `${delay + 0.5}s` }}
                   onClick={() => setActiveNode(activeNode === node.id ? null : node.id)}
                 >
@@ -171,15 +192,15 @@ const InteractiveRoadmap = () => {
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   
-                  <h3 className="font-bold text-gray-900 text-lg mb-2">{node.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{node.description}</p>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{node.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{node.description}</p>
                   
                   {/* Expanded Content */}
                   <div className={`transition-all duration-300 overflow-hidden ${
                     activeNode === node.id ? 'max-h-32 opacity-100 mt-4' : 'max-h-0 opacity-0'
                   }`}>
-                    <div className="pt-4 border-t border-gray-100">
-                      <p className="text-xs text-gray-500">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Click to explore this step in your journey and discover what opportunities await.
                       </p>
                     </div>
@@ -191,10 +212,13 @@ const InteractiveRoadmap = () => {
 
           {/* Bottom CTA */}
           <div className="text-center mt-12">
-            <button className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm sm:text-base">
+            <a 
+              href="/api/auth/login"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm sm:text-base"
+            >
               Explore Your Roadmap
               <Target className="w-5 h-5" />
-            </button>
+            </a>
           </div>
         </div>
       </div>

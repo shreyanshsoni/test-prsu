@@ -3,9 +3,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Image from 'next/image';
+// Using regular img tag instead of Next.js Image for Vite
 
-const Partners: React.FC = () => {
+const AlumniExperts = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -36,17 +36,17 @@ const Partners: React.FC = () => {
   const partners = [
     {
       name: 'Cornell University',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Cornell_University_seal.svg',
+      logo: '/images/cornell-transparent.png',
       alt: 'Cornell University logo'
     },
     {
       name: 'Stanford',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Stanford_Cardinal_logo.svg/1200px-Stanford_Cardinal_logo.svg.png',
+      logo: '/images/stanford-transparent.png',
       alt: 'Stanford logo'
     },
     {
       name: 'Harvard Graduate School of Education',
-      logo: 'https://upload.wikimedia.org/wikipedia/en/4/4a/Harvard_shield-Education.png',
+      logo: '/images/harvard-transparent.png',
       alt: 'Harvard Graduate School of Education logo'
     }
   ];
@@ -76,7 +76,7 @@ const Partners: React.FC = () => {
               className="w-32 md:w-40 h-20 flex items-center justify-center transition-all duration-300 grayscale hover:grayscale-0 hover:scale-105"
               variants={itemVariants}
             >
-              <Image 
+              <img 
                 src={partner.logo} 
                 alt={partner.alt} 
                 width={160} 
@@ -91,4 +91,4 @@ const Partners: React.FC = () => {
   );
 };
 
-export default Partners; 
+export default AlumniExperts;

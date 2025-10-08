@@ -18,7 +18,7 @@ import toast from 'react-hot-toast';
 import { createGoal, GoalInput, fetchGoals, Goal, toggleGoalCompletion } from '../lib/services/goalService';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from './contexts/ThemeContext';
-import { ThemeToggle } from '../components/ui/ThemeToggle';
+import ThemeToggle from '../components/ui/ThemeToggle';
 import { StarryBackground } from '../components/ui/StarryBackground';
 
 const TABS = [
