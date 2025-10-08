@@ -115,61 +115,61 @@ const PronunciationSection = () => {
         speechSynthesis.speak(utterance);
       } else {
         // If no TTS available, just show animation
-        setTimeout(() => setIsPlaying(false), 1500);
+    setTimeout(() => setIsPlaying(false), 1500);
       }
     }
   };
 
   return (
-    <section id="pronunciation-section" className="py-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800/20 dark:to-gray-700/20 dark:backdrop-blur-sm">
+    <section id="pronunciation-section" className="py-12 sm:py-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800/20 dark:to-gray-700/20 dark:backdrop-blur-sm">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`text-center pronunciation-animate ${
           inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
-          <div className="inline-flex items-center gap-4 px-8 py-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-6 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <span className="font-bold text-white text-lg">P</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                <span className="font-bold text-white text-base sm:text-lg">P</span>
               </div>
               <div className="text-left">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   PRSU
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   pronounced
                 </div>
               </div>
             </div>
             
-            <div className="w-px h-12 bg-gray-200 dark:bg-gray-600"></div>
+            <div className="w-full sm:w-px h-px sm:h-12 bg-gray-200 dark:bg-gray-600"></div>
             
             <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+              <div className="text-center sm:text-right">
+                <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                   "per-SUE"
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   /pərˈsu/
                 </div>
               </div>
               
               <button
                 onClick={handlePlayPronunciation}
-                className={`w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
                   isPlaying ? 'animate-pulse bg-blue-200 dark:bg-blue-800' : ''
                 }`}
                 aria-label="Play pronunciation"
               >
                 {isPlaying ? (
-                  <Volume2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
                 ) : (
-                  <Play className="w-5 h-5 text-blue-600 dark:text-blue-400 ml-0.5" />
+                  <Play className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 ml-0.5" />
                 )}
               </button>
             </div>
           </div>
           
-          <p className="mt-6 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
             Just like "pursue" — because that's exactly what we help you do: chase your goals with purpose.
           </p>
         </div>

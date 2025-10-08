@@ -89,18 +89,18 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-gray-900 relative">
       {/* Starry background for dark mode */}
       <StarryBackground />
-      {/* Single smooth navbar that transforms on scroll */}
+      {/* Mobile-responsive navbar */}
       <div className={`fixed left-0 right-0 z-50 navbar-transition ${
         scrolled 
           ? 'top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm' 
-          : 'top-6 bg-transparent'
+          : 'top-2 sm:top-6 bg-transparent'
       }`}>
         <div className={`container mx-auto px-4 sm:px-6 lg:px-8 navbar-transition ${
-          scrolled ? 'py-4' : 'py-0'
+          scrolled ? 'py-3 sm:py-4' : 'py-0'
         }`}>
           <div className="flex justify-between items-center">
             <div className={`flex items-center navbar-transition ${
-              scrolled ? 'ml-0' : 'ml-16'
+              scrolled ? 'ml-0' : 'ml-4 sm:ml-16'
             }`}>
               <a href="/" className="flex items-center">
                 <img 
@@ -109,13 +109,13 @@ export default function Home() {
                   width={200}
                   height={60}
                   className={`w-auto object-contain navbar-transition ${
-                    scrolled ? 'h-10' : 'h-14'
+                    scrolled ? 'h-8 sm:h-10' : 'h-10 sm:h-14'
                   }`}
                 />
               </a>
             </div>
             <div className={`navbar-transition ${
-              scrolled ? 'mr-0' : 'mr-16'
+              scrolled ? 'mr-0' : 'mr-4 sm:mr-16'
             }`}>
               <ThemeToggle />
             </div>

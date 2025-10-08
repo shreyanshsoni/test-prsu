@@ -52,23 +52,23 @@ const ValuePillars = () => {
   }, []);
 
   return (
-    <section id="value-pillars-section" className="py-24 bg-white dark:bg-transparent">
+    <section id="value-pillars-section" className="py-16 sm:py-24 bg-white dark:bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-semibold mb-6">
-            <Sparkles className="w-4 h-4" />
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-semibold mb-4 sm:mb-6 text-sm sm:text-base">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
             Why PRSU Works
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
             Built for Your <span className="text-blue-600 dark:text-blue-400">Success</span>
           </h2>
-          <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className="max-w-3xl mx-auto text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed px-4">
             We've designed every feature with one goal in mind: helping you transform your ambitions 
             into concrete achievements through personalized guidance and support.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {pillars.map((pillar, index) => {
             const Icon = pillar.icon;
             const delay = index * 0.2;
@@ -85,18 +85,18 @@ const ValuePillars = () => {
               >
                 <div className="relative h-full">
                   {/* Card */}
-                  <div className={`relative bg-gradient-to-br ${pillar.bgColor} dark:from-gray-900/20 dark:to-gray-800/20 dark:backdrop-blur-sm dark:border dark:border-gray-700/50 rounded-3xl p-8 h-full transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl cursor-pointer`}>
+                  <div className={`relative bg-gradient-to-br ${pillar.bgColor} dark:from-gray-900/20 dark:to-gray-800/20 dark:backdrop-blur-sm dark:border dark:border-gray-700/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 h-full transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-xl cursor-pointer`}>
                     {/* Icon */}
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${pillar.color} flex items-center justify-center mb-6 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${pillar.color} flex items-center justify-center mb-4 sm:mb-6 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
                     
                     {/* Content */}
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {pillar.title}
                     </h3>
                     
-                    <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
+                    <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg leading-relaxed mb-4 sm:mb-6">
                       {pillar.description}
                     </p>
                     

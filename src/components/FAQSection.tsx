@@ -59,42 +59,42 @@ const FAQSection = () => {
   };
 
   return (
-    <section id="faq-section" className="py-24 bg-gray-50 dark:bg-transparent">
+    <section id="faq-section" className="py-16 sm:py-24 bg-gray-50 dark:bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`text-center mb-16 progress-tracker-animate ${
+        <div className={`text-center mb-12 sm:mb-16 progress-tracker-animate ${
           inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-semibold mb-6">
-            <HelpCircle className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-semibold mb-4 sm:mb-6 text-sm sm:text-base">
+            <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4" />
             Frequently Asked Questions
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
             Have <span className="text-blue-600 dark:text-blue-400">Questions?</span>
           </h2>
-          <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed px-4">
             Find answers to common questions about PRSU and how it can help you achieve your goals.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => {
             const delay = index * 0.1;
             
             return (
               <div
                 key={faq.id}
-                className={`bg-white dark:bg-gray-800/50 dark:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden progress-tracker-animate ${
+                className={`bg-white dark:bg-gray-800/50 dark:backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden progress-tracker-animate ${
                   inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
                 style={{ transitionDelay: `${delay}s` }}
               >
                 <button
                   onClick={() => toggleFAQ(faq.id)}
-                  className="w-full px-6 py-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                  className="w-full px-4 sm:px-6 py-4 sm:py-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg pr-4">{faq.question}</h3>
-                    <ChevronDown className={`w-5 h-5 text-gray-400 dark:text-gray-300 transition-transform duration-300 flex-shrink-0 ${
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg pr-2 sm:pr-4">{faq.question}</h3>
+                    <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-300 transition-transform duration-300 flex-shrink-0 ${
                       expandedFAQ === faq.id ? 'rotate-180' : ''
                     }`} />
                   </div>
@@ -103,9 +103,9 @@ const FAQSection = () => {
                 <div className={`overflow-hidden transition-all duration-500 ${
                   expandedFAQ === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}>
-                  <div className="px-6 pb-6">
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                     <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{faq.answer}</p>
+                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">{faq.answer}</p>
                     </div>
                   </div>
                 </div>

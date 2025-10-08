@@ -33,13 +33,22 @@ export const StarryBackground: React.FC = () => {
   useEffect(() => {
     setMounted(true);
     
+    // Remove initial starry background if it exists
+    const initialStarryBg = document.getElementById('initial-starry-bg');
+    if (initialStarryBg) {
+      initialStarryBg.remove();
+    }
+    
     if (theme === 'dark') {
       const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
       const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
       
-      // Create static twinkling stars
+      // Create static twinkling stars (fewer on mobile for performance)
       const newStars: Star[] = [];
-      for (let i = 0; i < 100; i++) {
+      const isMobile = windowWidth < 768;
+      const starCount = isMobile ? 50 : 100; // Reduce stars on mobile
+      
+      for (let i = 0; i < starCount; i++) {
         newStars.push({
           id: i,
           x: Math.random() * windowWidth,
@@ -54,8 +63,9 @@ export const StarryBackground: React.FC = () => {
       const generateShootingStar = () => {
         const newShootingStars: ShootingStar[] = [];
         
-        // Generate 1-2 shooting stars per batch
-        const numStars = Math.floor(Math.random() * 2) + 1;
+        // Generate fewer shooting stars on mobile for performance
+        const isMobile = windowWidth < 768;
+        const numStars = isMobile ? 1 : Math.floor(Math.random() * 2) + 1;
         
         for (let i = 0; i < numStars; i++) {
           // Random start and end positions anywhere on screen
@@ -123,8 +133,9 @@ export const StarryBackground: React.FC = () => {
       // Initial batch
       generateShootingStar();
       
-      // Generate new shooting stars every 2-4 seconds
-      const interval = setInterval(generateShootingStar, Math.random() * 2000 + 2000);
+      // Generate new shooting stars every 2-4 seconds (longer intervals on mobile)
+      const intervalTime = isMobile ? Math.random() * 3000 + 3000 : Math.random() * 2000 + 2000;
+      const interval = setInterval(generateShootingStar, intervalTime);
       
       // Clean up old shooting stars every 3 seconds
       const cleanupInterval = setInterval(() => {

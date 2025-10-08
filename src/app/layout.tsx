@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
   openGraph: {
     title: 'PRSU',
     description: 'Unlocking the Future of Educational Journeys',
@@ -66,6 +71,43 @@ export default function RootLayout({
                   }
                   
                   document.documentElement.classList.add(themeToSet);
+                  
+                  // Add starry background immediately if dark mode
+                  if (themeToSet === 'dark') {
+                    const starryBg = document.createElement('div');
+                    starryBg.id = 'initial-starry-bg';
+                    starryBg.style.cssText = \`
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      bottom: 0;
+                      z-index: 0;
+                      pointer-events: none;
+                      overflow: hidden;
+                    \`;
+                    
+                    // Generate initial stars
+                    for (let i = 0; i < 50; i++) {
+                      const star = document.createElement('div');
+                      star.style.cssText = \`
+                        position: absolute;
+                        width: \${Math.random() * 3 + 0.5}px;
+                        height: \${Math.random() * 3 + 0.5}px;
+                        background: white;
+                        border-radius: 50%;
+                        left: \${Math.random() * 100}%;
+                        top: \${Math.random() * 100}%;
+                        opacity: \${Math.random() * 0.7 + 0.1};
+                        animation: pulse-slow \${3 + Math.random() * 4}s ease-in-out infinite;
+                        animation-delay: \${Math.random() * 3}s;
+                        box-shadow: 0 0 \${Math.random() * 6 + 2}px rgba(255, 255, 255, \${Math.random() * 0.7 + 0.1});
+                      \`;
+                      starryBg.appendChild(star);
+                    }
+                    
+                    document.body.appendChild(starryBg);
+                  }
                 } catch (e) {
                   console.error('Theme setting error:', e);
                 }

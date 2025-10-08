@@ -53,7 +53,7 @@ const LandingAlumniExperts = () => {
 
   return (
     <motion.section 
-      className="py-12 md:py-20 bg-white dark:bg-transparent alumni-experts-animate"
+      className="py-12 sm:py-16 md:py-20 bg-white dark:bg-transparent alumni-experts-animate"
       ref={ref}
       initial="hidden"
       animate={inView ? 'visible' : 'hidden'}
@@ -62,18 +62,18 @@ const LandingAlumniExperts = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.h2 
           variants={itemVariants}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 dark:text-white mb-16"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center text-gray-900 dark:text-white mb-8 sm:mb-12 md:mb-16 px-4"
         >
           Developed By Alumni And Experts From
         </motion.h2>
         
         <motion.div
-          className="flex flex-wrap justify-center items-center gap-8 md:gap-16"
+          className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-16"
         >
           {partners.map((partner, index) => (
             <motion.div 
               key={index} 
-              className="w-32 md:w-40 h-20 flex items-center justify-center transition-all duration-300 grayscale hover:grayscale-0 hover:scale-105"
+              className="w-24 sm:w-32 md:w-40 h-12 sm:h-16 md:h-20 flex items-center justify-center transition-all duration-300 grayscale hover:grayscale-0 hover:scale-105"
               variants={itemVariants}
             >
               <Image 

@@ -12,24 +12,24 @@ const LandingHero = () => {
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000 dark:opacity-0"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="flex items-center justify-center min-h-[80vh] pt-16 sm:pt-20">
           {/* Center Content */}
-          <div className="flex-1 max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
+          <div className="flex-1 max-w-3xl mx-auto text-center space-y-6 sm:space-y-8 animate-fade-in">
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
               <span className="block">Own Your Journey.</span>
               <span className="block text-blue-600 dark:text-blue-400">Shape Your Future.</span>
             </h1>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center pt-6 sm:pt-8">
               <a 
                 href="/api/auth/login" 
-                className="group relative px-8 py-4 bg-blue-600 text-white rounded-2xl font-semibold text-lg transition-all duration-300 hover:bg-blue-700 hover:scale-105 hover:shadow-xl active:scale-95"
+                className="group relative px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all duration-300 hover:bg-blue-700 hover:scale-105 hover:shadow-xl active:scale-95 w-full sm:w-auto"
               >
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   Start Your Plan
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </a>
             </div>
