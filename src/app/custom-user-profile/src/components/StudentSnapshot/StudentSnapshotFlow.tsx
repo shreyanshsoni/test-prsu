@@ -369,6 +369,8 @@ export const StudentSnapshotFlow: React.FC = () => {
               data={studentData}
               onCopy={handleCopy}
               copiedFormat={copiedText}
+              onSectionClick={goToStep}
+              currentStep={currentStep}
             />
           </div>
         </div>

@@ -7,9 +7,11 @@ interface PreviewCardProps {
   data: Partial<StudentData>;
   onCopy?: (format: string) => void;
   copiedFormat?: string | null;
+  onSectionClick?: (sectionIndex: number) => void;
+  currentStep?: number;
 }
 
-export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFormat }) => {
+export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFormat, onSectionClick, currentStep }) => {
   const { theme } = useTheme();
   const hasBasicInfo = data.gradeLevel || data.schoolType || data.gpa?.unweighted || data.gpa?.weighted;
   const hasAchievements = (data.standardizedTests?.length || 0) > 0 || (data.advancedClasses?.length || 0) > 0 || (data.academicAwards?.length || 0) > 0;
@@ -88,12 +90,28 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
 
       <div className="space-y-4">
         {/* Basic Info */}
-        <div className={`p-3 rounded-lg border-2 ${hasBasicInfo ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'}`}>
+        <div 
+          onClick={() => onSectionClick?.(0)}
+          className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+            currentStep === 0 
+              ? 'ring-2 ring-indigo-500 ring-opacity-50' 
+              : ''
+          } ${
+            hasBasicInfo 
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
+        >
           <div className="flex items-center mb-2">
             <School className={`w-4 h-4 mr-2 ${hasBasicInfo ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
             <span className={`text-sm font-medium ${hasBasicInfo ? 'text-blue-800 dark:text-blue-200' : 'text-gray-600 dark:text-gray-400'}`}>
               Where I Am
             </span>
+            {currentStep === 0 && (
+              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                Current
+              </span>
+            )}
           </div>
           {hasBasicInfo ? (
             <div className="text-xs text-blue-700 dark:text-blue-300">
@@ -109,12 +127,28 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
         </div>
 
         {/* Achievements */}
-        <div className={`p-3 rounded-lg border-2 ${hasAchievements ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'}`}>
+        <div 
+          onClick={() => onSectionClick?.(1)}
+          className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+            currentStep === 1 
+              ? 'ring-2 ring-indigo-500 ring-opacity-50' 
+              : ''
+          } ${
+            hasAchievements 
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
+        >
           <div className="flex items-center mb-2">
             <Award className={`w-4 h-4 mr-2 ${hasAchievements ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'}`} />
             <span className={`text-sm font-medium ${hasAchievements ? 'text-emerald-800 dark:text-emerald-200' : 'text-gray-600 dark:text-gray-400'}`}>
               What I've Done
             </span>
+            {currentStep === 1 && (
+              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                Current
+              </span>
+            )}
           </div>
           {hasAchievements ? (
             <div className="text-xs text-emerald-700 dark:text-emerald-300">
@@ -126,12 +160,28 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
         </div>
 
         {/* Activities */}
-        <div className={`p-3 rounded-lg border-2 ${hasActivities ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'}`}>
+        <div 
+          onClick={() => onSectionClick?.(2)}
+          className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+            currentStep === 2 
+              ? 'ring-2 ring-indigo-500 ring-opacity-50' 
+              : ''
+          } ${
+            hasActivities 
+              ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50 hover:bg-orange-100 dark:hover:bg-orange-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
+        >
           <div className="flex items-center mb-2">
             <Clock className={`w-4 h-4 mr-2 ${hasActivities ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
             <span className={`text-sm font-medium ${hasActivities ? 'text-orange-800 dark:text-orange-200' : 'text-gray-600 dark:text-gray-400'}`}>
               How I Spend Time
             </span>
+            {currentStep === 2 && (
+              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                Current
+              </span>
+            )}
           </div>
           {hasActivities ? (
             <div className="text-xs text-orange-700 dark:text-orange-300">
@@ -143,12 +193,28 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
         </div>
 
         {/* Projects */}
-        <div className={`p-3 rounded-lg border-2 ${hasProjects ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800/50' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'}`}>
+        <div 
+          onClick={() => onSectionClick?.(3)}
+          className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+            currentStep === 3 
+              ? 'ring-2 ring-indigo-500 ring-opacity-50' 
+              : ''
+          } ${
+            hasProjects 
+              ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800/50 hover:bg-purple-100 dark:hover:bg-purple-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
+        >
           <div className="flex items-center mb-2">
             <Star className={`w-4 h-4 mr-2 ${hasProjects ? 'text-purple-600 dark:text-purple-400' : 'text-gray-400 dark:text-gray-500'}`} />
             <span className={`text-sm font-medium ${hasProjects ? 'text-purple-800 dark:text-purple-200' : 'text-gray-600 dark:text-gray-400'}`}>
               What I'm Proud Of
             </span>
+            {currentStep === 3 && (
+              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                Current
+              </span>
+            )}
           </div>
           {hasProjects ? (
             <div className="text-xs text-purple-700 dark:text-purple-300">
@@ -160,12 +226,28 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ data, onCopy, copiedFo
         </div>
 
         {/* Goals */}
-        <div className={`p-3 rounded-lg border-2 ${hasGoals ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'}`}>
+        <div 
+          onClick={() => onSectionClick?.(4)}
+          className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] ${
+            currentStep === 4 
+              ? 'ring-2 ring-indigo-500 ring-opacity-50' 
+              : ''
+          } ${
+            hasGoals 
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
+        >
           <div className="flex items-center mb-2">
             <Target className={`w-4 h-4 mr-2 ${hasGoals ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`} />
             <span className={`text-sm font-medium ${hasGoals ? 'text-green-800 dark:text-green-200' : 'text-gray-600 dark:text-gray-400'}`}>
               What I'm Working Toward
             </span>
+            {currentStep === 4 && (
+              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                Current
+              </span>
+            )}
           </div>
           {hasGoals ? (
             <div className="text-xs text-green-700 dark:text-green-300">
