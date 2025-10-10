@@ -20,8 +20,8 @@ interface FieldEditorProps {
 }
 
 export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange, error }) => {
-  const baseInputClasses = `w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-    error ? 'border-red-300 bg-red-50' : 'border-gray-300'
+  const baseInputClasses = `w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+    error ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'
   }`;
 
   const renderBasicField = () => {
@@ -83,9 +83,9 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
                   newArray[index] = e.target.value;
                   onChange(newArray);
                 }}
-                placeholder={field.placeholder}
-                className={`flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                  error ? 'border-red-300' : 'border-gray-300'
+                placeholder={field.placeholder || `Add ${field.label.toLowerCase()}`}
+                className={`flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  error ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-gray-600'
                 }`}
               />
               <button
@@ -93,7 +93,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
                   const newArray = arrayValue.filter((_: any, i: number) => i !== index);
                   onChange(newArray);
                 }}
-                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                 type="button"
               >
                 <X className="w-4 h-4" />
@@ -102,7 +102,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
           ))}
           <button
             onClick={() => onChange([...arrayValue, ''])}
-            className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
+            className="flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
             type="button"
           >
             <Plus className="w-4 h-4 mr-1" />
@@ -114,15 +114,15 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
       return (
         <div className="space-y-4">
           {arrayValue.map((item: any, index: number) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium text-gray-800">{field.label} #{index + 1}</h4>
+                <h4 className="font-medium text-gray-800 dark:text-white">{field.label} #{index + 1}</h4>
                 <button
                   onClick={() => {
                     const newArray = arrayValue.filter((_: any, i: number) => i !== index);
                     onChange(newArray);
                   }}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-100 p-1 rounded"
+                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 rounded"
                   type="button"
                 >
                   <X className="w-4 h-4" />
@@ -131,7 +131,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {field.objectFields.map(objField => (
                   <div key={objField.key}>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
                       {objField.label}
                     </label>
                     <FieldEditor
@@ -156,7 +156,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = ({ field, value, onChange
               }, {} as any) || {};
               onChange([...arrayValue, newItem]);
             }}
-            className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
+            className="flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
             type="button"
           >
             <Plus className="w-4 h-4 mr-1" />

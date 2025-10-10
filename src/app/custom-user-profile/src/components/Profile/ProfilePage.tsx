@@ -528,8 +528,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 arrayType: 'object',
                 objectFields: [
                   { key: 'type', label: 'Test Type', type: 'select', options: ['SAT', 'ACT', 'PSAT', 'AP', 'Other'] },
-                  { key: 'score', label: 'Score', type: 'text' },
-                  { key: 'date', label: 'Date', type: 'text' }
+                  { key: 'score', label: 'Score', type: 'text', placeholder: 'e.g., 1450, 32, 5' },
+                  { key: 'date', label: 'Date', type: 'text', placeholder: 'e.g., March 2024, Fall 2023' }
                 ]
               },
               {
@@ -539,15 +539,16 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 arrayType: 'object',
                 objectFields: [
                   { key: 'type', label: 'Class Type', type: 'select', options: ['AP', 'IB', 'Dual Enrollment', 'Honors'] },
-                  { key: 'subject', label: 'Subject', type: 'text' },
-                  { key: 'score', label: 'Score', type: 'text' }
+                  { key: 'subject', label: 'Subject', type: 'text', placeholder: 'e.g., Calculus, Biology, English' },
+                  { key: 'score', label: 'Score', type: 'text', placeholder: 'e.g., A, 95, 4.0' }
                 ]
               },
               {
                 key: 'academicAwards',
                 label: 'Academic Awards',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Honor Roll, National Merit Scholar, Math Competition Winner'
               }
             ]}
           />
@@ -573,11 +574,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 type: 'array',
                 arrayType: 'object',
                 objectFields: [
-                  { key: 'title', label: 'Activity', type: 'text' },
-                  { key: 'role', label: 'Role', type: 'text' },
-                  { key: 'hoursPerWeek', label: 'Hours/Week', type: 'text' },
-                  { key: 'duration', label: 'Duration', type: 'text' },
-                  { key: 'description', label: 'Description', type: 'textarea' }
+                  { key: 'title', label: 'Activity', type: 'text', placeholder: 'e.g., Soccer Team, Drama Club, Student Council' },
+                  { key: 'role', label: 'Role', type: 'text', placeholder: 'e.g., Captain, Member, President' },
+                  { key: 'hoursPerWeek', label: 'Hours/Week', type: 'text', placeholder: 'e.g., 5-10, 15' },
+                  { key: 'duration', label: 'Duration', type: 'text', placeholder: 'e.g., 2 years, Since 9th grade' },
+                  { key: 'description', label: 'Description', type: 'textarea', placeholder: 'What do you do? Any achievements or impact?' }
                 ]
               },
               {
@@ -586,17 +587,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 type: 'array',
                 arrayType: 'object',
                 objectFields: [
-                  { key: 'title', label: 'Job Title', type: 'text' },
-                  { key: 'company', label: 'Company', type: 'text' },
-                  { key: 'duration', label: 'Duration', type: 'text' },
-                  { key: 'description', label: 'Description', type: 'textarea' }
+                  { key: 'title', label: 'Job Title', type: 'text', placeholder: 'e.g., Cashier, Tutor, Intern' },
+                  { key: 'company', label: 'Company', type: 'text', placeholder: 'e.g., McDonald\'s, Local Library, Tech Startup' },
+                  { key: 'duration', label: 'Duration', type: 'text', placeholder: 'e.g., Summer 2023, Weekends since 2022' },
+                  { key: 'description', label: 'Description', type: 'textarea', placeholder: 'What did you learn or accomplish?' }
                 ]
               },
               {
                 key: 'familyResponsibilities',
                 label: 'Family Responsibilities',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Watching younger siblings, Caregiving for grandparent'
               }
             ]}
           />
@@ -622,16 +624,17 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 type: 'array',
                 arrayType: 'object',
                 objectFields: [
-                  { key: 'title', label: 'Project Title', type: 'text' },
-                  { key: 'description', label: 'Description', type: 'textarea' },
-                  { key: 'skills', label: 'Skills', type: 'array', arrayType: 'string' }
+                  { key: 'title', label: 'Project Title', type: 'text', placeholder: 'e.g., Personal Website, Science Fair Project' },
+                  { key: 'description', label: 'Description', type: 'textarea', placeholder: 'What did you create? What problem did it solve? What impact did it have?' },
+                  { key: 'skills', label: 'Skills', type: 'array', arrayType: 'string', placeholder: 'e.g., JavaScript, Research, Design, Leadership' }
                 ]
               },
               {
                 key: 'passions',
                 label: 'Passions & Hobbies',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Photography, Cooking, Gaming, Reading'
               },
               {
                 key: 'uniqueFact',
@@ -662,25 +665,29 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 key: 'careerGoals',
                 label: 'Career Goals',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Software Engineer, Doctor, Teacher, Entrepreneur'
               },
               {
                 key: 'collegeGoals',
                 label: 'College Goals',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Study Computer Science, Attend a small liberal arts college'
               },
               {
                 key: 'interests',
                 label: 'Areas to Explore',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Environmental Science, Creative Writing, Robotics'
               },
               {
                 key: 'opportunityTypes',
                 label: 'Opportunity Types',
                 type: 'array',
-                arrayType: 'string'
+                arrayType: 'string',
+                placeholder: 'e.g., Internships, Mentorship, Study abroad, Research opportunities'
               }
             ]}
           />

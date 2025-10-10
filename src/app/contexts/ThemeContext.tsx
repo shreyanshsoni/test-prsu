@@ -34,17 +34,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('theme', newTheme);
   };
 
-  // On initial mount, get theme from localStorage or use light theme as default
+  // On initial mount, get theme from localStorage or default to light mode
   useEffect(() => {
     setMounted(true);
     
-    // Check for saved theme preference or default to light theme
+    // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
-      // Set light theme as default
+      // Always default to light mode
       setTheme('light');
       localStorage.setItem('theme', 'light');
     }
