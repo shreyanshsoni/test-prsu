@@ -22,7 +22,7 @@ export class LLMGenerationStep implements Step {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "moonshotai/kimi-k2    ",
+          model: "moonshotai/kimi-k2",
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt }
