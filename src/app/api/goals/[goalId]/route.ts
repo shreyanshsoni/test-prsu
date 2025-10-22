@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@auth0/nextjs-auth0";
+import { getSession } from "@auth0/nextjs-auth0/edge";
 import { sql } from '@vercel/postgres';
 
 // GET handler - retrieve a specific goal
 export async function GET(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: { goalId: stri
 // PATCH handler - update a specific goal
 export async function PATCH(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -159,7 +159,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { goalId: st
 // DELETE handler - delete a specific goal
 export async function DELETE(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {

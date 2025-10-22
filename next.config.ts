@@ -31,6 +31,46 @@ const config: NextConfig = {
   },
   // Remove standalone output for Amplify hosting
   // output: 'standalone',
+  
+  // Security Headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.auth0.com https://*.auth0.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.auth0.com https://*.auth0.com/oauth/token; frame-src 'self' https://*.auth0.com; object-src 'none'; base-uri 'self'; form-action 'self' https://*.auth0.com;"
+          }
+        ]
+      }
+    ]
+  },
+  
   // Add environment variables - ONLY non-sensitive ones that are needed client-side
   env: {
     // Public URLs and non-sensitive configuration

@@ -37,17 +37,45 @@ export class ReadinessScoringStep implements Step {
       throw new Error(`Invalid stage: ${stage}`);
     }
 
-    // Update state with processed scores
+    // Calculate matrix scores (numeric values for counselor view)
+    const matrixScores = {
+      clarity: this.zoneToScore(assessmentData.clarity),
+      engagement: this.zoneToScore(assessmentData.engagement),
+      preparation: this.zoneToScore(assessmentData.preparation),
+      support: this.zoneToScore(assessmentData.support)
+    };
+
+    // Calculate total score (sum of all matrix scores * 4 for 1200 max)
+    // Max possible: 75 + 75 + 75 + 75 = 300, then 300 * 4 = 1200
+    const totalScore = Object.values(matrixScores).reduce((sum, score) => sum + score, 0) * 4;
+
+    // Store calculated scores in state for potential saving
     state.readinessScores = readinessScores;
     state.stage = stage;
+    state.matrixScores = matrixScores;
+    state.totalScore = totalScore;
+    state.assessmentSessionId = `assessment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     console.log('✅ Readiness scores calculated:', {
       stage,
       readinessScores,
+      matrixScores,
+      totalScore,
+      sessionId: state.assessmentSessionId,
       userPreferences: state.userPreferences
     });
 
     return state;
+  }
+
+  // Helper method to convert readiness zones to numeric scores
+  private zoneToScore(zone: string): number {
+    switch (zone) {
+      case 'Development': return 25;  // 0-33%
+      case 'Balanced': return 50;     // 34-66%
+      case 'Proficiency': return 75;  // 67-100%
+      default: return 25;
+    }
   }
 
   validate(state: StepState): boolean {

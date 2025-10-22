@@ -318,17 +318,32 @@ export default function AcademicGoals({
     }
   };
   
-  // Format date for display
+  // Format date for display - using string manipulation to avoid timezone issues
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No due date';
+    
     try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid date';
-      return date.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
+      // Parse the date string directly without creating Date objects
+      const parts = dateString.split('-');
+      if (parts.length !== 3) return 'Invalid date';
+      
+      const year = parts[0];
+      const month = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+      
+      // Validate the parsed values
+      if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+        return 'Invalid date';
+      }
+      
+      // Month names array
+      const monthNames = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      
+      // Format as "15 Jan 2024"
+      return `${day} ${monthNames[month - 1]} ${year}`;
     } catch (error) {
       return 'Invalid date';
     }

@@ -71,6 +71,13 @@ export async function initializeDatabase(): Promise<void> {
       );
     `);
 
+    // Ensure new name columns exist (will be NULL for existing users by default)
+    await client.query(`
+      ALTER TABLE user_profiles
+      ADD COLUMN IF NOT EXISTS first_name TEXT,
+      ADD COLUMN IF NOT EXISTS last_name TEXT;
+    `);
+
     // Create roadmap_planners table if it doesn't exist
     await client.query(`
       CREATE TABLE IF NOT EXISTS roadmap_planners (

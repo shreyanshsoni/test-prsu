@@ -1,5 +1,8 @@
 'use client';
 
+// DISABLED: Role selection is now automatic - users are assigned 'student' role on login
+// This code is kept for future use but the route is disabled
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
@@ -10,7 +13,20 @@ import { toast } from 'react-hot-toast';
 import { UserCheck, Briefcase } from 'lucide-react';
 import { useUserProfile } from '../hooks/useUserProfile';
 
+// DISABLED FUNCTION - Redirect to home instead
 export default function RoleSelection() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect to home since role selection is now automatic
+    router.push('/');
+  }, [router]);
+  
+  return null; // Don't render anything, just redirect
+}
+
+// ORIGINAL ROLE SELECTION CODE (DISABLED)
+function OriginalRoleSelection() {
   const { user, isLoading: isAuthLoading, isAuthenticated } = useAuth();
   const { profileData, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();
@@ -32,30 +48,53 @@ export default function RoleSelection() {
     }
   }, [isClient, isAuthLoading, isAuthenticated, router]);
 
-  const handleRoleSelect = (role: 'student' | 'counselor') => {
-    if (role === 'student') {
-      // Store role in localStorage
-      localStorage.setItem('userRole', 'student');
+  const handleRoleSelect = async (role: 'student' | 'counselor') => {
+    try {
+      // Save role to database
+      const response = await fetch('/api/user-roles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
 
-      // Check if the user has opted out of profile creation
-      const hasOptedOut = localStorage.getItem('skipProfileCreation') === 'true';
-      
-      // Check if user has already filled in profile info
-      const hasProfileData = profileData && 
-        (profileData.gradeLevel || profileData.schoolType || profileData.gpa?.weighted || profileData.gpa?.unweighted);
-      
-      if (!hasOptedOut && !hasProfileData) {
-        // If user is new and hasn't opted out, redirect to student onboarding
-        router.push('/student-onboarding');
-      } else {
-        // Otherwise, go to dashboard
-        router.push('/');
+      if (!response.ok) {
+        throw new Error('Failed to save role');
       }
-    } else {
-      // Store role for counselor
-      localStorage.setItem('userRole', 'counselor');
-      // Redirect to counselor page
-      router.push('/counselor');
+
+      // Also store in localStorage for immediate access (will be replaced by database check)
+      localStorage.setItem('userRole', role);
+
+      if (role === 'student') {
+        // Check if the user has opted out of profile creation
+        const hasOptedOut = localStorage.getItem('skipProfileCreation') === 'true';
+        
+        // Check if user has already filled in profile info
+        const hasProfileData = profileData && 
+          (profileData.gradeLevel || profileData.schoolType || profileData.gpa?.weighted || profileData.gpa?.unweighted);
+        
+        if (!hasOptedOut && !hasProfileData) {
+          // If user is new and hasn't opted out, redirect to student onboarding
+          router.push('/student-onboarding');
+        } else {
+          // Otherwise, go to dashboard
+          router.push('/');
+        }
+      } else {
+        // Redirect to counselor page
+        router.push('/counselor');
+      }
+    } catch (error) {
+      console.error('Error saving role:', error);
+      // Fallback to localStorage if database save fails
+      localStorage.setItem('userRole', role);
+      
+      if (role === 'student') {
+        router.push('/');
+      } else {
+        router.push('/counselor');
+      }
     }
   };
 

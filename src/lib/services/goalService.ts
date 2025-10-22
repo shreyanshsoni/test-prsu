@@ -159,10 +159,24 @@ export async function createGoal(goalData: GoalInput): Promise<Goal | null> {
     
     const data = await response.json();
     
+    // Transform the data to match the Goal interface
+    const goal: Goal = {
+      id: data.goal.id,
+      userId: data.goal.user_id,
+      title: data.goal.title,
+      description: data.goal.description || '',
+      dueDate: data.goal.dueDate || '', // API returns camelCase dueDate, not snake_case due_date
+      category: data.goal.category,
+      completed: data.goal.completed,
+      priority: data.goal.priority || 'medium',
+      createdAt: data.goal.created_at,
+      updatedAt: data.goal.updated_at
+    };
+    
     // Clear all goal-related caches since we have a new goal
     cache.clear('goals:');
     
-    return data.goal;
+    return goal;
   } catch (error) {
     console.error('Error creating goal:', error);
     return null;
@@ -186,11 +200,25 @@ export async function updateGoal(goalId: string, updates: GoalUpdateInput): Prom
     
     const data = await response.json();
     
+    // Transform the data to match the Goal interface
+    const goal: Goal = {
+      id: data.goal.id,
+      userId: data.goal.user_id,
+      title: data.goal.title,
+      description: data.goal.description || '',
+      dueDate: data.goal.due_date || '',
+      category: data.goal.category,
+      completed: data.goal.completed,
+      priority: data.goal.priority || 'medium',
+      createdAt: data.goal.created_at,
+      updatedAt: data.goal.updated_at
+    };
+    
     // Clear specific goal cache and all goals lists
     cache.delete(`goal:${goalId}`);
     cache.clear('goals:');
     
-    return data.goal;
+    return goal;
   } catch (error) {
     console.error(`Error updating goal ${goalId}:`, error);
     return null;

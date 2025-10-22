@@ -16,6 +16,14 @@ export interface StepState {
     support: string;
   };
   stage?: string;
+  matrixScores?: {
+    clarity: number;
+    engagement: number;
+    preparation: number;
+    support: number;
+  };
+  totalScore?: number;
+  assessmentSessionId?: string;
   
   // LLM data
   systemPrompt?: string;

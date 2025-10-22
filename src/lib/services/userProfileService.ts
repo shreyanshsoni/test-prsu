@@ -7,6 +7,10 @@ interface UserProfileRecord {
   created_at: string;
   updated_at: string;
   profile_data: StudentData;
+  first_name?: string | null;
+  last_name?: string | null;
+  user_role?: string | null;
+  display_name?: string | null;
 }
 
 export const userProfileService = {
@@ -26,6 +30,30 @@ export const userProfileService = {
     } catch (error) {
       console.error(`Error getting user profile for ${userId}:`, error);
       throw new Error(`Failed to get user profile: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+
+  /**
+   * Gets the complete user profile record including first_name, last_name, etc.
+   */
+  async getProfileRecordByUserId(userId: string): Promise<UserProfileRecord | null> {
+    try {
+      const query = `
+        SELECT id, user_id, created_at, updated_at, profile_data, 
+               first_name, last_name, user_role, display_name 
+        FROM user_profiles 
+        WHERE user_id = $1
+      `;
+      const results = await executeQuery<UserProfileRecord>(query, [userId]);
+      
+      if (results.length === 0) {
+        return null;
+      }
+      
+      return results[0];
+    } catch (error) {
+      console.error(`Error getting user profile record for ${userId}:`, error);
+      throw new Error(`Failed to get user profile record: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 

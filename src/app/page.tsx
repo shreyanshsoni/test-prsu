@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { useUserRole } from './hooks/useUserRole';
 import { useRouter } from 'next/navigation';
 import HomeClientComponent from './HomeClientComponent';
 import { useTheme } from './contexts/ThemeContext';
@@ -20,6 +21,7 @@ import { StarryBackground } from '../components/ui/StarryBackground';
 
 export default function Home() {
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { role, isLoading: isRoleLoading } = useUserRole();
   const { theme } = useTheme();
   const [isClient, setIsClient] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
@@ -44,24 +46,30 @@ export default function Home() {
 
   // Handle redirects based on authentication and role
   useEffect(() => {
-    // Only run once authentication is complete and we're on the client
-    if (isClient && !isAuthLoading) {
+    // Only run once authentication and role loading are complete and we're on the client
+    if (isClient && !isAuthLoading && !isRoleLoading) {
       if (user) {
-        // User is logged in, check for role
-        const userRole = localStorage.getItem('userRole');
-        console.log('User logged in, role from localStorage:', userRole);
+        // User is logged in, check for role from database
+        console.log('User logged in, role from database:', role);
         
-        if (!userRole) {
+        if (!role) {
           console.log('No role found, redirecting to role selection');
           setShouldRedirect(true);
           router.push('/role-selection');
+        } else if (role === 'counselor') {
+          console.log('User is counselor, redirecting to counselor page');
+          setShouldRedirect(true);
+          router.push('/counselor');
+        } else if (role === 'student') {
+          console.log('User is student, showing student dashboard');
+          // Student stays on main page (HomeClientComponent)
         }
       }
     }
-  }, [isClient, isAuthLoading, user, router]);
+  }, [isClient, isAuthLoading, isRoleLoading, user, role, router]);
 
-  // Show nothing during SSR or while loading auth to prevent flashing
-  if (!isClient || isAuthLoading) {
+  // Show nothing during SSR or while loading auth/role to prevent flashing
+  if (!isClient || isAuthLoading || isRoleLoading) {
     return null;
   }
 
@@ -70,13 +78,13 @@ export default function Home() {
     return null;
   }
 
-  // If user is logged in and has a role, show the dashboard
-  if (user && localStorage.getItem('userRole')) {
+  // If user is logged in and has a student role, show the dashboard
+  if (user && role === 'student') {
     return <HomeClientComponent user={user} />;
   }
   
   // If user is logged in but no role (and not redirecting yet), show loading
-  if (user) {
+  if (user && !role) {
     // Trigger redirect just in case the useEffect didn't catch it
     setTimeout(() => {
       router.push('/role-selection');

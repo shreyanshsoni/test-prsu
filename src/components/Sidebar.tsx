@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, LogOut, ChevronLeft, ChevronRight, Menu, User, X } from 'lucide-react';
+import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, LogOut, ChevronLeft, ChevronRight, Menu, User, X, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { UserProfile } from '../hooks/useAuth';
 import ProfileAvatar from './ProfileAvatar';
@@ -28,13 +28,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { theme } = useTheme();
   const TABS = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'search', label: 'Program Search', icon: Search },
-    { id: 'saved', label: 'My Programs', icon: BookmarkCheck },
-    { id: 'checklist', label: 'My Checklists', icon: CheckSquare },
-    { id: 'goals', label: 'Academic Goals', icon: Target },
-    { id: 'roadmapPlanner', label: 'Roadmap Planner', icon: Route },
-    { id: 'customUserProfile', label: 'User Profile', icon: User },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, locked: false },
+    { id: 'search', label: 'Program Search', icon: Search, locked: true },
+    { id: 'saved', label: 'My Programs', icon: BookmarkCheck, locked: true },
+    { id: 'checklist', label: 'My Checklists', icon: CheckSquare, locked: true },
+    { id: 'goals', label: 'Academic Goals', icon: Target, locked: false },
+    { id: 'roadmapPlanner', label: 'Roadmap Planner', icon: Route, locked: false },
+    { id: 'customUserProfile', label: 'User Profile', icon: User, locked: false },
   ];
 
   if (!user) return null;
@@ -81,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Toggle button positioned on the right */}
           <button 
-            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text transition-all duration-300 flex items-center justify-center lg:block hidden`}
+            className={`absolute ${isCollapsed ? 'right-2 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2'} p-1.5 text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text transition-all duration-300 items-center justify-center lg:flex hidden`}
             onClick={onCollapseToggle}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -111,18 +111,32 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </Link>
                 ) : (
                   <button
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`flex items-center w-full ${isCollapsed ? 'justify-center' : ''} py-3 px-4 rounded-lg transition-all duration-300 ${
+                    onClick={() => !tab.locked && handleTabChange(tab.id)}
+                    disabled={tab.locked}
+                    className={`flex items-center w-full ${isCollapsed ? 'justify-center' : ''} py-3 px-4 rounded-lg transition-all duration-300 relative ${
                       activeTab === tab.id
                         ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
-                        : 'text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border'
+                        : tab.locked 
+                          ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-60'
+                          : 'text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border'
                     }`}
-                    title={isCollapsed ? tab.label : undefined}
+                    title={isCollapsed ? (tab.locked ? `${tab.label} - Coming Soon` : tab.label) : undefined}
                   >
                     <tab.icon className={`h-5 w-5 ${!isCollapsed ? 'mr-3' : ''} ${
-                      activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-light-muted dark:text-dark-muted'
+                      activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 
+                      tab.locked ? 'text-gray-400 dark:text-gray-600' : 'text-light-muted dark:text-dark-muted'
                     } transition-all duration-500`} />
-                    {!isCollapsed && <span className="text-sm transition-opacity duration-500">{tab.label}</span>}
+                    {!isCollapsed && (
+                      <>
+                        <span className="text-sm transition-opacity duration-500">{tab.label}</span>
+                        {tab.locked && (
+                          <Lock className="h-3 w-3 ml-auto text-gray-400 dark:text-gray-600" />
+                        )}
+                      </>
+                    )}
+                    {isCollapsed && tab.locked && (
+                      <Lock className="h-3 w-3 absolute -top-1 -right-1 text-gray-400 dark:text-gray-600" />
+                    )}
                   </button>
                 )}
               </li>

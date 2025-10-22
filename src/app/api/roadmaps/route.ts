@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@auth0/nextjs-auth0";
+import { getSession } from "@auth0/nextjs-auth0/edge";
 import { sql } from '@vercel/postgres';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
     // Ensure database tables exist
     await ensureTablesExist();
     
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
     // Ensure database tables exist
     await ensureTablesExist();
     
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if user is authenticated
     if (!session?.user) {

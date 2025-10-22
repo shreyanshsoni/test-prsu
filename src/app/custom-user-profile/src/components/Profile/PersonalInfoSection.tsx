@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, User, Mail, Edit3, Check, X, LockIcon } from 'lucide-react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 
@@ -6,6 +6,8 @@ interface PersonalInfo {
   name: string;
   email: string;
   profilePicture: string | null;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface PersonalInfoSectionProps {
@@ -23,18 +25,34 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editingInfo, setEditingInfo] = useState(personalInfo);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [displayName, setDisplayName] = useState(personalInfo.name);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  // Sync personalInfo prop with local state when it changes
+  useEffect(() => {
+    if (!isEditing) {
+      setEditingInfo(personalInfo);
+      setDisplayName(personalInfo.name);
+    }
+  }, [personalInfo, isEditing]);
 
   const handleEdit = () => {
     if (readOnly) {
       return;
     }
-    setEditingInfo(personalInfo);
+    
+    // Split the full name into first and last name
+    const nameParts = personalInfo.name.trim().split(/\s+/).filter(part => part.length > 0);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    setEditingInfo({
+      ...personalInfo,
+      firstName,
+      lastName
+    });
     setIsEditing(true);
     setErrors({});
   };
@@ -43,26 +61,110 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
     setEditingInfo(personalInfo);
     setIsEditing(false);
     setErrors({});
+    setIsSaving(false);
+    setIsRefreshing(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const newErrors: Record<string, string> = {};
 
-    if (!editingInfo.name.trim()) {
-      newErrors.name = 'Name is required';
+    if (!editingInfo.firstName?.trim()) {
+      newErrors.firstName = 'First name is required';
     }
-
-    if (!editingInfo.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(editingInfo.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    
+    if (!editingInfo.lastName?.trim()) {
+      newErrors.lastName = 'Last name is required';
     }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      onUpdate(editingInfo);
-      setIsEditing(false);
+      setIsSaving(true);
+      try {
+        // Save to database
+        const response = await fetch('/api/update-user-name', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: editingInfo.firstName?.trim(),
+            lastName: editingInfo.lastName?.trim(),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Create the new full name from the API response
+          const newFullName = `${data.first_name} ${data.last_name}`;
+          
+          // Update the local state with the saved data
+          const updatedInfo = {
+            ...editingInfo,
+            name: newFullName,
+            firstName: data.first_name,
+            lastName: data.last_name
+          };
+          
+          // Update parent component
+          onUpdate(updatedInfo);
+          
+          // Refresh the entire profile by calling the API again
+          setIsRefreshing(true);
+          try {
+            const refreshResponse = await fetch('/api/user-profile', {
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              const profile = refreshData.profile;
+              
+              if (profile && profile.first_name && profile.last_name) {
+                const refreshedFullName = `${profile.first_name} ${profile.last_name}`;
+                
+                // Update with fresh data from API
+                const refreshedInfo = {
+                  ...updatedInfo,
+                  name: refreshedFullName,
+                  firstName: profile.first_name,
+                  lastName: profile.last_name
+                };
+                
+                // Update parent with fresh data
+                onUpdate(refreshedInfo);
+                
+                // Update local display name
+                setDisplayName(refreshedFullName);
+              } else {
+                // Fallback to the saved data if refresh fails
+                setDisplayName(newFullName);
+              }
+            } else {
+              // Fallback to the saved data if refresh fails
+              setDisplayName(newFullName);
+            }
+          } catch (refreshError) {
+            console.error('Error refreshing profile:', refreshError);
+            // Fallback to the saved data if refresh fails
+            setDisplayName(newFullName);
+          } finally {
+            setIsRefreshing(false);
+          }
+          
+          setIsEditing(false);
+        } else {
+          const errorData = await response.json();
+          setErrors({ general: errorData.error || 'Failed to save names' });
+        }
+      } catch (error) {
+        console.error('Error saving names:', error);
+        setErrors({ general: 'Network error. Please try again.' });
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -111,10 +213,22 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors"
+              disabled={isSaving}
+              className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                isSaving 
+                  ? 'bg-indigo-400 text-white cursor-not-allowed' 
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              }`}
             >
-              <Check className="w-4 h-4 mr-2" />
-              Save
+              {isSaving ? (
+                <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
           </div>
         )}
@@ -184,53 +298,66 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
               Full Name {!readOnly && <span className="text-red-500 dark:text-red-400">*</span>}
             </label>
             {isEditing && !readOnly ? (
-              <div>
-                <input
-                  type="text"
-                  value={editingInfo.name}
-                  onChange={(e) => setEditingInfo(prev => ({ ...prev, name: e.target.value }))}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-                    errors.name ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-                  }`}
-                  placeholder="Enter your full name"
-                />
-                {errors.name && (
-                  <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.name}</p>
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInfo.firstName || ''}
+                      onChange={(e) => setEditingInfo(prev => ({ ...prev, firstName: e.target.value }))}
+                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
+                        errors.firstName ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                      }`}
+                      placeholder="Enter first name"
+                    />
+                    {errors.firstName && (
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.firstName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editingInfo.lastName || ''}
+                      onChange={(e) => setEditingInfo(prev => ({ ...prev, lastName: e.target.value }))}
+                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
+                        errors.lastName ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                      }`}
+                      placeholder="Enter last name"
+                    />
+                    {errors.lastName && (
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.lastName}</p>
+                    )}
+                  </div>
+                </div>
+                {errors.general && (
+                  <p className="text-red-500 dark:text-red-400 text-sm">{errors.general}</p>
                 )}
               </div>
             ) : (
               <div className="flex items-center">
                 <User className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
-                <span className="text-gray-700 dark:text-gray-300">{personalInfo.name}</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {isSaving ? 'Saving...' : isRefreshing ? 'Refreshing...' : displayName}
+                </span>
               </div>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Email Address {!readOnly && <span className="text-red-500 dark:text-red-400">*</span>}
+              Email Address <span className="text-gray-500 dark:text-gray-400 text-xs">(Read-only)</span>
             </label>
-            {isEditing && !readOnly ? (
-              <div>
-                <input
-                  type="email"
-                  value={editingInfo.email}
-                  onChange={(e) => setEditingInfo(prev => ({ ...prev, email: e.target.value }))}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors ${
-                    errors.email ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-                  }`}
-                  placeholder="Enter your email address"
-                />
-                {errors.email && (
-                  <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center">
-                <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
-                <span className="text-gray-700 dark:text-gray-300">{personalInfo.email}</span>
-              </div>
-            )}
+            <div className="flex items-center">
+              <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
+              <span className="text-gray-700 dark:text-gray-300">{personalInfo.email}</span>
+              <LockIcon className="w-3 h-3 text-gray-400 dark:text-gray-500 ml-2" />
+            </div>
           </div>
         </div>
       </div>

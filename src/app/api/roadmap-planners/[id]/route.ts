@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
+import { getSession } from '@auth0/nextjs-auth0/edge';
 import { sql } from '@vercel/postgres';
 
 /**
@@ -12,7 +12,7 @@ export async function GET(
 ) {
   try {
     const { id } = params;
-    const session = await getSession();
+    const session = await getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {
@@ -50,6 +50,9 @@ export async function GET(
         id: task.id,
         title: task.title,
         completed: task.completed,
+        completionStatus: task.completion_status || 'in_progress',
+        completedAt: task.completed_at ? task.completed_at.toISOString() : null,
+        recentActivity: task.recent_activity ? task.recent_activity.toISOString() : null,
         notes: task.notes || '',
         dueDate: task.due_date ? task.due_date.toISOString().split('T')[0] : null
       }));
@@ -59,6 +62,9 @@ export async function GET(
         title: phase.title,
         description: phase.description || '',
         reflection: phase.reflection || '',
+        completionStatus: phase.completion_status || 'in_progress',
+        completedAt: phase.completed_at ? phase.completed_at.toISOString() : null,
+        recentActivity: phase.recent_activity ? phase.recent_activity.toISOString() : null,
         tasks
       };
     }));
@@ -70,6 +76,9 @@ export async function GET(
         identity: roadmap.goal_identity,
         deadline: roadmap.goal_deadline ? roadmap.goal_deadline.toISOString().split('T')[0] : ''
       },
+      completionStatus: roadmap.completion_status || 'in_progress',
+      completedAt: roadmap.completed_at ? roadmap.completed_at.toISOString() : null,
+      recentActivity: roadmap.recent_activity ? roadmap.recent_activity.toISOString() : null,
       phases,
       createdAt: roadmap.created_at.toISOString(),
       lastModified: roadmap.last_modified.toISOString()
@@ -92,7 +101,7 @@ export async function PUT(
 ) {
   try {
     const { id } = params;
-    const session = await getSession();
+    const session = await getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {
@@ -156,6 +165,9 @@ export async function PUT(
         id: task.id,
         title: task.title,
         completed: task.completed,
+        completionStatus: task.completion_status || 'in_progress',
+        completedAt: task.completed_at ? task.completed_at.toISOString() : null,
+        recentActivity: task.recent_activity ? task.recent_activity.toISOString() : null,
         notes: task.notes || '',
         dueDate: task.due_date ? task.due_date.toISOString().split('T')[0] : null
       }));
@@ -165,6 +177,9 @@ export async function PUT(
         title: phase.title,
         description: phase.description || '',
         reflection: phase.reflection || '',
+        completionStatus: phase.completion_status || 'in_progress',
+        completedAt: phase.completed_at ? phase.completed_at.toISOString() : null,
+        recentActivity: phase.recent_activity ? phase.recent_activity.toISOString() : null,
         tasks
       };
     }));
@@ -176,6 +191,8 @@ export async function PUT(
         identity: updatedRoadmap.goal_identity,
         deadline: updatedRoadmap.goal_deadline ? updatedRoadmap.goal_deadline.toISOString().split('T')[0] : ''
       },
+      completionStatus: updatedRoadmap.completion_status || 'in_progress',
+      completedAt: updatedRoadmap.completed_at ? updatedRoadmap.completed_at.toISOString() : null,
       phases,
       createdAt: updatedRoadmap.created_at.toISOString(),
       lastModified: updatedRoadmap.last_modified.toISOString()
@@ -198,7 +215,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
-    const session = await getSession();
+    const session = await getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {

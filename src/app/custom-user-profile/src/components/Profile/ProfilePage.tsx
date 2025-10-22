@@ -37,9 +37,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
 
   // Personal info state
   const [personalInfo, setPersonalInfo] = useState({
-    name: user?.name || 'Student',
+    name: 'Student', // Default, will be updated from database
     email: user?.email || 'example@email.com',
-    profilePicture: user?.picture || null
+    profilePicture: user?.picture || null,
+    firstName: '',
+    lastName: ''
   });
 
   // Reset editing data when props data changes
@@ -52,14 +54,50 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
 
   // Update personal info when user data changes
   useEffect(() => {
-    if (user) {
+    const updatePersonalInfo = async () => {
+      if (!user) return;
+      
+      let displayName = 'Student'; // Default fallback
+      let firstName = '';
+      let lastName = '';
+      
+      // Fetch database names if authenticated
+      if (isAuthenticated) {
+        try {
+          const response = await fetch('/api/user-profile', {
+            credentials: 'include', // Include session cookies
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const profile = data.profile;
+            
+            // Use database first_name and last_name (should always exist due to name modal)
+            if (profile && profile.first_name && profile.last_name) {
+              displayName = `${profile.first_name} ${profile.last_name}`;
+              firstName = profile.first_name;
+              lastName = profile.last_name;
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+      
       setPersonalInfo({
-        name: user.name || personalInfo.name,
+        name: displayName,
         email: user.email || personalInfo.email,
-        profilePicture: user.picture || personalInfo.profilePicture
+        profilePicture: user.picture || personalInfo.profilePicture,
+        firstName,
+        lastName
       });
-    }
-  }, [user]);
+    };
+    
+    updatePersonalInfo();
+  }, [user, isAuthenticated]);
 
   // Check for unsaved changes
   useEffect(() => {
@@ -626,7 +664,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ data, onUpdate, onBack
                 objectFields: [
                   { key: 'title', label: 'Project Title', type: 'text', placeholder: 'e.g., Personal Website, Science Fair Project' },
                   { key: 'description', label: 'Description', type: 'textarea', placeholder: 'What did you create? What problem did it solve? What impact did it have?' },
-                  { key: 'skills', label: 'Skills', type: 'array', arrayType: 'string', placeholder: 'e.g., JavaScript, Research, Design, Leadership' }
+                  { key: 'skills', label: 'Skills', type: 'array', arrayType: 'string', placeholder: 'e.g., Research, Design, Leadership' }
                 ]
               },
               {

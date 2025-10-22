@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSession } from '@auth0/nextjs-auth0/edge';
 import { Orchestrator } from '../../../lib/orchestrator/orchestrator';
 import {
   CollectResponsesStep,
@@ -14,12 +15,20 @@ import {
  * Integrates assessment scoring with LLM-powered roadmap generation
  */
 
-export const runtime = 'nodejs';
-
 
 export async function POST(req: NextRequest) {
   try {
     console.log("🚀 AI Roadmap Generator API called (Orchestrator Pattern)");
+    
+    // Get user session
+    const session = await getSession(req);
+    
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    
+    const userId = session.user.sub;
+    
     const body = await req.json();
     console.log("📥 Request body:", body);
     
@@ -33,9 +42,15 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // Add user ID to assessment data
+    const enrichedAssessmentData = {
+      ...assessmentData,
+      user_id: userId
+    };
+
     // Create orchestrator with initial state
     const orchestrator = new Orchestrator({
-      assessmentData,
+      assessmentData: enrichedAssessmentData,
       userPreferences: assessmentData.userPreferences
     });
 

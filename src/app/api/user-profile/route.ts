@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
+import { getSession } from '@auth0/nextjs-auth0/edge';
 import { userProfileService } from '../../../lib/services/userProfileService';
-
-// Set runtime to Node.js for Auth0
-export const runtime = 'nodejs';
 
 // GET endpoint to fetch user profile
 export async function GET(request: NextRequest) {
   try {
     // Get the authenticated user from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -21,13 +18,25 @@ export async function GET(request: NextRequest) {
     // Get the user profile from the database
     const profile = await userProfileService.getProfileByUserId(userId);
     
+    // Also get the first_name and last_name from the user_profiles table
+    const profileRecord = await userProfileService.getProfileRecordByUserId(userId);
+    
     // If profile doesn't exist, return an empty object (not an error)
-    if (!profile) {
+    if (!profile && !profileRecord) {
       return NextResponse.json({ profile: {} }, { status: 200 });
     }
     
-    // Return the profile
-    return NextResponse.json({ profile }, { status: 200 });
+    // Combine profile_data with first_name and last_name
+    const combinedProfile = {
+      ...profile,
+      first_name: profileRecord?.first_name || null,
+      last_name: profileRecord?.last_name || null,
+      user_role: profileRecord?.user_role || null,
+      display_name: profileRecord?.display_name || null
+    };
+    
+    // Return the combined profile
+    return NextResponse.json({ profile: combinedProfile }, { status: 200 });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return NextResponse.json(
@@ -44,7 +53,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -88,7 +97,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Get the authenticated user from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -132,7 +141,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Get the authenticated user from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {

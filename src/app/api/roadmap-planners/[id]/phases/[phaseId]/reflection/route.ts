@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
+import { getSession } from '@auth0/nextjs-auth0/edge';
 import { sql } from '@vercel/postgres';
 
 /**
@@ -12,7 +12,7 @@ export async function PUT(
 ) {
   try {
     const { id: roadmapId, phaseId } = params;
-    const session = await getSession();
+    const session = await getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {

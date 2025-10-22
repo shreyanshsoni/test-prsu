@@ -128,8 +128,12 @@ const PronunciationSection = () => {
         }`}>
           <div className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-6 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                <span className="font-bold text-white text-base sm:text-lg">P</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+                <img 
+                  src="/P_Logo.png" 
+                  alt="PRSU Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="text-left">
                 <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">

@@ -7,6 +7,7 @@ import { Program, ChecklistItem, AcademicYear } from '../types/types';
 import ProgramSearch from '../components/ProgramSearch';
 import SavedPrograms from '../components/SavedPrograms';
 import ApplicationChecklist from '../components/ApplicationChecklist';
+import LockedOverlay from '../components/LockedOverlay';
 import { useAuth, UserProfile } from './hooks/useAuth';
 import Link from 'next/link';
 import ProfileAvatar from '../components/ProfileAvatar';
@@ -45,6 +46,7 @@ export default function HomeClientComponent({
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false); // Track if the component is on the client
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const [userFirstName, setUserFirstName] = useState<string | null>(null);
 
   // Read URL parameters to set initial tab
   useEffect(() => {
@@ -53,6 +55,32 @@ export default function HomeClientComponent({
       setActiveTab(tabParam);
     }
   }, [searchParams]);
+
+  // Fetch user's first name from database
+  useEffect(() => {
+    const fetchUserFirstName = async () => {
+      if (!authUser) return;
+      
+      try {
+        const response = await fetch('/api/user-profile', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const profile = data.profile;
+          if (profile && profile.first_name) {
+            setUserFirstName(profile.first_name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user first name:', error);
+      }
+    };
+
+    fetchUserFirstName();
+  }, [authUser]);
 
   // Update URL when tab changes
   const handleTabChange = (tabId: TabId) => {
@@ -605,16 +633,16 @@ export default function HomeClientComponent({
                     <Link href="/profile" className="flex items-center" aria-label="View profile">
                       <ProfileAvatar 
                         picture={user.picture}
-                        name={user.sub?.includes('auth0') 
+                        name={userFirstName || (user.sub?.includes('auth0') 
                           ? (user.nickname || user.name || user.email)
-                          : user.name?.split(' ')[0]}
+                          : user.name?.split(' ')[0])}
                         size="2rem"
                         className="mr-2"
                       />
                       <span className="text-sm font-medium text-light-text dark:text-dark-text hidden sm:inline">
-                        {user.sub?.includes('auth0') 
+                        {userFirstName || (user.sub?.includes('auth0') 
                           ? (user.nickname || user.name || user.email) 
-                          : user.name?.split(' ')[0]
+                          : user.name?.split(' ')[0])
                         }
                       </span>
                     </Link>
@@ -643,14 +671,16 @@ export default function HomeClientComponent({
                     />
                   )}
                   {activeTab === 'search' && (
-                    <ProgramSearch
-                      onSaveProgram={handleSaveProgram}
-                      savedPrograms={savedPrograms}
-                      isAuthenticated={!!user}
-                    />
+                    <LockedOverlay>
+                      <ProgramSearch
+                        onSaveProgram={handleSaveProgram}
+                        savedPrograms={savedPrograms}
+                        isAuthenticated={!!user}
+                      />
+                    </LockedOverlay>
                   )}
                   {activeTab === 'saved' && (
-                    <>
+                    <LockedOverlay>
                       {isLoadingUserPrograms ? (
                         <div className="flex justify-center items-center h-64">
                           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
@@ -661,17 +691,17 @@ export default function HomeClientComponent({
                           onRemoveProgram={handleRemoveProgram}
                         />
                       )}
-                    </>
+                    </LockedOverlay>
                   )}
                   {activeTab === 'checklist' && (
-                    <div>
+                    <LockedOverlay>
                       <ApplicationChecklist 
                         programs={savedPrograms} 
                         checklist={checklist} 
                         onUpdateStatus={handleUpdateChecklistStatus}
                         onAddChecklist={handleAddChecklist}
                       />
-                    </div>
+                    </LockedOverlay>
                   )}
                   {activeTab === 'goals' && (
                     <div>

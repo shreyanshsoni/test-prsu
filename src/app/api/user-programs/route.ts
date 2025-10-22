@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
+import { getSession } from '@auth0/nextjs-auth0/edge';
 import pool, { getClientWithRetry } from '../../../lib/db';
 
 // Initialize the database by creating the user_programs table if it doesn't exist
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
   // Get user session from Auth0
   let client;
   try {
-    const session = await getSession();
+    const session = await getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
   let client;
   try {
     // Get user session from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {
@@ -197,7 +197,7 @@ export async function DELETE(request: Request) {
   let client;
   try {
     // Get user session from Auth0
-    const session = await getSession();
+    const session = await getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {

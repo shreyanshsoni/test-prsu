@@ -234,7 +234,7 @@ export const WhatImProudOf: React.FC<WhatImProudOfProps> = ({ data, onUpdate }) 
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="e.g., JavaScript, Research, Design, Leadership"
+                    placeholder="e.g., Research, Design, Leadership"
                     value={projectSkill}
                     onChange={(e) => setProjectSkill(e.target.value)}
                     className="flex-1 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"

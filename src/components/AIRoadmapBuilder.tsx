@@ -247,6 +247,21 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
   const [isLlmError, setIsLlmError] = useState(false);
   const [showAIServiceError, setShowAIServiceError] = useState(false);
   
+  // Local storage for calculated readiness scores
+  const [calculatedScores, setCalculatedScores] = useState<{
+    matrixScores: { clarity: number; engagement: number; preparation: number; support: number } | null;
+    totalScore: number | null;
+    readinessZones: { clarity: string; engagement: string; preparation: string; support: string } | null;
+    overallStage: string | null;
+    assessmentSessionId: string | null;
+  }>({
+    matrixScores: null,
+    totalScore: null,
+    readinessZones: null,
+    overallStage: null,
+    assessmentSessionId: null
+  });
+  
   // Preload the GIFs for instant display
   useEffect(() => {
     const preloadImage1 = new Image();
@@ -289,7 +304,12 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
           if (!response.ok) {
             const errorText = await response.text();
             console.error("❌ API Error Response:", errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            setLlmErrorDetails(errorText || `HTTP ${response.status}`);
+            setShowAIServiceError(true);
+            setIsLlmError(false);
+            setShowErrorModal(false);
+            setIsLoadingLlm(false);
+            return;
           }
 
           const result = await response.json();
@@ -307,14 +327,23 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
           if (responseData && responseData.error) {
             console.error("❌ Backend returned error response:", responseData.error);
             // Set AI service error state for dedicated UI
+            setLlmErrorDetails(responseData.error);
             setShowAIServiceError(true);
+            setIsLlmError(false);
+            setShowErrorModal(false);
+            setIsLoadingLlm(false);
             return; // Exit early, don't proceed to roadmap creation
           }
           
           // Validate LLM response before proceeding
           if (!responseData || !responseData.roadmap || !Array.isArray(responseData.roadmap) || responseData.roadmap.length === 0) {
             console.error("❌ Invalid LLM response - missing required fields:", responseData);
-            throw new Error('Invalid LLM response: Missing roadmap data or contains errors');
+            setLlmErrorDetails('Invalid LLM response: Missing roadmap data or contains errors');
+            setShowAIServiceError(true);
+            setIsLlmError(false);
+            setShowErrorModal(false);
+            setIsLoadingLlm(false);
+            return;
           }
 
           console.log("🎯 LLM generation successful, creating roadmap...");
@@ -340,11 +369,12 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
           
         } catch (error) {
           console.error('❌ LLM Roadmap Generation Error:', error);
-          // Set LLM error details for better user feedback
           const errorMessage = error instanceof Error ? error.message : 'Failed to generate roadmap';
           setLlmErrorDetails(errorMessage);
-          setIsLlmError(true);
-          setShowErrorModal(true);
+          setShowAIServiceError(true);      // always show dedicated AI error UI
+          setIsLlmError(false);
+          setShowErrorModal(false);
+          setIsLoadingLlm(false);
         }
       };
 
@@ -355,8 +385,64 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
     }
   }, [currentStep, enrichedDataForLLM]);
   
-  // Debug log for component render
-  console.log("AIRoadmapBuilder rendering, currentStep:", currentStep, "showSuccessPopup:", showSuccessPopup);
+  // Helper function to calculate and store readiness scores
+  const calculateAndStoreScores = (assessmentData: AssessmentData) => {
+    // Convert readiness zones to numeric scores for counselor view
+    const zoneToScore = (zone: string): number => {
+      switch (zone) {
+        case 'Development': return 25;  // 0-33%
+        case 'Balanced': return 50;     // 34-66%
+        case 'Proficiency': return 75;  // 67-100%
+        default: return 25;
+      }
+    };
+
+    const matrixScores = {
+      clarity: zoneToScore(assessmentData.clarity),
+      engagement: zoneToScore(assessmentData.engagement),
+      preparation: zoneToScore(assessmentData.preparation),
+      support: zoneToScore(assessmentData.support)
+    };
+
+    // Calculate total score (sum of all matrix scores * 4 for 1200 max)
+    // Max possible: 75 + 75 + 75 + 75 = 300, then 300 * 4 = 1200
+    const totalScore = Object.values(matrixScores).reduce((sum, score) => sum + score, 0) * 4;
+
+    const readinessZones = {
+      clarity: assessmentData.clarity,
+      engagement: assessmentData.engagement,
+      preparation: assessmentData.preparation,
+      support: assessmentData.support
+    };
+
+    const overallStage = assessmentData.stage;
+    const assessmentSessionId = `assessment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Store in local state immediately
+    setCalculatedScores({
+      matrixScores,
+      totalScore,
+      readinessZones,
+      overallStage,
+      assessmentSessionId
+    });
+
+    console.log('📊 Readiness scores calculated and stored locally:', {
+      matrixScores,
+      totalScore,
+      readinessZones,
+      overallStage,
+      sessionId: assessmentSessionId
+    });
+
+    return {
+      matrixScores,
+      totalScore,
+      readinessZones,
+      overallStage,
+      assessmentSessionId
+    };
+  };
 
   const calculateAssessment = (responses: Record<string, string>): AssessmentData => {
     // Convert responses to array format for new scoring system
@@ -757,6 +843,15 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
     setLlmResponse(null);
     setIsLoadingLlm(false);
     setLlmError(null);
+    
+    // Reset calculated scores
+    setCalculatedScores({
+      matrixScores: null,
+      totalScore: null,
+      readinessZones: null,
+      overallStage: null,
+      assessmentSessionId: null
+    });
   };
 
   const calculateOverallProgress = () => {
@@ -1204,6 +1299,9 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
                     const data = calculateAssessment(responses);
                     console.log("Assessment data calculated:", data);
                     setAssessmentData(data);
+                    
+                    // Calculate and store readiness scores immediately
+                    calculateAndStoreScores(data);
                     
                     // Show custom results popup instead of simple alert
                     setCurrentStep('results-popup');
@@ -1872,6 +1970,10 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
                     // Generate stage data for the roadmap
                     const data = calculateAssessment(responses);
                     setAssessmentData(data);
+                    
+                    // Calculate and store readiness scores immediately
+                    calculateAndStoreScores(data);
+                    
                     const generatedStage = generateStage(data);
                     setStage(generatedStage);
                     setCurrentStep('results');
@@ -2040,31 +2142,37 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
             {/* Error Title */}
             <h2 className={`text-2xl font-bold ${isDark ? 'text-red-400' : 'text-red-700'} mb-4`}>
               {llmErrorDetails?.includes('network') || llmErrorDetails?.includes('timeout') 
-                ? 'Network Connection Error' 
+                ? 'Oops! Connection Lost 🚀' 
                 : llmErrorDetails?.includes('rate limit') || llmErrorDetails?.includes('quota')
-                ? 'Service Overloaded'
-                : 'AI Service Error'
+                ? 'Too Many Students Ahead! 🎓'
+                : llmErrorDetails?.includes('LLM API error') || llmErrorDetails?.includes('orchestrator')
+                ? 'Our AI Brain Needs a Coffee Break ☕'
+                : 'AI Service Taking a Nap 😴'
               }
             </h2>
             
             {/* Error Description */}
             <p className={`text-base ${isDark ? 'text-dark-muted' : 'text-gray-600'} mb-6 leading-relaxed`}>
               {llmErrorDetails?.includes('network') || llmErrorDetails?.includes('timeout')
-                ? 'We encountered a network issue while connecting to our AI service. This could be due to a temporary connection problem or the service being temporarily unavailable.'
+                ? 'Looks like our AI got lost in cyberspace! 🌐 Don\'t worry, it happens to the best of us. Just like when your WiFi decides to take a break during an important video call.'
                 : llmErrorDetails?.includes('rate limit') || llmErrorDetails?.includes('quota')
-                ? 'Our AI service is currently experiencing high demand and is temporarily overloaded. This usually resolves within a few minutes.'
-                : 'The AI service encountered an unexpected error while processing your request. This is usually a temporary issue.'
+                ? 'Whoa! Looks like everyone had the same brilliant idea as you! 🎯 Our AI is currently helping tons of students create their roadmaps. It\'s like the hottest study spot on campus - sometimes you gotta wait for a seat!'
+                : llmErrorDetails?.includes('LLM API error') || llmErrorDetails?.includes('orchestrator')
+                ? 'Our AI brain got a bit overwhelmed trying to create your perfect roadmap! 🧠✨ It\'s like when you\'re studying for finals and your brain just needs a quick snack break. Give it a few minutes to recharge!'
+                : 'Our AI is having one of those "Monday morning" moments! 😅 Sometimes even the smartest algorithms need a little breather. This usually sorts itself out pretty quickly.'
               }
             </p>
             
             {/* Technical Details */}
             <div className={`text-sm ${isDark ? 'text-red-300' : 'text-red-600'} bg-red-50 dark:bg-red-900/20 p-4 rounded-lg mb-6 text-left`}>
-              <strong>What happened:</strong> {
+              <strong>Behind the scenes:</strong> {
                 llmErrorDetails?.includes('network') || llmErrorDetails?.includes('timeout')
-                  ? 'Network connection to AI service failed or timed out.'
+                  ? 'Our AI couldn\'t reach the server - probably got distracted by cat videos on the internet! 🐱'
                   : llmErrorDetails?.includes('rate limit') || llmErrorDetails?.includes('quota')
-                  ? 'AI service is at capacity and cannot process requests right now.'
-                  : 'AI service failed to generate a response for your roadmap request.'
+                  ? 'Too many students are creating roadmaps right now - it\'s like rush hour for AI! 🚗💨'
+                  : llmErrorDetails?.includes('LLM API error') || llmErrorDetails?.includes('orchestrator')
+                  ? 'Our AI tried really hard (3 times!) but got overwhelmed. Even robots need breaks sometimes! 🤖💤'
+                  : 'Something unexpected happened - our AI is probably having an existential crisis about student life! 🤔'
               }
             </div>
             
@@ -2169,13 +2277,13 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
                 <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Try Again
+                Try Again ✨
               </button>
             </div>
             
             {/* Help Text */}
             <p className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-500'} mt-6`}>
-              Your assessment data is saved and will be reused when you retry.
+              Don't worry! Your assessment answers are safely stored - no need to retake that quiz! 🎯
             </p>
 
           </div>

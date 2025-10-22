@@ -1,6 +1,6 @@
 import React from 'react';
 import { RoadmapPlanner } from '../types/types';
-import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2, Sparkles } from 'lucide-react';
+import { PlusCircle, Map, Calendar, Clock, ChevronRight, Trash2, Sparkles, Lock } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 import { useTheme } from '../app/contexts/ThemeContext';
 import Tooltip from './ui/Tooltip';
@@ -23,14 +23,35 @@ export default function RoadmapsList({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   
-  // Format date for display
+  // Format date for display - using string manipulation to avoid timezone issues
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    if (!dateString) return 'No due date';
+    
+    try {
+      // Parse the date string directly without creating Date objects
+      const parts = dateString.split('-');
+      if (parts.length !== 3) return 'Invalid date';
+      
+      const year = parts[0];
+      const month = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+      
+      // Validate the parsed values
+      if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+        return 'Invalid date';
+      }
+      
+      // Month names array
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      
+      // Format as "January 15, 2024"
+      return `${monthNames[month - 1]} ${day}, ${year}`;
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   // Calculate days remaining
@@ -61,19 +82,28 @@ export default function RoadmapsList({
           {onAIBuildRoadmap && (
             <button
               onClick={onAIBuildRoadmap}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 text-white rounded-lg flex items-center hover:from-blue-700 hover:to-cyan-700 dark:hover:from-blue-600 dark:hover:to-cyan-600 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 text-white rounded-lg flex items-center hover:from-blue-700 hover:to-cyan-700 dark:hover:from-blue-600 dark:hover:to-cyan-600 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transform"
             >
               <Sparkles size={18} className="mr-2" />
               AI-Roadmap Builder
             </button>
           )}
-          <button
-            onClick={onCreateRoadmap}
-            className="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-lg flex items-center hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
-          >
-            <PlusCircle size={18} className="mr-2" />
-            New Roadmap
-          </button>
+          <div className="relative group">
+            <button
+              disabled
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg flex items-center transition-all duration-200 shadow-sm opacity-60 cursor-not-allowed filter blur-sm"
+            >
+              <PlusCircle size={18} className="mr-2" />
+              New Roadmap
+              <Lock className="w-4 h-4 ml-2 text-gray-500 dark:text-gray-400" />
+            </button>
+            
+            {/* Tooltip text - only shows on hover */}
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
+              We're working on something exciting - stay tuned
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+            </div>
+          </div>
         </div>
       </div>
 

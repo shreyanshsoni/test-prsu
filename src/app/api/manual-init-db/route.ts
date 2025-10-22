@@ -57,6 +57,14 @@ export async function GET(request: NextRequest) {
       EXECUTE FUNCTION update_updated_at_column()
     `);
     console.log('Created trigger for automatic timestamp updates');
+
+    // Add first_name and last_name columns if they don't exist
+    await sql.query(`
+      ALTER TABLE user_profiles
+      ADD COLUMN IF NOT EXISTS first_name TEXT,
+      ADD COLUMN IF NOT EXISTS last_name TEXT
+    `);
+    console.log('Ensured first_name and last_name columns exist on user_profiles');
     
     return NextResponse.json(
       { success: true, message: 'Database initialized successfully' },
