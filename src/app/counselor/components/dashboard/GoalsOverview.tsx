@@ -87,6 +87,9 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
   const completedGoals = allGoalsFromStudents.filter(goal => goal.status === 'Completed');
   const incompleteGoals = allGoalsFromStudents.filter(goal => goal.status === 'Incomplete');
   
+  // Default categories that should always be displayed
+  const defaultCategories = ['Academic', 'Extracurricular', 'Career', 'Personal'];
+  
   const goalsByCategory = allGoalsFromStudents.reduce((acc, goal) => {
     if (!acc[goal.category]) {
       acc[goal.category] = { total: 0, completed: 0 };
@@ -97,6 +100,13 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
     }
     return acc;
   }, {} as Record<string, { total: number; completed: number }>);
+  
+  // Ensure all default categories are present with 0 values
+  defaultCategories.forEach(category => {
+    if (!goalsByCategory[category]) {
+      goalsByCategory[category] = { total: 0, completed: 0 };
+    }
+  });
 
   const completionRate = allGoalsFromStudents.length > 0 ? Math.round((completedGoals.length / allGoalsFromStudents.length) * 100) : 0;
 
@@ -439,7 +449,17 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
       <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
         <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-text' : 'text-gray-900'} mb-6`}>Goals by Category</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(goalsByCategory).map(([category, stats]) => {
+          {Object.entries(goalsByCategory)
+            .sort(([catA], [catB]) => {
+              // Sort default categories first
+              const indexA = defaultCategories.indexOf(catA);
+              const indexB = defaultCategories.indexOf(catB);
+              if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+              if (indexA !== -1) return -1;
+              if (indexB !== -1) return 1;
+              return catA.localeCompare(catB);
+            })
+            .map(([category, stats]) => {
             const IconComponent = categoryIcons[category as keyof typeof categoryIcons];
             const progressPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
             
@@ -491,7 +511,6 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
                 const newSearchTerm = e.target.value;
                 setSearchTerm(newSearchTerm);
                 saveFiltersToStorage(newSearchTerm, selectedCategory, selectedStatus);
-                setCurrentPage(1);
                 setDisplayedGoals([]);
                 setHasMore(true);
                 setNextCursor(null);
@@ -503,7 +522,6 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
                 onClick={() => {
                   setSearchTerm('');
                   saveFiltersToStorage('', selectedCategory, selectedStatus);
-                  setCurrentPage(1);
                   setDisplayedGoals([]);
                   setHasMore(true);
                 }}
@@ -520,7 +538,6 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
               const newCategory = e.target.value;
               setSelectedCategory(newCategory);
               saveFiltersToStorage(searchTerm, newCategory, selectedStatus);
-              setCurrentPage(1);
               setDisplayedGoals([]);
               setHasMore(true);
             }}
@@ -539,7 +556,6 @@ const GoalsOverview: React.FC<GoalsOverviewProps> = ({ students }) => {
               const newStatus = e.target.value;
               setSelectedStatus(newStatus);
               saveFiltersToStorage(searchTerm, selectedCategory, newStatus);
-              setCurrentPage(1);
               setDisplayedGoals([]);
               setHasMore(true);
             }}
