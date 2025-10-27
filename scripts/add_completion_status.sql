@@ -29,15 +29,15 @@ CREATE INDEX IF NOT EXISTS idx_roadmap_phases_completed_at ON roadmap_phases(com
 CREATE OR REPLACE FUNCTION check_roadmap_completion()
 RETURNS TRIGGER AS $$
 DECLARE
-    roadmap_id UUID;
+    current_roadmap_id VARCHAR(255);
     total_phases INTEGER;
     completed_phases INTEGER;
 BEGIN
     -- Get the roadmap_id from the phase
     IF TG_OP = 'UPDATE' THEN
-        roadmap_id := NEW.roadmap_id;
+        current_roadmap_id := NEW.roadmap_id;
     ELSIF TG_OP = 'INSERT' THEN
-        roadmap_id := NEW.roadmap_id;
+        current_roadmap_id := NEW.roadmap_id;
     END IF;
     
     -- Count total phases and completed phases for this roadmap
@@ -46,7 +46,7 @@ BEGIN
         COUNT(CASE WHEN completion_status = 'completed' THEN 1 END)
     INTO total_phases, completed_phases
     FROM roadmap_phases 
-    WHERE roadmap_id = roadmap_id;
+    WHERE roadmap_id = current_roadmap_id;
     
     -- If all phases are completed, mark the roadmap as completed
     IF total_phases > 0 AND completed_phases = total_phases THEN
@@ -54,14 +54,14 @@ BEGIN
         SET 
             completion_status = 'completed',
             completed_at = NOW()
-        WHERE id = roadmap_id;
+        WHERE id = current_roadmap_id;
     -- If not all phases are completed, mark roadmap as in_progress
     ELSIF completed_phases < total_phases THEN
         UPDATE roadmap_planners 
         SET 
             completion_status = 'in_progress',
             completed_at = NULL
-        WHERE id = roadmap_id;
+        WHERE id = current_roadmap_id;
     END IF;
     
     RETURN COALESCE(NEW, OLD);
@@ -79,15 +79,15 @@ CREATE TRIGGER trigger_check_roadmap_completion
 CREATE OR REPLACE FUNCTION check_phase_completion()
 RETURNS TRIGGER AS $$
 DECLARE
-    phase_id UUID;
+    current_phase_id VARCHAR(255);
     total_tasks INTEGER;
     completed_tasks INTEGER;
 BEGIN
     -- Get the phase_id from the task
     IF TG_OP = 'UPDATE' THEN
-        phase_id := NEW.phase_id;
+        current_phase_id := NEW.phase_id;
     ELSIF TG_OP = 'INSERT' THEN
-        phase_id := NEW.phase_id;
+        current_phase_id := NEW.phase_id;
     END IF;
     
     -- Count total tasks and completed tasks for this phase
@@ -96,7 +96,7 @@ BEGIN
         COUNT(CASE WHEN completed = true THEN 1 END)
     INTO total_tasks, completed_tasks
     FROM roadmap_tasks 
-    WHERE phase_id = phase_id;
+    WHERE phase_id = current_phase_id;
     
     -- If all tasks are completed, mark the phase as completed
     IF total_tasks > 0 AND completed_tasks = total_tasks THEN
@@ -104,14 +104,14 @@ BEGIN
         SET 
             completion_status = 'completed',
             completed_at = NOW()
-        WHERE id = phase_id;
+        WHERE id = current_phase_id;
     -- If not all tasks are completed, mark phase as in_progress
     ELSIF completed_tasks < total_tasks THEN
         UPDATE roadmap_phases 
         SET 
             completion_status = 'in_progress',
             completed_at = NULL
-        WHERE id = phase_id;
+        WHERE id = current_phase_id;
     END IF;
     
     RETURN COALESCE(NEW, OLD);

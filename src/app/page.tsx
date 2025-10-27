@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
-import { useUserRole } from './hooks/useUserRole';
 import { useRouter } from 'next/navigation';
-import HomeClientComponent from './HomeClientComponent';
+import { useUserRole } from './hooks/useUserRole';
 import { useTheme } from './contexts/ThemeContext';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import LandingHero from '../components/LandingHero';
@@ -20,7 +19,7 @@ import NewFooter from '../components/NewFooter';
 import { StarryBackground } from '../components/ui/StarryBackground';
 
 export default function Home() {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, userRole, isLoading: isAuthLoading } = useAuth();
   const { role, isLoading: isRoleLoading } = useUserRole();
   const { theme } = useTheme();
   const [isClient, setIsClient] = useState(false);
@@ -46,30 +45,38 @@ export default function Home() {
 
   // Handle redirects based on authentication and role
   useEffect(() => {
-    // Only run once authentication and role loading are complete and we're on the client
-    if (isClient && !isAuthLoading && !isRoleLoading) {
-      if (user) {
-        // User is logged in, check for role from database
-        console.log('User logged in, role from database:', role);
-        
-        if (!role) {
-          console.log('No role found, redirecting to role selection');
-          setShouldRedirect(true);
-          router.push('/role-selection');
-        } else if (role === 'counselor') {
-          console.log('User is counselor, redirecting to counselor page');
-          setShouldRedirect(true);
-          router.push('/counselor');
-        } else if (role === 'student') {
-          console.log('User is student, showing student dashboard');
-          // Student stays on main page (HomeClientComponent)
-        }
+    // Only run once authentication and role checking is complete
+    if (isClient && !isAuthLoading) {
+      if (!user) {
+        // User not logged in, show landing page
+        return;
+      }
+
+      // User is logged in, check role from database
+      // Use userRole from useAuth if available, fallback to role from useUserRole
+      const currentRole = userRole || role;
+      
+      if (currentRole === 'counselor') {
+        // User is counselor, redirect to counselor page
+        console.log('User is counselor, redirecting to counselor page');
+        setShouldRedirect(true);
+        router.push('/counselor');
+      } else if (currentRole === 'student') {
+        // User is student, redirect to students dashboard
+        console.log('User is student, redirecting to students dashboard');
+        setShouldRedirect(true);
+        router.push('/students');
+      } else {
+        // User has no role yet, default to student
+        console.log('No role found, treating as student');
+        setShouldRedirect(true);
+        router.push('/students');
       }
     }
-  }, [isClient, isAuthLoading, isRoleLoading, user, role, router]);
+  }, [isClient, isAuthLoading, user, userRole, role, router]);
 
-  // Show nothing during SSR or while loading auth/role to prevent flashing
-  if (!isClient || isAuthLoading || isRoleLoading) {
+  // Show nothing during SSR or while loading auth to prevent flashing
+  if (!isClient || isAuthLoading) {
     return null;
   }
 
@@ -78,17 +85,13 @@ export default function Home() {
     return null;
   }
 
-  // If user is logged in and has a student role, show the dashboard
-  if (user && role === 'student') {
-    return <HomeClientComponent user={user} />;
+  // If user is logged in, redirect appropriately
+  if (user && userRole) {
+    return null; // Will redirect via useEffect
   }
   
-  // If user is logged in but no role (and not redirecting yet), show loading
-  if (user && !role) {
-    // Trigger redirect just in case the useEffect didn't catch it
-    setTimeout(() => {
-      router.push('/role-selection');
-    }, 0);
+  // If user is logged in, show loading while redirecting
+  if (user) {
     return null;
   }
 

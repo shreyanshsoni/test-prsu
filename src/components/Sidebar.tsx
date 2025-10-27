@@ -3,7 +3,7 @@
 import React from 'react';
 import { Search, BookmarkCheck, CheckSquare, LayoutDashboard, Target, Route, LogOut, ChevronLeft, ChevronRight, Menu, User, X, Lock } from 'lucide-react';
 import Link from 'next/link';
-import { UserProfile } from '../hooks/useAuth';
+import { UserProfile } from '../app/hooks/useAuth';
 import ProfileAvatar from './ProfileAvatar';
 import { useTheme } from '../app/contexts/ThemeContext';
 
@@ -63,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Logo section with toggle button on right */}
         <div className="p-4 flex items-center justify-center border-b border-light-border dark:border-dark-border relative">
-          <a href="/?tab=dashboard" onClick={() => handleTabChange('dashboard')} className={`${isCollapsed ? 'mx-auto flex justify-center' : 'mx-auto'} transition-all duration-500 ease-in-out`}>
+          <a href="/students?tab=dashboard" onClick={() => handleTabChange('dashboard')} className={`${isCollapsed ? 'mx-auto flex justify-center' : 'mx-auto'} transition-all duration-500 ease-in-out`}>
             {isCollapsed ? (
               <img 
                 src="/P_Logo.png" 

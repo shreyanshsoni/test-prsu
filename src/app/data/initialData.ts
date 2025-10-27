@@ -1,4 +1,4 @@
-import { PhaseData, RoadmapPlanner } from '../types/types';
+import { PhaseData, RoadmapPlanner } from '../../types/types';
 
 export const initialPhaseData: PhaseData[] = [
   {

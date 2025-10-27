@@ -1,8 +1,5 @@
 'use client';
 
-// DISABLED: Role selection is now automatic - users are assigned 'student' role on login
-// This code is kept for future use but the route is disabled
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
@@ -13,20 +10,7 @@ import { toast } from 'react-hot-toast';
 import { UserCheck, Briefcase } from 'lucide-react';
 import { useUserProfile } from '../hooks/useUserProfile';
 
-// DISABLED FUNCTION - Redirect to home instead
 export default function RoleSelection() {
-  const router = useRouter();
-  
-  useEffect(() => {
-    // Redirect to home since role selection is now automatic
-    router.push('/');
-  }, [router]);
-  
-  return null; // Don't render anything, just redirect
-}
-
-// ORIGINAL ROLE SELECTION CODE (DISABLED)
-function OriginalRoleSelection() {
   const { user, isLoading: isAuthLoading, isAuthenticated } = useAuth();
   const { profileData, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();

@@ -11,26 +11,102 @@ const DashboardOverview: React.FC = () => {
   const isDark = theme === 'dark';
   const { stats, summary, isLoading, error } = useDashboardStats();
 
-  // Loading state
+  // Loading state - Full page skeleton
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header Skeleton */}
         <div className="mb-8">
-          <h1 className={`text-3xl font-bold ${isDark ? 'text-dark-text' : 'text-gray-900'}`}>Dashboard Overview</h1>
-          <p className={`${isDark ? 'text-dark-muted' : 'text-gray-600'} mt-2`}>Loading dashboard statistics...</p>
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded mb-2 w-64"></div>
+            <div className="h-4 bg-gray-300 rounded w-96 mb-1"></div>
+            <div className="h-3 bg-gray-300 rounded w-48"></div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* Top Row Skeleton - Average Progress & Stage Distribution */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Average Progress Circle Skeleton */}
           <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
-            <div className="animate-pulse">
-              <div className="h-32 bg-gray-300 rounded-full mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-3 bg-gray-300 rounded"></div>
+            <div className="flex flex-col items-center">
+              <div className="animate-pulse">
+                <div className="w-32 h-32 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                <div className="h-5 bg-gray-300 rounded mb-2 w-48"></div>
+                <div className="h-3 bg-gray-300 rounded mb-1 w-64"></div>
+                <div className="h-3 bg-gray-300 rounded w-32"></div>
+              </div>
             </div>
           </div>
+
+          {/* Stage Distribution Chart Skeleton */}
           <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
             <div className="animate-pulse">
-              <div className="h-4 bg-gray-300 rounded mb-4"></div>
-              <div className="h-32 bg-gray-300 rounded"></div>
+              <div className="h-5 bg-gray-300 rounded mb-4 w-40"></div>
+              <div className="h-32 bg-gray-300 rounded mb-4"></div>
+              <div className="flex justify-center space-x-6">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-gray-300 rounded mr-2"></div>
+                  <div className="h-3 bg-gray-300 rounded w-16"></div>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-gray-300 rounded mr-2"></div>
+                  <div className="h-3 bg-gray-300 rounded w-12"></div>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-gray-300 rounded mr-2"></div>
+                  <div className="h-3 bg-gray-300 rounded w-14"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Row Skeleton - Radar Chart & Students by Stage */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* PRSU Matrix Radar Chart Skeleton */}
+          <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
+            <div className="animate-pulse">
+              <div className="h-5 bg-gray-300 rounded mb-4 w-48"></div>
+              <div className="h-64 bg-gray-300 rounded mb-4"></div>
+              <div className="h-3 bg-gray-300 rounded mb-2 w-64 mx-auto"></div>
+              <div className="h-3 bg-gray-300 rounded w-40 mx-auto"></div>
+            </div>
+          </div>
+
+          {/* Students by Stage Skeleton */}
+          <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
+            <div className="animate-pulse">
+              <div className="h-5 bg-gray-300 rounded mb-4 w-52"></div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <div className="h-4 bg-gray-300 rounded w-24"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-16"></div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <div className="h-4 bg-gray-300 rounded w-20"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-12"></div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <div className="h-4 bg-gray-300 rounded w-28"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-14"></div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <div className="h-4 bg-gray-300 rounded w-22"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-18"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -81,29 +157,34 @@ const DashboardOverview: React.FC = () => {
         <p className={`${isDark ? 'text-dark-muted' : 'text-gray-600'} mt-2`}>
           Monitor student progress and engagement across your cohort
         </p>
-        <div className={`text-sm ${isDark ? 'text-dark-muted' : 'text-gray-500'} mt-1`}>
-          Real-time data from {summary.totalStudents} students • {summary.completedRoadmaps}/{summary.totalRoadmaps} roadmaps completed
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Average Progress Circle */}
         <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
+            <div className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-400'}`}>
+              {summary.completedRoadmaps} of {summary.totalRoadmaps} roadmaps completed
+            </div>
+          </div>
           <div className="flex flex-col items-center">
             <CircularProgress progress={stats.averageProgress} />
             <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-text' : 'text-gray-900'} mt-4`}>Average Roadmap Completion</h3>
             <p className={`text-sm ${isDark ? 'text-dark-muted' : 'text-gray-500'} text-center mt-2`}>
               Overall progress across all students in your cohort
             </p>
-            <div className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-400'} mt-1`}>
-              Based on {summary.totalRoadmaps} total roadmaps
-            </div>
           </div>
         </div>
 
         {/* Stage Distribution */}
         <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
-          <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-text' : 'text-gray-900'} mb-4`}>Stage Distribution</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-text' : 'text-gray-900'}`}>Assessment Stage Distribution</h3>
+            <div className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-400'}`}>
+              Based on {summary.studentsWithAssessments} students
+            </div>
+          </div>
           <StageDistributionChart data={stats.stageDistribution} />
           <div className="flex justify-center space-x-6 mt-4">
             <div className="flex items-center">
@@ -130,15 +211,12 @@ const DashboardOverview: React.FC = () => {
           <p className={`text-sm ${isDark ? 'text-dark-muted' : 'text-gray-500'} text-center mt-4`}>
             Average scores across key readiness areas
           </p>
-          <div className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-400'} text-center mt-2`}>
-            Based on {summary.totalAssessments} assessments
-          </div>
         </div>
 
         {/* Students by Stage */}
         <div className={`${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
           <h3 className={`text-lg font-semibold ${isDark ? 'text-dark-text' : 'text-gray-900'} mb-4`}>Students by Roadmap Stage</h3>
-          <StudentsByStage students={stats.students} />
+          <StudentsByStage students={stats.students as any} />
         </div>
       </div>
 

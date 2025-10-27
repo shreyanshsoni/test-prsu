@@ -5,8 +5,6 @@ export class PromptBuilderStep implements Step {
   retryable = false;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('📝 Building system prompt...');
-    
     const { stage, readinessScores, userPreferences } = state;
     
     if (!stage || !readinessScores) {
@@ -16,13 +14,6 @@ export class PromptBuilderStep implements Step {
     const systemPrompt = this.buildSystemPrompt(stage, readinessScores, userPreferences);
     
     state.systemPrompt = systemPrompt;
-
-    console.log('✅ System prompt built:', {
-      promptLength: systemPrompt.length,
-      stage,
-      readinessScores,
-      hasUserPreferences: !!userPreferences
-    });
 
     return state;
   }
@@ -34,10 +25,6 @@ export class PromptBuilderStep implements Step {
       state.systemPrompt.includes('career_blurb') &&
       state.systemPrompt.includes('roadmap')
     );
-
-    if (!isValid) {
-      console.error('❌ PromptBuilder validation failed: Invalid system prompt');
-    }
 
     return isValid;
   }

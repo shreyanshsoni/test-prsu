@@ -5,8 +5,6 @@ export class ValidationStep implements Step {
   retryable = false;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('🔍 Validating LLM response...');
-    
     const { rawLlmResponse } = state;
     
     if (!rawLlmResponse) {
@@ -14,8 +12,6 @@ export class ValidationStep implements Step {
     }
 
     try {
-      console.log('🔍 Raw LLM Response:', rawLlmResponse);
-      
       // Clean the JSON string - remove any text before or after JSON
       let cleanedJson = rawLlmResponse.trim();
       
@@ -25,11 +21,8 @@ export class ValidationStep implements Step {
         cleanedJson = jsonMatch[0];
       }
       
-      console.log('🧹 Cleaned JSON:', cleanedJson);
-      
       // Parse JSON
       const parsed = JSON.parse(cleanedJson);
-      console.log('✅ Parsed JSON:', parsed);
       
       // Validate structure for new format
       if (!parsed.career_blurb || !parsed.scores_summary || !parsed.roadmap || !Array.isArray(parsed.roadmap)) {
@@ -62,19 +55,9 @@ export class ValidationStep implements Step {
       // Update state with validated roadmap
       state.roadmap = parsed;
 
-      console.log('✅ LLM response validation successful:', {
-        hasCareerBlurb: !!parsed.career_blurb,
-        hasScoresSummary: !!parsed.scores_summary,
-        phaseCount: parsed.roadmap.length,
-        totalTasks: parsed.roadmap.reduce((sum: number, phase: any) => sum + phase.tasks.length, 0)
-      });
-
       return state;
 
     } catch (parseError) {
-      console.error('❌ JSON Parse Error:', parseError);
-      console.error('📝 Raw LLM Response:', rawLlmResponse);
-      
       // Return fallback structure with error info
       state.roadmap = {
         career_blurb: "Unable to generate personalized roadmap. Please try again.",
@@ -89,7 +72,6 @@ export class ValidationStep implements Step {
         error: "Invalid JSON response from AI service"
       };
 
-      console.log('⚠️ Using fallback roadmap due to validation failure');
       return state;
     }
   }
@@ -102,10 +84,6 @@ export class ValidationStep implements Step {
       state.roadmap.roadmap &&
       Array.isArray(state.roadmap.roadmap)
     );
-
-    if (!isValid) {
-      console.error('❌ Validation step validation failed: Invalid roadmap structure');
-    }
 
     return isValid;
   }

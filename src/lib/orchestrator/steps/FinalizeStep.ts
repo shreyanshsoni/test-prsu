@@ -6,8 +6,6 @@ export class FinalizeStep implements Step {
   retryable = false;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('🎯 Finalizing roadmap output...');
-    
     const { roadmap } = state;
     
     if (!roadmap) {
@@ -27,14 +25,10 @@ export class FinalizeStep implements Step {
     // Save assessment scores to database only if roadmap generation was successful
     if (finalizedRoadmap.success && state.matrixScores && state.totalScore) {
       try {
-        console.log('💾 Saving assessment scores to database...');
-        
         // Get student user ID from assessment data
         const studentUserId = state.assessmentData?.user_id || state.assessmentData?.userId;
         
-        if (!studentUserId) {
-          console.warn('⚠️ No student user ID found, skipping score save');
-        } else {
+        if (studentUserId) {
           // Generate unique session ID if not provided
           const sessionId = state.assessmentSessionId || `assessment_${Date.now()}_${studentUserId}`;
           
@@ -60,9 +54,9 @@ export class FinalizeStep implements Step {
               overall_stage = EXCLUDED.overall_stage,
               total_score = EXCLUDED.total_score,
               area_scores = EXCLUDED.area_scores,
-              updated_at = NOW()
-            RETURNING id, assessment_date
-          `, [
+            updated_at = NOW()
+          RETURNING id, assessment_date
+        `, [
             studentUserId,
             sessionId,
             JSON.stringify(state.assessmentData),
@@ -73,28 +67,11 @@ export class FinalizeStep implements Step {
             state.totalScore,
             JSON.stringify(state.matrixScores)
           ]);
-
-          console.log('✅ Assessment scores saved successfully:', {
-            assessmentId: insertResult[0].id,
-            sessionId,
-            totalScore: state.totalScore,
-            stage: state.stage
-          });
         }
       } catch (error) {
-        console.error('❌ Error saving assessment scores:', error);
         // Don't fail the entire process if score saving fails
       }
     }
-
-    console.log('✅ Roadmap finalized:', {
-      hasCareerBlurb: !!finalizedRoadmap.career_blurb,
-      hasScoresSummary: !!finalizedRoadmap.scores_summary,
-      phaseCount: finalizedRoadmap.roadmap?.length || 0,
-      hasError: !!finalizedRoadmap.error,
-      generatedAt: finalizedRoadmap.generated_at,
-      scoresSaved: !!(state.matrixScores && state.totalScore)
-    });
 
     return state;
   }
@@ -107,10 +84,6 @@ export class FinalizeStep implements Step {
       state.roadmap.roadmap &&
       Array.isArray(state.roadmap.roadmap)
     );
-
-    if (!isValid) {
-      console.error('❌ Finalize validation failed: Invalid finalized roadmap');
-    }
 
     return isValid;
   }

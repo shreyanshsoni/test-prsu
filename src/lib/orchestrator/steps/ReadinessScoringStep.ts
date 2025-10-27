@@ -5,8 +5,6 @@ export class ReadinessScoringStep implements Step {
   retryable = false;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('🧮 Calculating readiness scores...');
-    
     const { assessmentData } = state;
     
     if (!assessmentData) {
@@ -56,15 +54,6 @@ export class ReadinessScoringStep implements Step {
     state.totalScore = totalScore;
     state.assessmentSessionId = `assessment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    console.log('✅ Readiness scores calculated:', {
-      stage,
-      readinessScores,
-      matrixScores,
-      totalScore,
-      sessionId: state.assessmentSessionId,
-      userPreferences: state.userPreferences
-    });
-
     return state;
   }
 
@@ -87,10 +76,6 @@ export class ReadinessScoringStep implements Step {
       state.readinessScores.preparation &&
       state.readinessScores.support
     );
-
-    if (!isValid) {
-      console.error('❌ ReadinessScoring validation failed: Missing required scores');
-    }
 
     return isValid;
   }

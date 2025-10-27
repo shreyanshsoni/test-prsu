@@ -18,8 +18,6 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("🚀 AI Roadmap Generator API called (Orchestrator Pattern)");
-    
     // Get user session
     const session = await getSession(req);
     
@@ -30,13 +28,10 @@ export async function POST(req: NextRequest) {
     const userId = session.user.sub;
     
     const body = await req.json();
-    console.log("📥 Request body:", body);
-    
     const { assessmentData } = body;
     
     // Validate assessment data
     if (!assessmentData || !assessmentData.stage) {
-      console.error("❌ Invalid assessment data:", assessmentData);
       return NextResponse.json({ 
         error: "Invalid assessment data" 
       }, { status: 400 });
@@ -68,7 +63,6 @@ export async function POST(req: NextRequest) {
 
     // Check if the pipeline completed successfully
     if (result.error) {
-      console.error('❌ Orchestrator pipeline failed:', result.error);
       return NextResponse.json({ 
         error: result.error,
         data: result.roadmap // Return fallback roadmap if available
@@ -76,14 +70,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Return successful result
-    console.log("✅ Orchestrator pipeline completed successfully");
     return NextResponse.json({
       success: true,
       data: result.roadmap
     });
 
   } catch (error) {
-    console.error('AI Roadmap Generator Error:', error);
     return NextResponse.json({ 
       error: "Failed to generate roadmap" 
     }, { status: 500 });

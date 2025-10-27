@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
-import { executeQuery } from '../../../../lib/db';
+import { sql } from '@vercel/postgres';
 
 /**
  * GET /api/counselor/dashboard-stats
@@ -8,26 +7,10 @@ import { executeQuery } from '../../../../lib/db';
  */
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSession(req);
+    console.log('📊 Fetching real-time dashboard statistics...');
     
-    if (!session || !session.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    const counselorUserId = session.user.sub;
-
-    // Verify counselor role
-    const roleResult = await executeQuery(
-      'SELECT user_role FROM user_profiles WHERE user_id = $1',
-      [counselorUserId]
-    );
-
-    if (roleResult.length === 0 || roleResult[0].user_role !== 'counselor') {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-    }
-
-    // Get all students with their roadmap completion data assigned to this counselor
-    const studentsQuery = `
+    // Get all students with their roadmap completion data
+    const { rows: studentRows } = await sql`
       SELECT 
         up.user_id,
         up.display_name,
@@ -42,38 +25,33 @@ export async function GET(req: NextRequest) {
         COUNT(CASE WHEN rp.completion_status = 'paused' THEN 1 END) as paused_roadmaps,
         COUNT(CASE WHEN rp.completion_status = 'cancelled' THEN 1 END) as cancelled_roadmaps
       FROM user_profiles up
-      JOIN counselor_student_assignments csa ON up.user_id = csa.student_user_id
       LEFT JOIN roadmap_planners rp ON up.user_id = rp.user_id
-      WHERE csa.counselor_user_id = $1 
-        AND csa.is_active = true
-        AND up.user_role = 'student'
+      WHERE up.user_role = 'student'
       GROUP BY up.user_id, up.display_name, up.first_name, up.last_name, up.profile_data, up.created_at, up.updated_at
       ORDER BY up.created_at DESC
     `;
-
-    const studentRows = await executeQuery(studentsQuery, [counselorUserId]);
     
     // Get phase completion statistics
-    const phaseStats = await executeQuery(`
+    const { rows: phaseStats } = await sql`
       SELECT 
         COUNT(*) as total_phases,
         COUNT(CASE WHEN completion_status = 'completed' THEN 1 END) as completed_phases,
         COUNT(CASE WHEN completion_status = 'in_progress' THEN 1 END) as in_progress_phases
       FROM roadmap_phases
-    `, []);
+    `;
     
     // Get task completion statistics
-    const taskStats = await executeQuery(`
+    const { rows: taskStats } = await sql`
       SELECT 
         COUNT(*) as total_tasks,
         COUNT(CASE WHEN completion_status = 'completed' THEN 1 END) as completed_tasks,
         COUNT(CASE WHEN completed = true THEN 1 END) as old_completed_tasks,
         COUNT(CASE WHEN completion_status = 'in_progress' THEN 1 END) as in_progress_tasks
       FROM roadmap_tasks
-    `, []);
+    `;
     
     // Get readiness assessment statistics
-    const assessmentStats = await executeQuery(`
+    const { rows: assessmentStats } = await sql`
       SELECT 
         COUNT(*) as total_assessments,
         AVG(total_score) as average_total_score,
@@ -81,11 +59,11 @@ export async function GET(req: NextRequest) {
         COUNT(CASE WHEN overall_stage = 'Mid' THEN 1 END) as mid_stage_count,
         COUNT(CASE WHEN overall_stage = 'Late' THEN 1 END) as late_stage_count
       FROM counselor_assessments
-    `, []);
+    `;
     
     // Get actual matrix scores from assessments for proper calculation
     // STEP 1: Calculate average per student (unbiased approach)
-    const perStudentAverages = await executeQuery(`
+    const { rows: perStudentAverages } = await sql`
       SELECT 
         student_user_id,
         AVG(
@@ -119,10 +97,10 @@ export async function GET(req: NextRequest) {
       FROM counselor_assessments
       WHERE matrix_scores IS NOT NULL
       GROUP BY student_user_id
-    `, []);
+    `;
     
-    // STEP 2: Calculate numeric average stage per student from assessments
-    const studentStageAverages = await executeQuery(`
+    // STEP 1: Calculate numeric average stage per student from assessments
+    const { rows: studentStageAverages } = await sql`
       SELECT 
         student_user_id,
         AVG(
@@ -136,11 +114,11 @@ export async function GET(req: NextRequest) {
       FROM counselor_assessments
       WHERE overall_stage IS NOT NULL
       GROUP BY student_user_id
-    `, []);
+    `;
     
-    // STEP 3: Convert numeric averages back to stage labels
+    // STEP 2: Convert numeric averages back to stage labels
     const studentStageMap = new Map();
-    studentStageAverages.forEach((row: any) => {
+    studentStageAverages.forEach(row => {
       const studentId = row.student_user_id;
       const avgStageNum = parseFloat(row.avg_stage_numeric);
       
@@ -153,7 +131,7 @@ export async function GET(req: NextRequest) {
     });
     
     // Calculate individual student progress percentages
-    const studentsWithProgress = studentRows.map((student: any) => {
+    const studentsWithProgress = studentRows.map(student => {
       const totalRoadmaps = parseInt(student.total_roadmaps) || 0;
       const completedRoadmaps = parseInt(student.completed_roadmaps) || 0;
       const progressPercentage = totalRoadmaps > 0 ? Math.round((completedRoadmaps / totalRoadmaps) * 100) : 0;
@@ -177,12 +155,12 @@ export async function GET(req: NextRequest) {
           const profileData = typeof student.profile_data === 'string' 
             ? JSON.parse(student.profile_data) 
             : student.profile_data;
-          grade = grade || profileData.gradeLevel || profileData.grade || null;
-          collegeGoal = collegeGoal || profileData.college_goal || profileData.collegeGoal || null;
+          grade = profileData.gradeLevel || profileData.grade || null;
+          collegeGoal = profileData.college_goal || profileData.collegeGoal || null;
           matrixScores = profileData.matrix_scores || profileData.matrixScores || null;
         }
       } catch (error) {
-        // Profile data parsing error - use defaults
+        console.warn('Error parsing profile data for student:', student.user_id, error);
       }
       
       return {
@@ -198,6 +176,7 @@ export async function GET(req: NextRequest) {
         inProgressRoadmaps: parseInt(student.in_progress_roadmaps) || 0,
         pausedRoadmaps: parseInt(student.paused_roadmaps) || 0,
         cancelledRoadmaps: parseInt(student.cancelled_roadmaps) || 0,
+        progressText: totalRoadmaps > 0 ? `${completedRoadmaps}/${totalRoadmaps}` : 'No roadmap',
         matrixScores: matrixScores,
         roadmapStage, // Roadmap completion-based stage
         assessmentStage: studentAssessmentStage, // Assessment-based stage
@@ -209,10 +188,12 @@ export async function GET(req: NextRequest) {
     // Calculate overall statistics
     const totalStudents = studentsWithProgress.length;
     const averageProgress = totalStudents > 0 
-      ? Math.round(studentsWithProgress.reduce((sum: number, student: any) => sum + student.progress, 0) / totalStudents)
+      ? Math.round(studentsWithProgress.reduce((sum, student) => sum + student.progress, 0) / totalStudents)
       : 0;
     
     // Calculate stage distribution based on assessment data (numeric averaging approach)
+    // This matches the SQL cursor logic: early=1, mid=2, late=3 → average → convert back
+    // STEP 3: Count students by their most common stage
     const stageDistribution = { Early: 0, Mid: 0, Late: 0 };
     studentStageMap.forEach((stage) => {
       if (stage === 'Early') stageDistribution.Early++;
@@ -231,7 +212,8 @@ export async function GET(req: NextRequest) {
     let averageMatrix = { clarity: 0, engagement: 0, preparation: 0, support: 0 };
     
     if (perStudentAverages.length > 0) {
-      const totalScores = perStudentAverages.reduce((acc: any, student: any) => {
+      // STEP 2: Average across students (final unbiased average)
+      const totalScores = perStudentAverages.reduce((acc, student) => {
         acc.clarity += parseFloat(student.avg_clarity) || 0;
         acc.engagement += parseFloat(student.avg_engagement) || 0;
         acc.preparation += parseFloat(student.avg_preparation) || 0;
@@ -250,10 +232,11 @@ export async function GET(req: NextRequest) {
     
     // Get top performers and at-risk students
     const topPerformers = [...studentsWithProgress]
-      .sort((a: any, b: any) => b.progress - a.progress)
+      .sort((a, b) => b.progress - a.progress)
       .slice(0, 5);
     
-    const atRiskStudents = studentsWithProgress.filter((student: any) => student.progress < 30);
+    const atRiskStudents = studentsWithProgress.filter(student => student.progress < 30);
+    
     
     return NextResponse.json({
       success: true,
@@ -269,19 +252,19 @@ export async function GET(req: NextRequest) {
       summary: {
         totalStudents,
         studentsWithAssessments,
-        totalRoadmaps: studentRows.reduce((sum: number, student: any) => sum + parseInt(student.total_roadmaps || 0), 0),
-        completedRoadmaps: studentRows.reduce((sum: number, student: any) => sum + parseInt(student.completed_roadmaps || 0), 0),
-        totalPhases: parseInt(phaseStats[0]?.total_phases || 0),
-        completedPhases: parseInt(phaseStats[0]?.completed_phases || 0),
-        totalTasks: parseInt(taskStats[0]?.total_tasks || 0),
-        completedTasks: parseInt(taskStats[0]?.completed_tasks || 0),
-        totalAssessments: parseInt(assessmentStats[0]?.total_assessments || 0),
-        averageAssessmentScore: Math.round(parseFloat(assessmentStats[0]?.average_total_score || 0))
+        totalRoadmaps: studentRows.reduce((sum, student) => sum + parseInt(student.total_roadmaps), 0),
+        completedRoadmaps: studentRows.reduce((sum, student) => sum + parseInt(student.completed_roadmaps), 0),
+        totalPhases: parseInt(phaseStats[0]?.total_phases) || 0,
+        completedPhases: parseInt(phaseStats[0]?.completed_phases) || 0,
+        totalTasks: parseInt(taskStats[0]?.total_tasks) || 0,
+        completedTasks: parseInt(taskStats[0]?.completed_tasks) || 0,
+        totalAssessments: parseInt(assessmentStats[0]?.total_assessments) || 0,
+        averageAssessmentScore: Math.round(assessmentStats[0]?.average_total_score) || 0
       }
     });
     
   } catch (error) {
-    console.error('Error fetching dashboard statistics:', error);
+    console.error('❌ Error fetching dashboard statistics:', error);
     return NextResponse.json({ 
       error: 'Failed to fetch dashboard statistics', 
       details: error instanceof Error ? error.message : 'Unknown error'

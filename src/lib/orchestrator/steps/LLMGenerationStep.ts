@@ -6,8 +6,6 @@ export class LLMGenerationStep implements Step {
   maxRetries = 2;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('🤖 Calling LLM API...');
-    
     const { systemPrompt } = state;
     
     if (!systemPrompt) {
@@ -41,18 +39,9 @@ export class LLMGenerationStep implements Step {
       state.rawLlmResponse = rawLlmResponse;
       state.llmResponse = data;
 
-      console.log('✅ LLM API call successful:', {
-        model: data.model,
-        usage: data.usage,
-        responseLength: rawLlmResponse.length,
-        hasChoices: !!data.choices?.length
-      });
-
       return state;
 
     } catch (error) {
-      console.error('❌ LLM API call failed:', error);
-      
       // Determine specific error type for better retry logic
       if (error instanceof Error) {
         if (error.message.includes('fetch') || error.message.includes('network')) {
@@ -78,10 +67,6 @@ export class LLMGenerationStep implements Step {
       state.llmResponse.choices &&
       state.llmResponse.choices.length > 0
     );
-
-    if (!isValid) {
-      console.error('❌ LLMGeneration validation failed: Invalid LLM response');
-    }
 
     return isValid;
   }

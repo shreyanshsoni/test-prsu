@@ -23,3 +23,4 @@ WHERE (display_name IS NULL OR display_name = '')
 CREATE INDEX IF NOT EXISTS idx_user_profiles_display_name ON user_profiles (display_name);
 
 
+

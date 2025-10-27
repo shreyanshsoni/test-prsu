@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Program } from '../types/types';
+import { Program } from '../../types/types';
 import { searchOpportunities } from '../../lib/services/opportunityService';
 
 type ProgramSearchContextType = {

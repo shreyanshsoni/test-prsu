@@ -752,7 +752,7 @@ export default function HomeClientComponent({
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-center justify-between h-16">
                 <div className="flex items-center">
-                  <a href="/?tab=search">
+                  <a href="/students?tab=search">
                     <img 
                       src="/fulllogo_transparent_nobuffer.png" 
                       alt="PRSU" 

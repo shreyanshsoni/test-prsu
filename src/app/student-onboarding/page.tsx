@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { Upload, Edit, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import LockedOverlay from '../../components/LockedOverlay';
 
 export default function StudentOnboarding() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function StudentOnboarding() {
   const handleMaybeLater = () => {
     // Skip profile creation and go to dashboard
     localStorage.setItem('skipProfileCreation', 'true');
-    router.push('/');
+    router.push('/students');
   };
 
   // Show nothing during SSR or while loading auth to prevent flashing
@@ -71,23 +72,25 @@ export default function StudentOnboarding() {
         </div>
 
         <div className="space-y-6 mb-10">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleUploadResume}
-            className="w-full flex items-center p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/50 dark:to-indigo-800/40 rounded-xl border border-indigo-200 dark:border-indigo-800 shadow-md hover:shadow-lg transition-all"
-          >
-            <div className="w-14 h-14 bg-indigo-500 dark:bg-indigo-600 rounded-full flex items-center justify-center mr-6">
-              <Upload size={24} className="text-white" />
-            </div>
-            <div className="flex-1 text-left">
-              <h3 className="text-xl font-semibold text-indigo-700 dark:text-indigo-400 mb-1">Upload Resume</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                We'll extract your information from your resume
-              </p>
-            </div>
-            <ArrowRight className="text-indigo-500 dark:text-indigo-400" />
-          </motion.button>
+          <LockedOverlay>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleUploadResume}
+              className="w-full flex items-center p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/50 dark:to-indigo-800/40 rounded-xl border border-indigo-200 dark:border-indigo-800 shadow-md hover:shadow-lg transition-all"
+            >
+              <div className="w-14 h-14 bg-indigo-500 dark:bg-indigo-600 rounded-full flex items-center justify-center mr-6">
+                <Upload size={24} className="text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <h3 className="text-xl font-semibold text-indigo-700 dark:text-indigo-400 mb-1">Upload Resume</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  We'll extract your information from your resume
+                </p>
+              </div>
+              <ArrowRight className="text-indigo-500 dark:text-indigo-400" />
+            </motion.button>
+          </LockedOverlay>
 
           <motion.button
             whileHover={{ scale: 1.02 }}

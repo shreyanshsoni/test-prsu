@@ -5,25 +5,11 @@ export class CollectResponsesStep implements Step {
   retryable = false;
 
   async execute(state: StepState): Promise<StepState> {
-    console.log('📝 Collecting user responses...');
-    
     // This step is a stub since the frontend already collects responses
     // The assessmentData should already be populated in the state
     if (!state.assessmentData) {
       throw new Error('Assessment data not provided');
     }
-
-    console.log('✅ User responses collected:', {
-      hasAssessmentData: !!state.assessmentData,
-      hasUserPreferences: !!state.userPreferences,
-      stage: state.assessmentData.stage,
-      readinessZones: {
-        clarity: state.assessmentData.clarity,
-        engagement: state.assessmentData.engagement,
-        preparation: state.assessmentData.preparation,
-        support: state.assessmentData.support
-      }
-    });
 
     return state;
   }
@@ -37,10 +23,6 @@ export class CollectResponsesStep implements Step {
       state.assessmentData.preparation &&
       state.assessmentData.support
     );
-
-    if (!isValid) {
-      console.error('❌ CollectResponses validation failed: Missing required assessment data');
-    }
 
     return isValid;
   }

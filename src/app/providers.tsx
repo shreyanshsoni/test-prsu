@@ -7,7 +7,7 @@ import { NameModal } from '../components/NameModal';
 import { useNameModal } from '../hooks/useNameModal';
 
 function NameModalWrapper() {
-  const { shouldShowModal, isLoading } = useNameModal();
+  const { shouldShowModal, isLoading, redirectTo, closeModal } = useNameModal();
   
   if (isLoading) {
     return null; // Don't show anything while loading
@@ -16,7 +16,8 @@ function NameModalWrapper() {
   return (
     <NameModal 
       isOpen={shouldShowModal} 
-      onClose={() => {}} // Modal will close itself after successful save
+      onClose={closeModal} // Pass the closeModal function
+      redirectTo={redirectTo}
     />
   );
 }

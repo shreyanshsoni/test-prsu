@@ -31,9 +31,6 @@ export default function LockedOverlay({ children, className = '' }: LockedOverla
           
           {/* Tooltip text */}
           <div className="group relative">
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
-              Coming Soon
-            </p>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
               We're working on something exciting - stay tuned
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>

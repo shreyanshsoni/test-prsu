@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 interface StageDistributionChartProps {
@@ -49,9 +49,12 @@ const StageDistributionChart: React.FC<StageDistributionChartProps> = ({ data })
           />
           <Bar 
             dataKey="percentage" 
-            fill="#1E88E5"
             radius={[4, 4, 0, 0]}
-          />
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

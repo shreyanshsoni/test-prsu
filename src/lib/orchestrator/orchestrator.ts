@@ -66,17 +66,11 @@ export class Orchestrator {
   }
 
   async run(): Promise<StepState> {
-    console.log('🚀 Starting Orchestrator Pipeline');
-    console.log('📊 Initial State:', this.state);
-    
     for (let i = 0; i < this.steps.length; i++) {
       const step = this.steps[i];
       const stepStartTime = Date.now();
       
       try {
-        console.log(`\n🔄 Step ${i + 1}/${this.steps.length}: ${step.name}`);
-        console.log(`📥 Input State:`, this.state);
-        
         // Execute the step
         this.state = await step.execute(this.state);
         this.state.stepHistory.push(step.name);
@@ -86,17 +80,9 @@ export class Orchestrator {
           throw new Error(`Validation failed for step: ${step.name}`);
         }
         
-        const stepDuration = Date.now() - stepStartTime;
-        console.log(`✅ Step ${step.name} completed in ${stepDuration}ms`);
-        console.log(`📤 Output State:`, this.state);
-        
       } catch (error) {
-        const stepDuration = Date.now() - stepStartTime;
-        console.error(`❌ Step ${step.name} failed after ${stepDuration}ms:`, error);
-        
         // Handle retryable steps
         if (step.retryable && step.maxRetries && step.maxRetries > 0) {
-          console.log(`🔄 Retrying step ${step.name} (${step.maxRetries} retries left)`);
           step.maxRetries--;
           i--; // Retry the same step
           continue;
@@ -110,12 +96,6 @@ export class Orchestrator {
     }
     
     this.state.endTime = Date.now();
-    const totalDuration = this.state.endTime - this.state.startTime;
-    
-    console.log(`\n🏁 Orchestrator Pipeline Complete`);
-    console.log(`⏱️ Total Duration: ${totalDuration}ms`);
-    console.log(`📋 Steps Completed: ${this.state.stepHistory.join(' → ')}`);
-    console.log(`📊 Final State:`, this.state);
     
     return this.state;
   }

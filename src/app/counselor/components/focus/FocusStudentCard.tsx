@@ -39,11 +39,19 @@ const FocusStudentCard: React.FC<FocusStudentCardProps> = ({ student }) => {
         
         <div className="space-y-3">
           <div>
-            <div className="flex justify-between items-center mb-1">
+            <div className="mb-1">
               <span className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-500'}`}>Progress</span>
-              <span className={`text-xs font-medium ${isDark ? 'text-dark-text' : 'text-gray-700'}`}>{student.progress}%</span>
             </div>
             <EnhancedProgressBar progress={student.progress} />
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center">
+              <span className={`text-xs ${isDark ? 'text-dark-muted' : 'text-gray-500'}`}>Tasks Completed</span>
+              <span className={`text-xs font-medium ${isDark ? 'text-dark-text' : 'text-gray-700'}`}>
+                {student.taskCompletion?.completed || 0}/{student.taskCompletion?.total || 0} tasks
+              </span>
+            </div>
           </div>
           
           <div className="flex justify-between items-center">

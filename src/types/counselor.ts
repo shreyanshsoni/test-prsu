@@ -6,11 +6,16 @@ export interface Student {
   collegeGoal: string | null;
   lastActivity?: number; // days
   progress: number; // percentage
+  progressText?: string; // Progress display text (e.g., "5/27" or "No roadmap")
   totalRoadmaps?: number; // NEW: Total roadmaps count
   completedRoadmaps?: number; // NEW: Completed roadmaps count
   inProgressRoadmaps?: number; // NEW: In progress roadmaps count
   pausedRoadmaps?: number; // NEW: Paused roadmaps count
   cancelledRoadmaps?: number; // NEW: Cancelled roadmaps count
+  taskCompletion?: {
+    total: number;
+    completed: number;
+  };
   matrixScores?: {
     clarity: number;
     engagement: number;
@@ -31,7 +36,15 @@ export interface Student {
     dateCompleted?: string;
     description?: string;
   }>;
-  counselorNotes?: string;
+  counselorNotes?: Array<{
+    id: string;
+    text: string;
+    author: string;
+    date: string;
+    updatedAt?: string;
+    counselorUserId?: string;
+    isOwnNote?: boolean;
+  }>;
   recentActivity?: Array<{
     id: string;
     type: 'goal_update' | 'reflection' | 'milestone' | 'activity';
@@ -46,6 +59,8 @@ export interface Student {
     dateCreated: string;
     dateCompleted?: string;
     description?: string;
+    dueDate?: string;
+    priority?: 'high' | 'medium' | 'low';
   }>;
 }
 

@@ -17,6 +17,7 @@ export interface UserProfile {
 
 export function useAuth() {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -69,6 +70,7 @@ export function useAuth() {
 
         const data = await response.json();
         setUser(data.user);
+        setUserRole(data.role || null);
       } catch (err) {
         console.error('Error fetching user profile:', err);
         setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -102,6 +104,7 @@ export function useAuth() {
   
   return {
     user,
+    userRole,
     isAuthenticated,
     isLoading,
     error,

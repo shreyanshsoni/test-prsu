@@ -3,11 +3,23 @@ import { useTheme } from '../../../contexts/ThemeContext';
 
 interface EnhancedProgressBarProps {
   progress: number;
+  progressText?: string | number;
 }
 
-const EnhancedProgressBar: React.FC<EnhancedProgressBarProps> = ({ progress }) => {
+const EnhancedProgressBar: React.FC<EnhancedProgressBarProps> = ({ progress, progressText }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  
+  // Handle "No roadmap" case - show only text, no bar
+  if (progressText === 'No roadmap') {
+    return (
+      <div className="flex items-center">
+        <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          No Roadmap
+        </span>
+      </div>
+    );
+  }
   
   const getProgressColor = () => {
     if (progress <= 40) return 'bg-red-500';
@@ -29,7 +41,9 @@ const EnhancedProgressBar: React.FC<EnhancedProgressBarProps> = ({ progress }) =
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      <span className={`text-sm font-medium ${isDark ? 'text-dark-text' : 'text-gray-700'} min-w-[3rem]`}>{progress}%</span>
+      <span className={`text-sm font-medium ${isDark ? 'text-dark-text' : 'text-gray-700'} min-w-[3rem]`}>
+        {progress}%
+      </span>
     </div>
   );
 };

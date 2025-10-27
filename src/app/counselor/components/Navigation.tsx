@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ViewMode } from '../../../types/counselor';
-import { BarChart3, Users, Target, User, LogOut, Settings } from 'lucide-react';
+import { BarChart3, Users, Target, LogOut, Settings } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../../components/ui/ThemeToggle';
 
 interface NavigationProps {
-  currentView: ViewMode;
-  onViewChange: (view: ViewMode) => void;
+  currentTab: string;
+  onTabChange: (tab: string) => void;
   focusModeEnabled: boolean;
   onFocusModeToggle: () => void;
   onLogout?: () => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({
-  currentView,
-  onViewChange,
+  currentTab,
+  onTabChange,
   focusModeEnabled,
   onFocusModeToggle,
   onLogout
@@ -22,7 +21,52 @@ const Navigation: React.FC<NavigationProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [counselorName, setCounselorName] = useState<string>('');
+  const [counselorInitials, setCounselorInitials] = useState<string>('');
+  const [avatarGradient, setAvatarGradient] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Generate avatar gradient based on name
+  const generateGradient = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash % 360);
+    const color1 = `hsl(${hue}, 60%, 60%)`;
+    const color2 = `hsl(${(hue + 60) % 360}, 60%, 60%)`;
+    return `linear-gradient(135deg, ${color1}, ${color2})`;
+  };
+
+  // Fetch counselor's name
+  useEffect(() => {
+    const fetchCounselorName = async () => {
+      try {
+        const response = await fetch('/api/user-profile', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const profile = data.profile;
+          if (profile && profile.first_name && profile.last_name) {
+            const fullName = `${profile.first_name} ${profile.last_name}`;
+            setCounselorName(fullName);
+            // Generate initials
+            const initials = `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+            setCounselorInitials(initials);
+            // Generate consistent gradient based on name
+            setAvatarGradient(generateGradient(fullName));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching counselor name:', error);
+      }
+    };
+    
+    fetchCounselorName();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,9 +96,9 @@ const Navigation: React.FC<NavigationProps> = ({
           
           <div className="flex space-x-1">
             <button
-              onClick={() => onViewChange('dashboard')}
+              onClick={() => onTabChange('dashboard')}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
-                currentView === 'dashboard'
+                currentTab === 'dashboard'
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                   : `${isDark ? 'text-dark-text hover:text-dark-text hover:bg-dark-border' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
               }`}
@@ -63,9 +107,9 @@ const Navigation: React.FC<NavigationProps> = ({
               <span>Dashboard</span>
             </button>
             <button
-              onClick={() => onViewChange('table')}
+              onClick={() => onTabChange('students')}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
-                currentView === 'table'
+                currentTab === 'students'
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                   : `${isDark ? 'text-dark-text hover:text-dark-text hover:bg-dark-border' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
               }`}
@@ -74,9 +118,9 @@ const Navigation: React.FC<NavigationProps> = ({
               <span>Students</span>
             </button>
             <button
-              onClick={() => onViewChange('goals')}
+              onClick={() => onTabChange('goals')}
               className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
-                currentView === 'goals'
+                currentTab === 'goals'
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                   : `${isDark ? 'text-dark-text hover:text-dark-text hover:bg-dark-border' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
               }`}
@@ -88,7 +132,7 @@ const Navigation: React.FC<NavigationProps> = ({
         </div>
 
         <div className="flex items-center space-x-4">
-          {currentView === 'table' && (
+          {currentTab === 'students' && (
             <div className="flex items-center space-x-2">
               <span className={`text-sm ${isDark ? 'text-dark-muted' : 'text-gray-600'}`}>Focus Mode</span>
               <button
@@ -109,16 +153,27 @@ const Navigation: React.FC<NavigationProps> = ({
           <ThemeToggle />
           
           <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className={`w-8 h-8 ${isDark ? 'bg-dark-border hover:bg-dark-background' : 'bg-gray-300 hover:bg-gray-400'} rounded-full flex items-center justify-center transition-colors`}
-              title="Account"
-            >
-              <User className={`w-4 h-4 ${isDark ? 'text-dark-text' : 'text-gray-600'}`} />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium transition-opacity hover:opacity-90"
+                style={{ background: avatarGradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                title="Account"
+              >
+                {counselorInitials || 'U'}
+              </button>
+              {counselorName && (
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className={`text-sm font-medium ${isDark ? 'text-dark-text' : 'text-gray-900'} hover:opacity-80 transition-opacity cursor-pointer`}
+                >
+                  {counselorName}
+                </button>
+              )}
+            </div>
             
             {isDropdownOpen && (
-              <div className={`absolute right-1/2 transform translate-x-1/2 mt-2 w-48 ${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}>
+              <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 ${isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}>
                 <div className="py-1">
                   <button
                     onClick={() => {

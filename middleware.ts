@@ -34,7 +34,7 @@ function getClientIP(request: NextRequest): string {
   if (forwarded) return forwarded.split(',')[0].trim()
   
   // Fallback to connection IP
-  return request.ip ?? '127.0.0.1'
+  return '127.0.0.1'
 }
 
 function getRateLimitConfig(pathname: string) {
@@ -53,13 +53,9 @@ function getRateLimitConfig(pathname: string) {
   return RATE_LIMIT_CONFIG.default
 }
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const clientIP = getClientIP(request)
-  const config = getRateLimitConfig(pathname)
-  
+function handleRateLimit(request: NextRequest, clientIP: string, config: any) {
   // Create a unique key for this IP + endpoint combination
-  const key = `${clientIP}:${pathname}`
+  const key = `${clientIP}:${request.nextUrl.pathname}`
   
   // Get or create rate limit data for this key
   if (!rateLimitStore.has(key)) {
@@ -80,7 +76,7 @@ export function middleware(request: NextRequest) {
     
     // Check if limit exceeded
     if (data.count > config.limit) {
-      console.warn(`Rate limit exceeded for ${clientIP} on ${pathname}: ${data.count}/${config.limit}`)
+      console.warn(`Rate limit exceeded for ${clientIP} on ${request.nextUrl.pathname}: ${data.count}/${config.limit}`)
       
       return NextResponse.json(
         { 
@@ -112,12 +108,37 @@ export function middleware(request: NextRequest) {
   return response
 }
 
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const clientIP = getClientIP(request)
+  const config = getRateLimitConfig(pathname)
+  
+  // Handle role-based routing for authenticated users
+  if (pathname.startsWith('/counselor') || pathname === '/' || pathname.startsWith('/students')) {
+    // Skip role checking for API routes and static files
+    if (pathname.startsWith('/api/') || pathname.startsWith('/_next/') || pathname.includes('.')) {
+      return handleRateLimit(request, clientIP, config)
+    }
+    
+    // For now, let the client-side handle role checking
+    // This prevents server-side rendering issues with auth state
+    return handleRateLimit(request, clientIP, config)
+  }
+  
+  // Apply rate limiting to all other routes
+  return handleRateLimit(request, clientIP, config)
+}
+
 // Configure which paths the middleware should run on
 export const config = {
   matcher: [
     // Apply to all API routes
     '/api/(.*)',
     // Apply to auth-related pages
-    '/api/auth/(.*)'
+    '/api/auth/(.*)',
+    // Apply to dashboard pages
+    '/counselor',
+    '/students',
+    '/'
   ]
 }

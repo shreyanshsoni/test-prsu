@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Student } from '../../../types/counselor';
+import { Student } from '../../../../types/counselor';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 interface StudentsByStageProps {

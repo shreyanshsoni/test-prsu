@@ -168,6 +168,17 @@ export const StudentSnapshotFlow: React.FC = () => {
   };
 
   const nextStep = async () => {
+    // If on last section and not completed, redirect to home instead of showing summary
+    if (currentStep === sections.length - 1 && !isCompleted) {
+      // Save data silently in the background before redirecting
+      if (hasUnsavedChanges) {
+        await saveData();
+      }
+      // Redirect to home page
+      router.push('/students');
+      return;
+    }
+    
     if (currentStep < sections.length) {
       // Save data silently in the background before moving to next step
       if (hasUnsavedChanges) {
@@ -219,8 +230,8 @@ export const StudentSnapshotFlow: React.FC = () => {
     // Save user preference to skip profile creation
     localStorage.setItem('skipProfileCreation', 'true');
     
-    // Navigate to the root route when "Remind me later" is clicked
-    router.push('/');
+    // Navigate to the students dashboard when "Remind me later" is clicked
+    router.push('/students');
   };
 
   const isCompleted = completedSections.every(Boolean);

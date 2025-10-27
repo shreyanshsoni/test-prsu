@@ -357,7 +357,7 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
             console.log("✅ Roadmap created successfully, redirecting...");
             console.log("🎯 Created roadmap:", createdRoadmap);
             // Redirect to roadmap planner with the specific roadmap selected
-            window.location.href = `/?tab=roadmapPlanner&roadmapId=${createdRoadmap.id}`;
+            window.location.href = `/students?tab=roadmapPlanner&roadmapId=${createdRoadmap.id}`;
           } catch (error) {
             console.error('❌ Error creating roadmap:', error);
             // Set roadmap creation error details
@@ -2256,7 +2256,7 @@ function AIRoadmapBuilder({ onClose, userPreferences }: AIRoadmapBuilderProps) {
                         console.log("✅ Retry roadmap created successfully, redirecting...");
                         console.log("🎯 Created roadmap:", createdRoadmap);
                         // Redirect to roadmap planner with the specific roadmap selected
-                        window.location.href = `/?tab=roadmapPlanner&roadmapId=${createdRoadmap.id}`;
+                        window.location.href = `/students?tab=roadmapPlanner&roadmapId=${createdRoadmap.id}`;
                       } catch (error) {
                         console.error('❌ Retry error creating roadmap:', error);
                         // Show error modal if roadmap creation fails

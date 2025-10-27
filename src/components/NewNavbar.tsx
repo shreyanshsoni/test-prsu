@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from './ui/Button';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../app/hooks/useAuth';
-import { ThemeToggle } from './ui/ThemeToggle';
+import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../app/contexts/ThemeContext';
 
 const NewNavbar: React.FC = () => {
@@ -30,10 +30,10 @@ const NewNavbar: React.FC = () => {
   const handleGetStarted = () => {
     if (user) {
       // If user is already logged in, redirect to dashboard
-      window.location.href = '/?tab=search';
+      window.location.href = '/students?tab=search';
     } else {
       // If not logged in, redirect to login using direct URL
-      window.location.href = '/api/auth/login?returnTo=/?tab=search';
+      window.location.href = '/api/auth/login?returnTo=/students?tab=search';
     }
   };
 

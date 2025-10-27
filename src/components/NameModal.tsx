@@ -5,9 +5,10 @@ import { useTheme } from '../app/contexts/ThemeContext';
 interface NameModalProps {
   isOpen: boolean;
   onClose: () => void;
+  redirectTo?: string; // Optional redirect path after saving (deprecated - no longer used)
 }
 
-export const NameModal: React.FC<NameModalProps> = ({ isOpen, onClose }) => {
+export const NameModal: React.FC<NameModalProps> = ({ isOpen, onClose, redirectTo }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   
@@ -42,10 +43,10 @@ export const NameModal: React.FC<NameModalProps> = ({ isOpen, onClose }) => {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        // Success - close the modal
+        // Success - close the modal and refresh the page to show the dashboard
         onClose();
-        // Redirect new students to onboarding screen
-        window.location.href = '/student-onboarding';
+        // Refresh the page to trigger re-checking of user profile
+        window.location.reload();
       } else {
         setError(data.error || 'Failed to update names');
       }
