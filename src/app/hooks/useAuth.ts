@@ -95,8 +95,14 @@ export function useAuth() {
 
   const logout = () => {
     if (typeof window !== 'undefined') {
+      // Clear auth state immediately to prevent race conditions
+      setUser(null);
+      setUserRole(null);
+      
+      // Redirect to logout endpoint with returnTo parameter to ensure proper redirect after logout
       const baseUrl = window.location.origin;
-      window.location.href = `${baseUrl}/api/auth/logout`;
+      const returnTo = encodeURIComponent('/');
+      window.location.href = `${baseUrl}/api/auth/logout?returnTo=${returnTo}`;
     }
   };
 

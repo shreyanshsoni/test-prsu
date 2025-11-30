@@ -121,8 +121,8 @@ export default function CounselorDashboard() {
   }, [isClient, isLoading, isRoleLoading, isAuthenticated, role, router]);
 
   const handleLogout = () => {
+    // logout() handles the redirect via returnTo parameter
     logout();
-    router.push('/');
   };
 
   const renderContent = () => {
