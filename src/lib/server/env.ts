@@ -54,7 +54,29 @@ export const getOpenRouterApiKey = (): string => {
 };
 
 // Auth0 base URL (for server-side usage)
-export const getAuth0BaseUrl = (): string => {
+// Can accept a request to dynamically determine the base URL
+export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers }): string => {
+  // If request is provided, extract domain from it
+  if (request) {
+    try {
+      if (request.url) {
+        const url = new URL(request.url);
+        const protocol = url.protocol;
+        const host = request.headers?.get('host') || url.host;
+        
+        // In production, ensure we use https
+        const isProduction = process.env.NODE_ENV === 'production';
+        const finalProtocol = isProduction && !protocol.startsWith('https') ? 'https:' : protocol;
+        
+        return `${finalProtocol}//${host}`;
+      }
+    } catch (e) {
+      // If URL parsing fails, fall back to environment variables
+      console.warn('Failed to parse URL from request, using environment variable:', e);
+    }
+  }
+  
+  // Fall back to environment variables or default
   return process.env.AUTH0_BASE_URL || 
          process.env.NEXT_PUBLIC_BASE_URL || 
          'https://plan.goprsu.com';
