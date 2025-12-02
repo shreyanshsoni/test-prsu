@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Setup Environment
 
-1. Create a `.env.local` file based on the template below:
+1. Create a `.env.local`  file based on the template below:
 
 ```
 # Auth0 Configuration
