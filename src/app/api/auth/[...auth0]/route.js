@@ -7,19 +7,13 @@ import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0/edge'
 function getBaseURL(request) {
   try {
     const url = new URL(request.url);
-
-    // Prefer original forwarded host/proto (as sent by Amplify/CloudFront)
-    const forwardedHost = request.headers.get('x-forwarded-host');
-    const forwardedProto = request.headers.get('x-forwarded-proto');
-
     const hostHeader = request.headers.get('host');
-    const host = forwardedHost || hostHeader || url.host;
+    const host = hostHeader || url.host;
 
     const isProduction = process.env.NODE_ENV === 'production';
-    const protocol = (forwardedProto || url.protocol || 'https:').replace(':', '');
-    const finalProtocol = isProduction ? 'https' : protocol;
+    const protocol = isProduction ? 'https:' : url.protocol;
 
-    return `${finalProtocol}://${host}`;
+    return `${protocol}//${host}`;
   } catch (e) {
     // As a last resort, fall back to environment variables.
     // This should rarely be hit, but prevents total failure if URL parsing breaks.
