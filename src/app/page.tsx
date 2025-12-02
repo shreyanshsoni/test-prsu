@@ -47,6 +47,21 @@ export default function Home() {
   useEffect(() => {
     // Only run once authentication and role checking is complete
     if (isClient && !isAuthLoading) {
+      // If a logout is in progress, don't redirect based on potentially
+      // stale auth state that might still be present during the redirect.
+      let isLoggingOut = false;
+      try {
+        if (typeof window !== 'undefined') {
+          isLoggingOut = window.sessionStorage.getItem('appLoggingOut') === 'true';
+        }
+      } catch (e) {
+        isLoggingOut = false;
+      }
+
+      if (isLoggingOut) {
+        return;
+      }
+
       if (!user) {
         // User not logged in, show landing page
         return;
