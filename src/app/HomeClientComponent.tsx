@@ -766,7 +766,7 @@ export default function HomeClientComponent({
                   <div className="ml-auto flex items-center">
                     <div className="md:flex items-center gap-5 hidden">
                       <a
-                        href="/api/auth/login"
+                        href="/api/auth/login?returnTo=/students?tab=search"
                         className="text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text"
                       >
                         <div className="flex items-center gap-1">
@@ -791,7 +791,7 @@ export default function HomeClientComponent({
                 Login to access your personalized academic planning dashboard
               </p>
               <Link
-                href="/api/auth/login/"
+                href="/api/auth/login?returnTo=/students?tab=search"
                 className="inline-flex items-center px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
               >
                 <LogIn className="w-4 h-4 mr-2" />

@@ -121,7 +121,9 @@ export function useAuth() {
   const login = () => {
     if (typeof window !== 'undefined') {
       const baseUrl = window.location.origin;
-      window.location.href = `${baseUrl}/api/auth/login`;
+      // Always send users to the dedicated dashboard page after login
+      const returnTo = encodeURIComponent('/students?tab=search');
+      window.location.href = `${baseUrl}/api/auth/login?returnTo=${returnTo}`;
     }
   };
 

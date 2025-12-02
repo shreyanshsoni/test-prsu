@@ -61,7 +61,7 @@ const ProblemVisionStatement = () => {
         {/* Centered CTA Button */}
         <div className="text-center mt-12 sm:mt-20">
           <a 
-            href="/api/auth/login"
+            href="/api/auth/login?returnTo=/students?tab=search"
             className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm sm:text-base"
           >
             <Target className="w-4 h-4 sm:w-5 sm:h-5" />
