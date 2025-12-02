@@ -4,16 +4,41 @@ import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0/edge'
 // This makes login/logout domain-aware so that:
 // - Logging in on plan.goprsu.com keeps you on plan.goprsu.com
 // - Logging in on plan.prsu.ai keeps you on plan.prsu.ai
+//
+// In production behind proxies (Amplify/CloudFront), we prefer x-forwarded-*
+// headers so the base URL reflects the ORIGINAL host the user visited.
 function getBaseURL(request) {
   try {
     const url = new URL(request.url);
-    const hostHeader = request.headers.get('host');
-    const host = hostHeader || url.host;
+    const headers = request.headers;
+
+    const hostHeader = headers.get('host');
+    const forwardedHost = headers.get('x-forwarded-host');
+    const forwardedProtoRaw = headers.get('x-forwarded-proto');
+    const forwardedProto = forwardedProtoRaw
+      ? forwardedProtoRaw.split(',')[0].trim()
+      : null;
 
     const isProduction = process.env.NODE_ENV === 'production';
-    const protocol = isProduction ? 'https:' : url.protocol;
 
-    return `${protocol}//${host}`;
+    // Prefer proxy protocol/host when available, then fall back to request URL.
+    const protocol =
+      forwardedProto ||
+      (isProduction ? 'https' : url.protocol.replace(':', ''));
+    const host = forwardedHost || hostHeader || url.host;
+
+    // Minimal debug logging to help verify what the app sees in production.
+    // This avoids logging any cookies or sensitive headers.
+    console.log('Auth0 getBaseURL debug', {
+      url: request.url,
+      hostHeader,
+      forwardedHost,
+      forwardedProto,
+      resolvedProtocol: protocol,
+      resolvedHost: host,
+    });
+
+    return `${protocol}://${host}`;
   } catch (e) {
     // As a last resort, fall back to environment variables.
     // This should rarely be hit, but prevents total failure if URL parsing breaks.
