@@ -58,7 +58,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
   const checkAuthAndProceed = (callback: () => void) => {
     if (!isAuthenticated) {
       // Redirect to login page
-      router.push('/api/auth/login');
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.origin;
+        router.push(`${baseUrl}/api/auth/login`);
+      }
       return;
     }
     
@@ -68,7 +71,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
 
   const handleRejectProgram = useCallback(async (program: Program) => {
     if (!isAuthenticated) {
-      router.push('/api/auth/login');
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.origin;
+        router.push(`${baseUrl}/api/auth/login`);
+      }
       return;
     }
     
@@ -133,7 +139,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
   // Add a function to save a program to a roadmap using the store
   const handleSaveProgramToRoadmap = async (program: Program) => {
     if (!isAuthenticated) {
-      router.push('/api/auth/login');
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.origin;
+        router.push(`${baseUrl}/api/auth/login`);
+      }
       return;
     }
     
@@ -236,7 +245,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
   // Update the Save button click handler
   const handleSaveButtonClick = (program: Program) => {
     if (!isAuthenticated) {
-      router.push('/api/auth/login');
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.origin;
+        router.push(`${baseUrl}/api/auth/login`);
+      }
       return;
     }
     

@@ -1,4 +1,9 @@
-import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0/edge';
+import {
+  handleAuth,
+  handleLogin,
+  handleLogout,
+  handleCallback,
+} from '@auth0/nextjs-auth0/edge';
 
 // Helper to derive the correct base URL from the incoming request.
 // This makes login/logout domain-aware so that:
@@ -22,6 +27,8 @@ function getBaseURL(request) {
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Prefer proxy protocol/host when available, then fall back to request URL.
+    // Never hardcode a production domain here – this must always reflect the
+    // actual domain that initiated the request so multi-domain auth works.
     const protocol =
       forwardedProto ||
       (isProduction ? 'https' : url.protocol.replace(':', ''));
@@ -43,11 +50,19 @@ function getBaseURL(request) {
     // As a last resort, fall back to environment variables.
     // This should rarely be hit, but prevents total failure if URL parsing breaks.
     console.warn('Failed to derive base URL from request, falling back to env:', e);
-    return (
-      process.env.AUTH0_BASE_URL ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      'https://plan.goprsu.com'
-    );
+
+    const envBase =
+      process.env.AUTH0_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || '';
+
+    if (!envBase) {
+      // Surface a clear error rather than silently defaulting to the wrong domain.
+      throw new Error(
+        'Unable to determine Auth0 base URL from request or environment. ' +
+          'Set AUTH0_BASE_URL or NEXT_PUBLIC_BASE_URL for a safe fallback.',
+      );
+    }
+
+    return envBase;
   }
 }
 
@@ -56,20 +71,43 @@ export const GET = handleAuth({
   async login(request) {
     const baseURL = getBaseURL(request);
 
+    const url = new URL(request.url);
+    // Ensure returnTo is always a safe, same-origin relative path.
+    const rawReturnTo = url.searchParams.get('returnTo') || '/';
+    const returnTo = rawReturnTo.startsWith('/') ? rawReturnTo : '/';
+
     // Ensure Auth0 redirects back to the same domain that initiated login.
     return handleLogin(request, {
       authorizationParams: {
         redirect_uri: `${baseURL}/api/auth/callback`,
       },
+      returnTo,
     });
+  },
+
+  async callback(request) {
+    const baseURL = getBaseURL(request);
+
+    // Helpful for verifying which domain the callback is landing on in production.
+    console.log('Auth0 callback on baseURL', baseURL);
+
+    return handleCallback(request);
   },
 
   async logout(request) {
     const baseURL = getBaseURL(request);
 
+    const url = new URL(request.url);
+    const rawReturnTo = url.searchParams.get('returnTo');
+
+    // Only allow same-origin relative paths for returnTo; otherwise fall back
+    // to the domain root to avoid open redirect issues.
+    const safeReturnTo =
+      rawReturnTo && rawReturnTo.startsWith('/') ? `${baseURL}${rawReturnTo}` : baseURL;
+
     // Ensure logout sends the user back to the same domain's homepage.
     return handleLogout(request, {
-      returnTo: baseURL,
+      returnTo: safeReturnTo,
     });
   },
 });

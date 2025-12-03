@@ -15,7 +15,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     // Wait until auth is loaded before making a decision
     if (!isLoading && !user) {
-      router.push('/api/auth/login');
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.origin;
+        router.push(`${baseUrl}/api/auth/login`);
+      }
     }
   }, [user, isLoading, router]);
 

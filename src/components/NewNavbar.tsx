@@ -28,12 +28,17 @@ const NewNavbar: React.FC = () => {
   }, [scrolled]);
 
   const handleGetStarted = () => {
+    if (typeof window === 'undefined') return;
+
+    const baseUrl = window.location.origin;
+    const returnTo = encodeURIComponent('/students?tab=search');
+
     if (user) {
       // If user is already logged in, redirect to dashboard
-      window.location.href = '/students?tab=search';
+      window.location.href = `${baseUrl}/students?tab=search`;
     } else {
-      // If not logged in, redirect to login using direct URL
-      window.location.href = '/api/auth/login?returnTo=/students?tab=search';
+      // If not logged in, redirect to login using absolute URL
+      window.location.href = `${baseUrl}/api/auth/login?returnTo=${returnTo}`;
     }
   };
 
@@ -63,11 +68,18 @@ const NewNavbar: React.FC = () => {
             <ThemeToggle />
             
             {user ? (
-              <a href="/api/auth/logout">
-                <Button primary className="px-5 py-2">
-                  Logout
-                </Button>
-              </a>
+              <Button
+                primary
+                className="px-5 py-2"
+                onClick={() => {
+                  if (typeof window === 'undefined') return;
+                  const baseUrl = window.location.origin;
+                  const returnTo = encodeURIComponent('/');
+                  window.location.href = `${baseUrl}/api/auth/logout?returnTo=${returnTo}`;
+                }}
+              >
+                Logout
+              </Button>
             ) : (
               <Button 
                 primary 

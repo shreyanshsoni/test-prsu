@@ -61,14 +61,24 @@ export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers }): 
     try {
       if (request.url) {
         const url = new URL(request.url);
-        const protocol = url.protocol;
-        const host = request.headers?.get('host') || url.host;
-        
-        // In production, ensure we use https
+        const protocolFromUrl = url.protocol;
+        const headers = request.headers;
+
+        const hostHeader = headers?.get('host') || url.host;
+        const forwardedProtoRaw = headers?.get('x-forwarded-proto');
+        const forwardedProto = forwardedProtoRaw
+          ? forwardedProtoRaw.split(',')[0].trim()
+          : null;
+
+        // In production, ensure we use https and respect proxy protocol when available.
         const isProduction = process.env.NODE_ENV === 'production';
-        const finalProtocol = isProduction && !protocol.startsWith('https') ? 'https:' : protocol;
-        
-        return `${finalProtocol}//${host}`;
+        const finalProtocol =
+          forwardedProto ||
+          (isProduction && !protocolFromUrl.startsWith('https')
+            ? 'https:'
+            : protocolFromUrl);
+
+        return `${finalProtocol}//${hostHeader}`;
       }
     } catch (e) {
       // If URL parsing fails, fall back to environment variables
@@ -76,10 +86,17 @@ export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers }): 
     }
   }
   
-  // Fall back to environment variables or default
-  return process.env.AUTH0_BASE_URL || 
-         process.env.NEXT_PUBLIC_BASE_URL || 
-         'https://plan.goprsu.com';
+  // Fall back to environment variables only – never hardcode a production domain
+  const envBase =
+    process.env.AUTH0_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || '';
+
+  if (!envBase) {
+    console.error(
+      'Unable to determine Auth0 base URL. Set AUTH0_BASE_URL or NEXT_PUBLIC_BASE_URL.',
+    );
+  }
+
+  return envBase;
 };
 
 // Helper to validate that all required environment variables are set
