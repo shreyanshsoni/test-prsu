@@ -311,7 +311,10 @@ export default function ProgramSearch({ onSaveProgram, savedPrograms, isAuthenti
       if (isGone) {
         // Check auth immediately, don't wait for animation
         if (!isAuthenticated) {
-          router.push('/api/auth/login');
+          if (typeof window !== 'undefined') {
+            const baseUrl = window.location.origin;
+            router.push(`${baseUrl}/api/auth/login`);
+          }
           return;
         }
         

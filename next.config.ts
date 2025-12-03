@@ -3,17 +3,16 @@ import { NextConfig } from 'next';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Determine the correct base URL based on environment (local vs production)
-// Note: In production with multiple domains, this will be overridden by request-based detection
+// NOTE: Runtime Auth0 logic derives origin from the request; this helper is only
+// for exposing a best-effort public base URL to the client when needed.
 const getBaseUrl = () => {
   if (isDevelopment) {
     return 'http://localhost:3000';
   }
-  
-  // In production, use environment variables if set
-  // If not set, the application will use request-based domain detection
-  return process.env.NEXT_PUBLIC_BASE_URL || 
-         process.env.AUTH0_BASE_URL || 
-         ''; // Empty string allows dynamic detection
+
+  // In production, prefer an explicit NEXT_PUBLIC_BASE_URL if set;
+  // otherwise leave empty so the client can derive origin at runtime.
+  return process.env.NEXT_PUBLIC_BASE_URL || '';
 };
 
 const config: NextConfig = {
@@ -83,8 +82,7 @@ const config: NextConfig = {
     NEXT_PUBLIC_AUTH0_SCOPE: process.env.AUTH0_SCOPE || 'openid profile email',
     NEXT_PUBLIC_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || '',
     NEXT_PUBLIC_AUTH0_ORGANIZATION: process.env.AUTH0_ORGANIZATION || '',
-    // Public app URLs - will be determined dynamically from request
-    NEXT_PUBLIC_AUTH0_LOGOUT_URL: process.env.AUTH0_LOGOUT_URL || '',
+    // Public app URLs - will be determined dynamically from request on the client
   },
 };
 

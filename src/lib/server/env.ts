@@ -53,50 +53,19 @@ export const getOpenRouterApiKey = (): string => {
   return key || '';
 };
 
-// Auth0 base URL (for server-side usage)
-// Can accept a request to dynamically determine the base URL
+// NOTE: getAuth0BaseUrl is deprecated for Auth0 routing; use getRequestOrigin instead.
+// This helper is retained only for any legacy/server utilities that may still import it.
 export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers }): string => {
-  // If request is provided, extract domain from it
-  if (request) {
+  if (request?.url) {
     try {
-      if (request.url) {
-        const url = new URL(request.url);
-        const protocolFromUrl = url.protocol;
-        const headers = request.headers;
-
-        const hostHeader = headers?.get('host') || url.host;
-        const forwardedProtoRaw = headers?.get('x-forwarded-proto');
-        const forwardedProto = forwardedProtoRaw
-          ? forwardedProtoRaw.split(',')[0].trim()
-          : null;
-
-        // In production, ensure we use https and respect proxy protocol when available.
-        const isProduction = process.env.NODE_ENV === 'production';
-        const finalProtocol =
-          forwardedProto ||
-          (isProduction && !protocolFromUrl.startsWith('https')
-            ? 'https:'
-            : protocolFromUrl);
-
-        return `${finalProtocol}//${hostHeader}`;
-      }
+      const url = new URL(request.url);
+      return `${url.protocol}//${url.host}`;
     } catch (e) {
-      // If URL parsing fails, fall back to environment variables
-      console.warn('Failed to parse URL from request, using environment variable:', e);
+      console.warn('Failed to parse URL from request in getAuth0BaseUrl:', e);
     }
   }
-  
-  // Fall back to environment variables only – never hardcode a production domain
-  const envBase =
-    process.env.AUTH0_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || '';
 
-  if (!envBase) {
-    console.error(
-      'Unable to determine Auth0 base URL. Set AUTH0_BASE_URL or NEXT_PUBLIC_BASE_URL.',
-    );
-  }
-
-  return envBase;
+  return '';
 };
 
 // Helper to validate that all required environment variables are set
@@ -117,4 +86,5 @@ export const validateRequiredEnvVars = (): boolean => {
   }
 
   return true;
+}; 
 }; 
