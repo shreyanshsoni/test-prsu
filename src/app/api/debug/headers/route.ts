@@ -134,10 +134,19 @@ export async function GET(request: NextRequest) {
     source: forwardedHost ? 'X-Forwarded-Host' : (hostHeader ? 'Host' : 'URL.host'),
   };
 
+  // Construct what the actual request URL should be based on headers (for comparison)
+  const actualRequestUrl = (() => {
+    const proto = forwardedProto || 'https';
+    const host = forwardedHost || hostHeader || 'unknown';
+    const path = url.pathname + url.search;
+    return `${proto}://${host}${path}`;
+  })();
+
   return NextResponse.json({
     timestamp: new Date().toISOString(),
     overallStatus: allChecksPass ? 'PASS' : 'FAIL',
-    requestUrl: request.url,
+    requestUrl: request.url, // Next.js internal URL (may show localhost:3000 - this is a Next.js quirk)
+    actualRequestUrl, // Reconstructed from headers (this is what the browser actually requested)
     resolvedOrigin,
     originResolution,
     checks: {
