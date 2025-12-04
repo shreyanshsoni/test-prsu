@@ -18,10 +18,10 @@ export const GET = handleAuth({
 
     const redirectUri = `${origin}/api/auth/callback`;
 
-    console.log('Auth0 login', {
+    console.log('Auth0 login handler', {
       requestedHost: url.host,
       resolvedOrigin: origin,
-      redirect_uri: redirectUri,
+      redirectUri,
       returnTo,
     });
 
@@ -36,11 +36,11 @@ export const GET = handleAuth({
 
   async callback(request) {
     const origin = getRequestOrigin(request);
+    const url = new URL(request.url);
 
-    // Helpful for verifying which domain the callback is landing on in production.
-    console.log('Auth0 callback', {
+    console.log('Auth0 callback handler', {
+      requestedHost: url.host,
       resolvedOrigin: origin,
-      url: request.url,
     });
 
     return handleCallback(request);
@@ -48,24 +48,22 @@ export const GET = handleAuth({
 
   async logout(request) {
     const origin = getRequestOrigin(request);
-
     const url = new URL(request.url);
     const rawReturnTo = url.searchParams.get('returnTo');
 
     // Only allow same-origin relative paths for returnTo; otherwise fall back
     // to the domain root to avoid open redirect issues.
-    const safePath = rawReturnTo && rawReturnTo.startsWith('/') ? rawReturnTo : '/';
-    const returnTo = `${origin}${safePath}`;
+    const safeReturnTo =
+      rawReturnTo && rawReturnTo.startsWith('/') ? `${origin}${rawReturnTo}` : origin;
 
-    console.log('Auth0 logout', {
+    console.log('Auth0 logout handler', {
       requestedHost: url.host,
       resolvedOrigin: origin,
-      returnTo,
+      returnTo: safeReturnTo,
     });
 
-    // Ensure logout sends the user back to the same domain's homepage.
     return handleLogout(request, {
-      returnTo,
+      returnTo: safeReturnTo,
     });
   },
 });

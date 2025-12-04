@@ -9,6 +9,7 @@
 
 // Load environment variables from .env file
 import 'dotenv/config';
+import { getRequestOrigin } from './getRequestOrigin';
 
 // Auth0 sensitive variables
 export const getAuth0Secret = (): string => {
@@ -53,17 +54,21 @@ export const getOpenRouterApiKey = (): string => {
   return key || '';
 };
 
-// NOTE: getAuth0BaseUrl is deprecated for Auth0 routing; use getRequestOrigin instead.
-// This helper is retained only for any legacy/server utilities that may still import it.
-export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers }): string => {
-  if (request?.url) {
+// Auth0 base URL (for server-side usage)
+// Prefer using getRequestOrigin so we never depend on AUTH0_BASE_URL at runtime.
+export const getAuth0BaseUrl = (request?: { url?: string; headers?: Headers; nextUrl?: { origin: string } }): string => {
+  if (request) {
     try {
-      const url = new URL(request.url);
-      return `${url.protocol}//${url.host}`;
+      return getRequestOrigin(request as any);
     } catch (e) {
-      console.warn('Failed to parse URL from request in getAuth0BaseUrl:', e);
+      console.warn('getAuth0BaseUrl failed to derive origin from request:', e);
     }
   }
+
+  console.error(
+    'getAuth0BaseUrl called without a valid request. ' +
+      'Pass a request object and/or use getRequestOrigin directly for multi-domain support.',
+  );
 
   return '';
 };
@@ -86,5 +91,4 @@ export const validateRequiredEnvVars = (): boolean => {
   }
 
   return true;
-}; 
 }; 

@@ -1,6 +1,10 @@
-export function getRequestOrigin(request: { url: string; headers: Headers }): string {
-  const url = new URL(request.url);
-  const headers = request.headers;
+import type { NextRequest } from 'next/server';
+
+type RequestLike = Request | NextRequest | { url: string; headers: Headers; nextUrl?: { origin: string } };
+
+export function getRequestOrigin(request: RequestLike): string {
+  const url = new URL((request as any).url);
+  const headers = (request as any).headers as Headers;
 
   const hostHeader = headers.get('host');
   const forwardedHost = headers.get('x-forwarded-host');
@@ -17,12 +21,24 @@ export function getRequestOrigin(request: { url: string; headers: Headers }): st
     (isProduction ? 'https' : url.protocol.replace(':', ''));
 
   // Host: x-forwarded-host → host → url.host
-  const host = forwardedHost || hostHeader || url.host;
+  let host = forwardedHost || hostHeader || url.host;
+
+  // If we still don't have a host (very rare), fall back to Next.js origin or URL origin
+  if (!host) {
+    const nextReq = request as any;
+    if (nextReq.nextUrl?.origin) {
+      const nextOrigin = nextReq.nextUrl.origin;
+      console.warn('getRequestOrigin fallback to nextUrl.origin', { nextOrigin });
+      return nextOrigin;
+    }
+    console.warn('getRequestOrigin fallback to URL origin only', { url: url.toString() });
+    return url.origin;
+  }
 
   const origin = `${protocol}://${host}`;
 
   console.log('getRequestOrigin debug', {
-    url: request.url,
+    url: (request as any).url,
     hostHeader,
     forwardedHost,
     forwardedProto,
@@ -33,5 +49,3 @@ export function getRequestOrigin(request: { url: string; headers: Headers }): st
 
   return origin;
 }
-
-
