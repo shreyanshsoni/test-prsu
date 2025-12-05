@@ -3,7 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        # Use npm install to tolerate slight lock/package.json drift in CI.
+        - npm install --cache .npm --prefer-offline --legacy-peer-deps
         # Write a runtime .env from Amplify-provided environment variables.
         # This avoids shipping secrets in git while keeping dotenv-based code working.
         - |
