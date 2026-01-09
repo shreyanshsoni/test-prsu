@@ -26,51 +26,74 @@ export async function GET(req: NextRequest) {
     // Ensure a user_profiles row exists and keep display_name in sync
     // Note: profile_data remains untouched here
     // First, check if user exists and get their current role
-    const existingUser = await executeQuery(
-      'SELECT user_role FROM user_profiles WHERE user_id = $1',
-      [userId]
-    );
+    let userRole = 'student'; // Default role
     
-    // If user doesn't exist, create them with 'student' role
-    // If user exists but has no role, assign 'student' role
-    if (existingUser.length === 0) {
-      // New user - create with student role
-      await executeQuery(
-        `
-        INSERT INTO user_profiles (user_id, profile_data, display_name, user_role)
-        VALUES ($1, $2::jsonb, $3, 'student')
-        `,
-        [userId, JSON.stringify({}), displayName]
-      );
-    } else if (!existingUser[0].user_role) {
-      // Existing user with no role - assign student role
-      await executeQuery(
-        `
-        UPDATE user_profiles 
-        SET user_role = 'student', updated_at = NOW()
-        WHERE user_id = $1
-        `,
+    try {
+      const existingUser = await executeQuery(
+        'SELECT user_role FROM user_profiles WHERE user_id = $1',
         [userId]
       );
-    } else {
-      // User exists with role - just update display_name
-      await executeQuery(
-        `
-        UPDATE user_profiles 
-        SET display_name = $2, updated_at = NOW()
-        WHERE user_id = $1
-        `,
-        [userId, displayName]
-      );
+      
+      // If user doesn't exist, create them with 'student' role
+      // If user exists but has no role, assign 'student' role
+      if (existingUser.length === 0) {
+        // New user - create with student role
+        // Note: verification_status will default to 'pending' per schema, but that's OK
+        // We check for institute_id in the approval flow, not verification_status
+        try {
+          await executeQuery(
+            `
+            INSERT INTO user_profiles (user_id, profile_data, display_name, user_role)
+            VALUES ($1, $2::jsonb, $3, 'student')
+            `,
+            [userId, JSON.stringify({}), displayName]
+          );
+        } catch (insertError: any) {
+          // If insert fails (e.g., race condition), try to fetch the user again
+          console.warn('Insert failed, checking if user was created:', insertError.message);
+          const retryUser = await executeQuery(
+            'SELECT user_role FROM user_profiles WHERE user_id = $1',
+            [userId]
+          );
+          if (retryUser.length > 0) {
+            userRole = retryUser[0].user_role || 'student';
+          }
+          // If still no user, we'll use default 'student' role
+        }
+      } else if (!existingUser[0].user_role) {
+        // Existing user with no role - assign student role
+        await executeQuery(
+          `
+          UPDATE user_profiles 
+          SET user_role = 'student', updated_at = NOW()
+          WHERE user_id = $1
+          `,
+          [userId]
+        );
+        userRole = 'student';
+      } else {
+        // User exists with role - just update display_name and use existing role
+        userRole = existingUser[0].user_role;
+        try {
+          await executeQuery(
+            `
+            UPDATE user_profiles 
+            SET display_name = $2, updated_at = NOW()
+            WHERE user_id = $1
+            `,
+            [userId, displayName]
+          );
+        } catch (updateError) {
+          // Non-critical error - display_name update failed, but we can continue
+          console.warn('Failed to update display_name:', updateError);
+        }
+      }
+    } catch (dbError: any) {
+      // Database error - log it but don't fail the entire request
+      // Return the Auth0 user data with default 'student' role so the app can continue
+      console.error('Database error in /api/auth/me (non-fatal):', dbError);
+      // Continue with default 'student' role
     }
-
-    // Get user role after ensuring profile exists
-    const userRoleResult = await executeQuery(
-      'SELECT user_role FROM user_profiles WHERE user_id = $1',
-      [userId]
-    );
-    
-    const userRole = userRoleResult.length > 0 ? userRoleResult[0].user_role : 'student';
     
     // Return user data with role
     return NextResponse.json({

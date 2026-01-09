@@ -14,62 +14,77 @@ export async function GET(request: NextRequest) {
     
     const counselorUserId = session.user.sub;
     
-    // Verify counselor role
-    const roleResult = await executeQuery(
-      'SELECT user_role FROM user_profiles WHERE user_id = $1',
+    // Verify counselor role and get their institute_id
+    const counselorProfile = await executeQuery(
+      'SELECT user_role, institute_id FROM user_profiles WHERE user_id = $1',
       [counselorUserId]
     );
     
-    if (roleResult.length === 0 || roleResult[0].user_role !== 'counselor') {
+    if (counselorProfile.length === 0 || counselorProfile[0].user_role !== 'counselor') {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
+
+    const counselorInstituteId: number | null = counselorProfile[0].institute_id || null;
     
-    // First, automatically assign all students to this counselor if none are assigned
-    const existingAssignments = await executeQuery(`
-      SELECT COUNT(*) as count FROM counselor_student_assignments 
-      WHERE counselor_user_id = $1 AND is_active = true
-    `, [counselorUserId]);
-    
-    if (existingAssignments[0].count === '0') {
-      // Auto-assign all students to this counselor
-      const allStudents = await executeQuery(`
-        SELECT user_id FROM user_profiles WHERE user_role = 'student'
-      `);
+    // First, automatically assign students from counselor's institute to this counselor if none are assigned
+    if (counselorInstituteId !== null) {
+      const existingAssignments = await executeQuery(`
+        SELECT COUNT(*) as count FROM counselor_student_assignments 
+        WHERE counselor_user_id = $1 AND is_active = true
+      `, [counselorUserId]);
       
-      for (const student of allStudents) {
-        await executeQuery(`
-          INSERT INTO counselor_student_assignments (counselor_user_id, student_user_id) 
-          VALUES ($1, $2)
-          ON CONFLICT (counselor_user_id, student_user_id) 
-          DO UPDATE SET is_active = true, assigned_at = NOW()
-        `, [counselorUserId, student.user_id]);
-      }
-    } else {
-      // Check for any unassigned students and assign them to this counselor
-      const unassignedStudents = await executeQuery(`
-        SELECT up.user_id 
-        FROM user_profiles up
-        WHERE up.user_role = 'student'
-        AND NOT EXISTS (
-          SELECT 1 FROM counselor_student_assignments csa 
-          WHERE csa.student_user_id = up.user_id 
-          AND csa.is_active = true
-        )
-      `);
-      
-      for (const student of unassignedStudents) {
-        await executeQuery(`
-          INSERT INTO counselor_student_assignments (counselor_user_id, student_user_id) 
-          VALUES ($1, $2)
-          ON CONFLICT (counselor_user_id, student_user_id) 
-          DO UPDATE SET is_active = true, assigned_at = NOW()
-        `, [counselorUserId, student.user_id]);
+      if (existingAssignments[0].count === '0') {
+        // Auto-assign students from counselor's institute to this counselor
+        const instituteStudents = await executeQuery(`
+          SELECT user_id FROM user_profiles 
+          WHERE user_role = 'student' AND institute_id = $1
+        `, [counselorInstituteId]);
+        
+        for (const student of instituteStudents) {
+          await executeQuery(`
+            INSERT INTO counselor_student_assignments (counselor_user_id, student_user_id) 
+            VALUES ($1, $2)
+            ON CONFLICT (counselor_user_id, student_user_id) 
+            DO UPDATE SET is_active = true, assigned_at = NOW()
+          `, [counselorUserId, student.user_id]);
+        }
+      } else {
+        // Check for any unassigned students from counselor's institute and assign them
+        const unassignedStudents = await executeQuery(`
+          SELECT up.user_id 
+          FROM user_profiles up
+          WHERE up.user_role = 'student'
+            AND up.institute_id = $1
+            AND NOT EXISTS (
+              SELECT 1 FROM counselor_student_assignments csa 
+              WHERE csa.student_user_id = up.user_id 
+              AND csa.is_active = true
+            )
+        `, [counselorInstituteId]);
+        
+        for (const student of unassignedStudents) {
+          await executeQuery(`
+            INSERT INTO counselor_student_assignments (counselor_user_id, student_user_id) 
+            VALUES ($1, $2)
+            ON CONFLICT (counselor_user_id, student_user_id) 
+            DO UPDATE SET is_active = true, assigned_at = NOW()
+          `, [counselorUserId, student.user_id]);
+        }
       }
     }
     
-    // Get ALL students with their roadmap completion data and most recent roadmap activity
+    // Get students from counselor's institute with their roadmap completion data
     let students;
     try {
+      // Build query with optional institute filter
+      let whereClause = "WHERE up.user_role = 'student'";
+      const queryParams: any[] = [];
+      
+      if (counselorInstituteId !== null) {
+        whereClause += " AND up.institute_id = $1";
+        queryParams.push(counselorInstituteId);
+      }
+      
       students = await executeQuery(`
         SELECT 
           up.user_id as id,
@@ -91,10 +106,10 @@ export async function GET(request: NextRequest) {
         LEFT JOIN roadmap_planners rp ON up.user_id = rp.user_id
         LEFT JOIN roadmap_phases rph ON rp.id = rph.roadmap_id
         LEFT JOIN roadmap_tasks rt ON rph.id = rt.phase_id
-        WHERE up.user_role = 'student'
+        ${whereClause}
         GROUP BY up.user_id, up.profile_data, up.display_name, up.first_name, up.last_name, up.created_at, up.updated_at
         ORDER BY up.user_id
-      `);
+      `, queryParams);
     } catch (dbError) {
       console.error('Database query error:', dbError);
       throw dbError;

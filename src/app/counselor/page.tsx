@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { useUserRole } from '../hooks/useUserRole';
-import { NameModal } from '../../components/NameModal';
 import { useCounselorStudents } from '../hooks/useCounselorStudents';
 import { useTheme } from '../contexts/ThemeContext';
 import { StarryBackground } from '../../components/ui/StarryBackground';
@@ -17,6 +16,8 @@ import Filters from './components/Filters';
 import EnhancedStudentTable from './components/table/EnhancedStudentTable';
 import GoalsOverview from './components/dashboard/GoalsOverview';
 import FocusModeBoard from './components/focus/FocusModeBoard';
+import PendingApprovals from './components/approvals/PendingApprovals';
+import CounselorApprovalCenter from './components/counselor/CounselorApprovalCenter';
 
 // Import types and data
 import { Student, FilterType, ViewMode } from '../../types/counselor';
@@ -26,48 +27,11 @@ export default function CounselorDashboard() {
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading, logout } = useAuth();
   const { role, isLoading: isRoleLoading } = useUserRole();
-  const [showNameModal, setShowNameModal] = useState(false);
-  const [hasName, setHasName] = useState(true); // Default to true to prevent premature modal
-  const [isNameLoading, setIsNameLoading] = useState(false);
   const { students, isLoading: isStudentsLoading, error: studentsError } = useCounselorStudents();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [isClient, setIsClient] = useState(false);
 
-  // Function to check if user has names (only called after role confirmation)
-  const checkUserNames = async () => {
-    setIsNameLoading(true);
-    try {
-      const response = await fetch('/api/user-profile', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const profileData = await response.json();
-        const profile = profileData.profile;
-        
-        // Check if user has both first and last names
-        const hasName = profile && 
-          profile.first_name && 
-          profile.last_name &&
-          profile.first_name.trim() !== '' &&
-          profile.last_name.trim() !== '';
-        
-        setHasName(hasName);
-        if (!hasName) {
-          setShowNameModal(true);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking user names:', error);
-    } finally {
-      setIsNameLoading(false);
-    }
-  };
 
   // Get current tab from URL, default to 'dashboard'
   const currentTab = searchParams.get('tab') || 'dashboard';
@@ -115,8 +79,6 @@ export default function CounselorDashboard() {
         return;
       }
 
-      // Check if user has first and last names (only after confirming counselor role)
-      checkUserNames();
     }
   }, [isClient, isLoading, isRoleLoading, isAuthenticated, role, router]);
 
@@ -159,6 +121,14 @@ export default function CounselorDashboard() {
           <EnhancedStudentTable students={filteredStudents} />
         </div>
       );
+    }
+    
+    if (currentTab === 'approvals') {
+      return <PendingApprovals />;
+    }
+
+    if (currentTab === 'counselor') {
+      return <CounselorApprovalCenter />;
     }
     
     // Default fallback
@@ -207,13 +177,6 @@ export default function CounselorDashboard() {
       />
       
       {renderContent()}
-      
-      {/* Name Modal */}
-      <NameModal
-        isOpen={showNameModal}
-        onClose={() => setShowNameModal(false)}
-        redirectTo="/counselor"
-      />
     </div>
   );
 } 

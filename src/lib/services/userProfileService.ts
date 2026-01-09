@@ -11,6 +11,10 @@ interface UserProfileRecord {
   last_name?: string | null;
   user_role?: string | null;
   display_name?: string | null;
+  institute_id?: number | null;
+  verification_status?: string | null;
+  is_verified?: boolean | null;
+  institute_name?: string | null;
 }
 
 export const userProfileService = {
@@ -39,12 +43,25 @@ export const userProfileService = {
   async getProfileRecordByUserId(userId: string): Promise<UserProfileRecord | null> {
     try {
       const query = `
-        SELECT id, user_id, created_at, updated_at, profile_data, 
-               first_name, last_name, user_role, display_name 
-        FROM user_profiles 
-        WHERE user_id = $1
+        SELECT 
+          up.id, 
+          up.user_id, 
+          up.created_at, 
+          up.updated_at, 
+          up.profile_data, 
+          up.first_name, 
+          up.last_name, 
+          up.user_role, 
+          up.display_name,
+          up.institute_id,
+          up.verification_status,
+          up.is_verified,
+          il.institute_name
+        FROM user_profiles up
+        LEFT JOIN institute_list il ON up.institute_id = il.institute_id
+        WHERE up.user_id = $1
       `;
-      const results = await executeQuery<UserProfileRecord>(query, [userId]);
+      const results = await executeQuery<any>(query, [userId]);
       
       if (results.length === 0) {
         return null;

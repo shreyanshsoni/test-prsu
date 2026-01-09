@@ -4,6 +4,7 @@ import {
   handleLogout,
   handleCallback,
 } from '@auth0/nextjs-auth0/edge';
+import { NextResponse } from 'next/server';
 
 // Helper to derive the correct base URL from the incoming request.
 // This makes login/logout domain-aware so that:
@@ -73,8 +74,9 @@ export const GET = handleAuth({
 
     const url = new URL(request.url);
     // Ensure returnTo is always a safe, same-origin relative path.
-    const rawReturnTo = url.searchParams.get('returnTo') || '/';
-    const returnTo = rawReturnTo.startsWith('/') ? rawReturnTo : '/';
+    // Default to /auth-check to decide the right destination after login
+    const rawReturnTo = url.searchParams.get('returnTo') || '/auth-check';
+    const returnTo = rawReturnTo.startsWith('/') ? rawReturnTo : '/auth-check';
 
     // Ensure Auth0 redirects back to the same domain that initiated login.
     return handleLogin(request, {
@@ -90,8 +92,12 @@ export const GET = handleAuth({
 
     // Helpful for verifying which domain the callback is landing on in production.
     console.log('Auth0 callback on baseURL', baseURL);
-
-    return handleCallback(request);
+    
+    // Always redirect to /auth-check after successful callback
+    // This ensures we decide the right destination before showing /approval
+    return handleCallback(request, {
+      returnTo: '/auth-check',
+    });
   },
 
   async logout(request) {

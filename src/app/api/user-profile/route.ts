@@ -27,12 +27,19 @@ export async function GET(request: NextRequest) {
     }
     
     // Combine profile_data with first_name and last_name
+    const hasInstitute = profileRecord?.institute_id !== null && profileRecord?.institute_id !== undefined;
     const combinedProfile = {
       ...profile,
       first_name: profileRecord?.first_name || null,
       last_name: profileRecord?.last_name || null,
       user_role: profileRecord?.user_role || null,
-      display_name: profileRecord?.display_name || null
+      display_name: profileRecord?.display_name || null,
+      institute_id: profileRecord?.institute_id || null,
+      institute_name: profileRecord?.institute_name || null,
+      // Only expose verification_status when an institute has been selected to avoid
+      // treating brand-new users as pending before they submit the form
+      verification_status: hasInstitute ? (profileRecord?.verification_status || 'pending') : null,
+      is_verified: profileRecord?.is_verified || false
     };
     
     // Return the combined profile

@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useUserRole } from '../hooks/useUserRole';
 import HomeClientComponent from '../HomeClientComponent';
 import { useTheme } from '../contexts/ThemeContext';
-import { NameModal } from '../../components/NameModal';
 
 export default function StudentsPage() {
   console.log('Students page - Component rendering');
@@ -16,87 +15,53 @@ export default function StudentsPage() {
   const { theme } = useTheme();
   const [isClient, setIsClient] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
-  const [showNameModal, setShowNameModal] = useState(false);
-  const [isCheckingNames, setIsCheckingNames] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Check if user needs to enter names
-  useEffect(() => {
-    const checkUserNames = async () => {
-      console.log('Students page - Starting name check:', {
-        isClient,
-        user: !!user,
-        role,
-        isAuthLoading,
-        isRoleLoading
+
+  // Check approval status
+  const checkApprovalStatus = async () => {
+    try {
+      const response = await fetch('/api/user-profile', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      if (!isClient || !user || !role || role !== 'student' || isAuthLoading || isRoleLoading) {
-        console.log('Students page - Skipping name check due to conditions not met');
-        return;
-      }
-      
-      console.log('Students page - All conditions met, proceeding with API call');
-
-      // Check if user just completed profile creation (skip name modal)
-      const skipProfileCreation = localStorage.getItem('skipProfileCreation');
-      
-      setIsCheckingNames(true);
-      try {
-        console.log('Students page - Making API call to /api/user-profile');
-        const response = await fetch('/api/user-profile', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      if (response.ok) {
+        const profileData = await response.json();
+        const profile = profileData.profile;
         
-        console.log('Students page - API response status:', response.status);
-        
-        if (response.ok) {
-          const profileData = await response.json();
-          const profile = profileData.profile;
-          
-          console.log('Students page - Profile data:', profile);
-          console.log('Students page - Skip flag:', skipProfileCreation);
-          
-          // Check if user has both first and last names
-          const hasName = profile && 
-            profile.first_name && 
-            profile.last_name &&
-            profile.first_name.trim() !== '' &&
-            profile.last_name.trim() !== '';
-          
-          console.log('Students page - Has name:', hasName);
-          
-          // Only skip name modal if user has names
-          if (hasName) {
-            // Clear the flag if it exists
-            if (skipProfileCreation === 'true') {
-              localStorage.removeItem('skipProfileCreation');
-            }
-            console.log('Students page - Skipping name modal (user has names)');
-            // Don't show name modal
-          } else {
-            // User doesn't have names, show modal (regardless of skip flag)
-            console.log('Students page - Showing name modal (user missing names)');
-            setShowNameModal(true);
-          }
+        // Check if user has selected an institute
+        if (!profile?.institute_id) {
+          // No institute selected, redirect to approval page
+          console.log('No institute selected, redirecting to approval page');
+          setShouldRedirect(true);
+          router.push('/approval');
+          return;
         }
-      } catch (error) {
-        console.error('Error checking user names:', error);
-      } finally {
-        setIsCheckingNames(false);
+        
+        // Check verification status
+        const verificationStatus = profile.verification_status || 'pending';
+        if (verificationStatus !== 'approved') {
+          // Not approved, redirect to approval page
+          console.log('User not approved, redirecting to approval page');
+          setShouldRedirect(true);
+          router.push('/approval');
+          return;
+        }
+        
+        // User is approved, can access dashboard
       }
-    };
-
-    checkUserNames();
-  }, [isClient, user, userRole, role, isAuthLoading, isRoleLoading]);
+    } catch (error) {
+      console.error('Error checking approval status:', error);
+    }
+  };
 
   // Handle redirects based on authentication and role
   useEffect(() => {
@@ -125,15 +90,13 @@ export default function StudentsPage() {
         console.log('User is counselor, redirecting to counselor page');
         setShouldRedirect(true);
         router.push('/counselor');
-      } else if (currentRole === 'student') {
-        // User is student - let the global NameModal handle name checking
-        console.log('User is student, showing dashboard');
-      } else {
-        // User has no role yet, default to student
-        console.log('No role found, treating as student');
+      } else if (currentRole === 'student' || !currentRole) {
+        // Check approval status for students
+        checkApprovalStatus();
       }
     }
-  }, [isClient, isAuthLoading, isRoleLoading, user, userRole, role, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, isAuthLoading, isRoleLoading, user, userRole, role]);
 
   // Show nothing during SSR or while loading auth/role to prevent flashing
   if (!isClient || isAuthLoading || isRoleLoading) {
@@ -148,17 +111,7 @@ export default function StudentsPage() {
   // If user is logged in and is a student, show the dashboard
   const currentRole = userRole || role;
   if (user && (currentRole === 'student' || !currentRole)) {
-    return (
-      <>
-        <HomeClientComponent user={user} />
-        {/* Name Modal */}
-        <NameModal
-          isOpen={showNameModal}
-          onClose={() => setShowNameModal(false)}
-          redirectTo="/students"
-        />
-      </>
-    );
+    return <HomeClientComponent user={user} />;
   }
   
   // If user is logged in but not a student, show loading while redirecting

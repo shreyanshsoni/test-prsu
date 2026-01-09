@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 import StageDistributionChart from './StageDistributionChart';
 import CustomRadarChart from './RadarChart';
@@ -9,7 +11,47 @@ import { useTheme } from '../../../contexts/ThemeContext';
 const DashboardOverview: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const router = useRouter();
   const { stats, summary, isLoading, error } = useDashboardStats();
+  const [pendingCount, setPendingCount] = useState<number>(0);
+  const [isLoadingPending, setIsLoadingPending] = useState(true);
+
+  // Fetch pending approvals count
+  const fetchPendingCount = async () => {
+    try {
+      setIsLoadingPending(true);
+      const response = await fetch('/api/counselor/pending-students', {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPendingCount(data.students?.length || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching pending count:', error);
+    } finally {
+      setIsLoadingPending(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingCount();
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000);
+    
+    // Listen for custom event when approvals are updated
+    const handleApprovalsUpdate = () => {
+      fetchPendingCount();
+    };
+    window.addEventListener('pendingApprovalsUpdated', handleApprovalsUpdate);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('pendingApprovalsUpdated', handleApprovalsUpdate);
+    };
+  }, []);
 
   // Loading state - Full page skeleton
   if (isLoading) {
@@ -158,6 +200,34 @@ const DashboardOverview: React.FC = () => {
           Monitor student progress and engagement across your cohort
         </p>
       </div>
+
+      {/* Pending Approvals Card - Top Priority */}
+      {pendingCount > 0 && (
+        <div className={`mb-8 ${isDark ? 'bg-amber-900/20 border-amber-700' : 'bg-amber-50 border-amber-200'} rounded-xl shadow-sm border-2 p-6`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className={`p-3 ${isDark ? 'bg-amber-900/40' : 'bg-amber-100'} rounded-full`}>
+                <AlertCircle className={`w-6 h-6 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
+              </div>
+              <div>
+                <h3 className={`text-lg font-semibold ${isDark ? 'text-amber-300' : 'text-amber-900'} mb-1`}>
+                  Pending Student Approvals
+                </h3>
+                <p className={`text-sm ${isDark ? 'text-amber-200' : 'text-amber-700'}`}>
+                  {pendingCount} {pendingCount === 1 ? 'student' : 'students'} waiting for approval
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push('/counselor?tab=approvals')}
+              className={`px-6 py-2 ${isDark ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-600 hover:bg-amber-700'} text-white font-medium rounded-lg transition-colors flex items-center space-x-2`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Review Requests</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Average Progress Circle */}

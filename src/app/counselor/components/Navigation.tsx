@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BarChart3, Users, Target, LogOut, Settings } from 'lucide-react';
+import { BarChart3, Users, Target, LogOut, Settings, User } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../../components/ui/ThemeToggle';
 
@@ -24,6 +24,7 @@ const Navigation: React.FC<NavigationProps> = ({
   const [counselorName, setCounselorName] = useState<string>('');
   const [counselorInitials, setCounselorInitials] = useState<string>('');
   const [avatarGradient, setAvatarGradient] = useState<string>('');
+  const [pendingCount, setPendingCount] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Generate avatar gradient based on name
@@ -67,6 +68,62 @@ const Navigation: React.FC<NavigationProps> = ({
     
     fetchCounselorName();
   }, []);
+
+  // Fetch pending approvals count
+  const fetchPendingCount = async () => {
+    try {
+      const response = await fetch('/api/counselor/pending-students', {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPendingCount(data.students?.length || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching pending count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingCount();
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000);
+    
+    // Listen for custom event when approvals are updated
+    const handleApprovalsUpdate = () => {
+      fetchPendingCount();
+    };
+    window.addEventListener('pendingApprovalsUpdated', handleApprovalsUpdate);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('pendingApprovalsUpdated', handleApprovalsUpdate);
+    };
+  }, []);
+
+  // Refresh count when switching to approvals tab
+  useEffect(() => {
+    if (currentTab === 'approvals') {
+      const fetchPendingCount = async () => {
+        try {
+          const response = await fetch('/api/counselor/pending-students', {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setPendingCount(data.students?.length || 0);
+          }
+        } catch (error) {
+          console.error('Error fetching pending count:', error);
+        }
+      };
+      fetchPendingCount();
+    }
+  }, [currentTab]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -127,6 +184,22 @@ const Navigation: React.FC<NavigationProps> = ({
             >
               <Target className="w-4 h-4" />
               <span>Goals</span>
+            </button>
+            <button
+              onClick={() => onTabChange('counselor')}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors relative ${
+                currentTab === 'counselor'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : `${isDark ? 'text-dark-text hover:text-dark-text hover:bg-dark-border' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>Approvals</span>
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1">
+                  {pendingCount > 99 ? '99+' : pendingCount}
+                </span>
+              )}
             </button>
           </div>
         </div>

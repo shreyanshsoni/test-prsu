@@ -76,16 +76,12 @@ export default function Home() {
         console.log('User is counselor, redirecting to counselor page');
         setShouldRedirect(true);
         router.push('/counselor');
-      } else if (currentRole === 'student') {
-        // User is student, redirect to students dashboard
-        console.log('User is student, redirecting to students dashboard');
+      } else if (currentRole === 'student' || !currentRole) {
+        // User is student or has no role, check approval status
+        console.log('User is student, checking approval status');
+        // Redirect to auth-check to decide destination before hitting /approval
         setShouldRedirect(true);
-        router.push('/students');
-      } else {
-        // User has no role yet, default to student
-        console.log('No role found, treating as student');
-        setShouldRedirect(true);
-        router.push('/students');
+        router.push('/auth-check');
       }
     }
   }, [isClient, isAuthLoading, user, userRole, role, router]);
