@@ -1,20 +1,5 @@
 import { NextConfig } from 'next';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-
-// Determine the correct base URL based on environment (local vs production)
-// NOTE: Runtime Auth0 logic derives origin from the request; this helper is only
-// for exposing a best-effort public base URL to the client when needed.
-const getBaseUrl = () => {
-  if (isDevelopment) {
-    return 'http://localhost:3000';
-  }
-
-  // In production, prefer an explicit NEXT_PUBLIC_BASE_URL if set;
-  // otherwise leave empty so the client can derive origin at runtime.
-  return process.env.NEXT_PUBLIC_BASE_URL || '';
-};
-
 const config: NextConfig = {
   // Remove static export - Auth0 requires API routes
   // output: 'export',
@@ -32,6 +17,12 @@ const config: NextConfig = {
   },
   // Remove standalone output for Amplify hosting
   // output: 'standalone',
+  
+  // Allow local test domains for multi-domain development testing
+  allowedDevOrigins: [
+    'local.goprsu.com',
+    'local.prsu.ai',
+  ],
   
   // Security Headers
   async headers() {
@@ -72,17 +63,15 @@ const config: NextConfig = {
     ]
   },
   
-  // Add environment variables - ONLY non-sensitive ones that are needed client-side
+  // Environment variables - ONLY non-sensitive Auth0 config needed client-side
+  // NOTE: Base URLs are derived at runtime from window.location.origin (client)
+  // or request headers (server). Do NOT add domain URLs here - it breaks multi-domain support.
   env: {
-    // Public URLs and non-sensitive configuration
-    NEXT_PUBLIC_BASE_URL: getBaseUrl(),
-    // Non-sensitive Auth0 configuration (needed for client-side Auth0 SDK)
     NEXT_PUBLIC_AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID || '',
     NEXT_PUBLIC_AUTH0_ISSUER_BASE_URL: process.env.AUTH0_ISSUER_BASE_URL || '',
     NEXT_PUBLIC_AUTH0_SCOPE: process.env.AUTH0_SCOPE || 'openid profile email',
     NEXT_PUBLIC_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || '',
     NEXT_PUBLIC_AUTH0_ORGANIZATION: process.env.AUTH0_ORGANIZATION || '',
-    // Public app URLs - will be determined dynamically from request on the client
   },
 };
 

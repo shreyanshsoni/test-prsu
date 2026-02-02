@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../lib/auth0';
 import { executeQuery } from '../../../lib/db';
 
 // POST endpoint to save counselor assessment data
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -109,7 +110,8 @@ export async function POST(request: NextRequest) {
 // GET endpoint to retrieve assessment history for a student
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

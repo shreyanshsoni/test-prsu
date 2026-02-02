@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../../../lib/auth0';
 import { sql } from '@vercel/postgres';
 
 /**
@@ -12,7 +12,8 @@ export async function PUT(
 ) {
   try {
     const { id: roadmapId } = params;
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {

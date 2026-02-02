@@ -7,28 +7,26 @@ frontend:
         - npm install --cache .npm --prefer-offline --legacy-peer-deps
         # Write a runtime .env from Amplify-provided environment variables.
         # This avoids shipping secrets in git while keeping dotenv-based code working.
+        # NOTE: Domain URLs (AUTH0_BASE_URL, NEXT_PUBLIC_BASE_URL) are intentionally
+        # omitted - they are derived at runtime from request headers to support
+        # multi-domain authentication (plan.goprsu.com and plan.prsu.ai).
         - |
           cat <<EOF > .env
           AUTH0_SECRET=${AUTH0_SECRET}
           AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
           AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
           AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}
-          AUTH0_BASE_URL=${AUTH0_BASE_URL}
-          AUTH0_LOGOUT_URL=${AUTH0_LOGOUT_URL}
           AUTH0_SCOPE=${AUTH0_SCOPE}
           AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
           AUTH0_ORGANIZATION=${AUTH0_ORGANIZATION}
           DATABASE_URL=${DATABASE_URL}
           POSTGRES_URL=${POSTGRES_URL}
           OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-          NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
           NEXT_PUBLIC_AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
           NEXT_PUBLIC_AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}
           NEXT_PUBLIC_AUTH0_SCOPE=${AUTH0_SCOPE}
           NEXT_PUBLIC_AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
           NEXT_PUBLIC_AUTH0_ORGANIZATION=${AUTH0_ORGANIZATION}
-          BASE_PATH=${BASE_PATH}
-          PUBLIC_URL=${PUBLIC_URL}
           NODE_ENV=${NODE_ENV}
           EOF
     build:
@@ -43,4 +41,3 @@ frontend:
       - node_modules/**/*
       - .next/cache/**/*
       - .npm/**/*
-  

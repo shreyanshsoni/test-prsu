@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../lib/auth0';
 import { Orchestrator } from '../../../lib/orchestrator/orchestrator';
 import {
   CollectResponsesStep,
@@ -19,7 +19,8 @@ import {
 export async function POST(req: NextRequest) {
   try {
     // Get user session
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

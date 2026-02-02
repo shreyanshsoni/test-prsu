@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { NextResponse, NextRequest } from 'next/server';
+import { getAuth0 } from '../../../lib/auth0';
 import pool, { getClientWithRetry } from '../../../lib/db';
 
 // Initialize the database by creating the user_programs table if it doesn't exist
@@ -47,11 +47,12 @@ async function initializeDatabase() {
 initializeDatabase().catch(console.error);
 
 // GET user's saved programs
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   // Get user session from Auth0
   let client;
   try {
-    const session = await getSession(request);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {
@@ -137,11 +138,12 @@ export async function GET(request: Request) {
 }
 
 // POST to save a program
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let client;
   try {
     // Get user session from Auth0
-    const session = await getSession(request);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {
@@ -193,11 +195,12 @@ export async function POST(request: Request) {
 }
 
 // DELETE to remove a saved program
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   let client;
   try {
     // Get user session from Auth0
-    const session = await getSession(request);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // If no user is logged in, return 401
     if (!session?.user) {

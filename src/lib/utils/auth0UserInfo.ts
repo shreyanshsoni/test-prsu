@@ -1,5 +1,3 @@
-import { getSession } from '@auth0/nextjs-auth0/edge';
-
 export async function getAuth0UserInfo(userId: string) {
   try {
     // This would require Auth0 Management API access

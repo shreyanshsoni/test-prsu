@@ -10,8 +10,9 @@ export const metadata: Metadata = {
   title: 'Academic Planner',
   description: 'Manage your academic programs, checklists, and roadmaps with ease.',
   keywords: ['Academic Planner', 'Education', 'Programs', 'Checklists', 'Roadmap'],
-  authors: [{ name: 'PRSU', url: 'https://goprsu.com/' }],
-  metadataBase: new URL('https://goprsu.com'),
+  authors: [{ name: 'PRSU' }],
+  // NOTE: metadataBase removed to support multi-domain (plan.goprsu.com & plan.prsu.ai)
+  // Next.js will derive the base URL from the request in production
   alternates: {
     canonical: '/',
   },
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'PRSU',
     description: 'Unlocking the Future of Educational Journeys',
-    url: 'https://goprsu.com/',
+    // url removed - derived from request to support multi-domain
     siteName: 'PRSU',
     images: [
       {

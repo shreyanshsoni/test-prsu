@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../lib/auth0';
 import { executeQuery, getClientWithRetry } from '../../../lib/db';
 
 // Initialize table on first request
@@ -78,7 +78,8 @@ export async function POST(request: NextRequest) {
     await ensureTableExists();
 
     // Get the authenticated user session
-    const session = await getSession(request);
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     let instituteId: number | null = null;
 
     // If user is authenticated, get their institute_id

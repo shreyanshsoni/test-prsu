@@ -1,11 +1,14 @@
-import { getSession } from '@auth0/nextjs-auth0/edge';
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '../../../../lib/db';
+import { getAuth0 } from '../../../../lib/auth0';
 
 export async function GET(req: NextRequest) {
   try {
-    // Get session data from Auth0 (v3.7.0 requires passing the request)
-    const session = await getSession(req);
+    // Get Auth0 instance with dynamic baseURL for multi-domain support
+    const auth0 = getAuth0(req);
+    
+    // Get session data from Auth0
+    const session = await auth0.getSession(req);
     
     // If no session is found, return 401 Unauthorized
     if (!session || !session.user) {
@@ -114,4 +117,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

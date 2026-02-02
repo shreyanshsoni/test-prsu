@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../lib/auth0';
 import { sql } from '@vercel/postgres';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {
@@ -92,7 +93,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     const userId = session?.user.sub;
     
     if (!userId) {

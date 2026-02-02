@@ -568,7 +568,7 @@ export default function HomeClientComponent({
       {/* Dashboard-specific starry background */}
       {theme === 'dark' && <StarryBackground />}
       
-      {/* Add JSON-LD structured data */}
+      {/* Add JSON-LD structured data - URL derived from current domain for multi-domain support */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -577,8 +577,8 @@ export default function HomeClientComponent({
             "@type": "WebPage",
             "name": "Academic Planner",
             "description": "A modern, SEO-friendly Next.js app for managing academic programs, checklists, and roadmaps.",
-            "url": "https://goprsu.com/",
-            "image": "https://yourwebsite.com/og-image.png",
+            "url": typeof window !== 'undefined' ? window.location.origin + '/' : '/',
+            "image": "/og-image.png",
           }),
         }}
       />

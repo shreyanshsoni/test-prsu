@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0/edge';
+import { getAuth0 } from '../../../lib/auth0';
 import { userProfileService } from '../../../lib/services/userProfileService';
 
 // GET endpoint to fetch user profile
 export async function GET(request: NextRequest) {
   try {
-    // Get the authenticated user from Auth0
-    const session = await getSession(request);
+    // Get Auth0 instance with dynamic baseURL for multi-domain support
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -59,8 +60,9 @@ export async function GET(request: NextRequest) {
 // POST endpoint to create or update user profile
 export async function POST(request: NextRequest) {
   try {
-    // Get the authenticated user from Auth0
-    const session = await getSession(request);
+    // Get Auth0 instance with dynamic baseURL for multi-domain support
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -103,8 +105,9 @@ export async function POST(request: NextRequest) {
 // PUT endpoint to replace entire user profile
 export async function PUT(request: NextRequest) {
   try {
-    // Get the authenticated user from Auth0
-    const session = await getSession(request);
+    // Get Auth0 instance with dynamic baseURL for multi-domain support
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -147,8 +150,9 @@ export async function PUT(request: NextRequest) {
 // DELETE endpoint to delete user profile
 export async function DELETE(request: NextRequest) {
   try {
-    // Get the authenticated user from Auth0
-    const session = await getSession(request);
+    // Get Auth0 instance with dynamic baseURL for multi-domain support
+    const auth0 = getAuth0(request);
+    const session = await auth0.getSession(request);
     
     // Check if the user is authenticated
     if (!session || !session.user) {
@@ -172,4 +176,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
