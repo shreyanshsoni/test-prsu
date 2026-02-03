@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '../../../lib/db';
+import { getClientWithRetry } from '../../../lib/db';
 
 export async function GET(request: Request) {
   try {
@@ -9,10 +9,10 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
-    // Connect to the database
+    // Connect to the database (with retry)
     let client;
     try {
-      client = await pool.connect();
+      client = await getClientWithRetry();
     } catch (connectionError) {
       console.error('Database connection error:', connectionError);
       return NextResponse.json(

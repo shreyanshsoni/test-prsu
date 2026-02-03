@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@auth0/nextjs-auth0/edge";
+import { getAuth0 } from '../../../lib/auth0';
 import { sql } from '@vercel/postgres';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
     // Ensure table exists
     await ensureUserGoalsTableExists();
     
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -104,14 +105,14 @@ export async function GET(req: NextRequest) {
     } catch (err) {
       console.error('SQL error retrieving goals:', err);
       return NextResponse.json(
-        { error: "Database error: " + err.message },
+        { error: "Database error: " + (err instanceof Error ? err.message : String(err)) },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Unhandled error retrieving goals:', error);
     return NextResponse.json(
-      { error: "Failed to retrieve goals: " + error.message },
+      { error: "Failed to retrieve goals: " + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
@@ -123,7 +124,8 @@ export async function POST(req: NextRequest) {
     // Ensure table exists
     await ensureUserGoalsTableExists();
     
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -187,14 +189,14 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error('SQL error creating goal:', err);
       return NextResponse.json(
-        { error: "Database error: " + err.message },
+        { error: "Database error: " + (err instanceof Error ? err.message : String(err)) },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Unhandled error creating goal:', error);
     return NextResponse.json(
-      { error: "Failed to create goal: " + error.message },
+      { error: "Failed to create goal: " + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }

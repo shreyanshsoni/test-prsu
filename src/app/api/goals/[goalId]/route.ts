@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@auth0/nextjs-auth0/edge";
+import { getAuth0 } from '../../../../lib/auth0';
 import { sql } from '@vercel/postgres';
 
 // GET handler - retrieve a specific goal
 export async function GET(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -35,14 +36,14 @@ export async function GET(req: NextRequest, { params }: { params: { goalId: stri
     } catch (err) {
       console.error('SQL error retrieving goal:', err);
       return NextResponse.json(
-        { error: "Database error: " + err.message },
+        { error: "Database error: " + (err instanceof Error ? err.message : String(err)) },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Unhandled error retrieving goal:', error);
     return NextResponse.json(
-      { error: "Failed to retrieve goal: " + error.message },
+      { error: "Failed to retrieve goal: " + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
@@ -51,7 +52,8 @@ export async function GET(req: NextRequest, { params }: { params: { goalId: stri
 // PATCH handler - update a specific goal
 export async function PATCH(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -143,14 +145,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { goalId: st
     } catch (err) {
       console.error('SQL error updating goal:', err);
       return NextResponse.json(
-        { error: "Database error: " + err.message },
+        { error: "Database error: " + (err instanceof Error ? err.message : String(err)) },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Unhandled error updating goal:', error);
     return NextResponse.json(
-      { error: "Failed to update goal: " + error.message },
+      { error: "Failed to update goal: " + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
@@ -159,7 +161,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { goalId: st
 // DELETE handler - delete a specific goal
 export async function DELETE(req: NextRequest, { params }: { params: { goalId: string } }) {
   try {
-    const session = await getSession(req);
+    const auth0 = getAuth0(req);
+    const session = await auth0.getSession(req);
     
     // Check if user is authenticated
     if (!session?.user) {
@@ -199,14 +202,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { goalId: s
     } catch (err) {
       console.error('SQL error deleting goal:', err);
       return NextResponse.json(
-        { error: "Database error: " + err.message },
+        { error: "Database error: " + (err instanceof Error ? err.message : String(err)) },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Unhandled error deleting goal:', error);
     return NextResponse.json(
-      { error: "Failed to delete goal: " + error.message },
+      { error: "Failed to delete goal: " + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
